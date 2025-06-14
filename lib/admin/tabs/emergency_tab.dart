@@ -34,6 +34,7 @@ class EmergencyTab extends StatelessWidget {
               final doc = emergencies[index];
               final data = doc.data() as Map<String, dynamic>;
               final userId = data['userId'] ?? 'Unknown';
+              final username = data['username'] ?? userId;
               final timestamp = data['timestamp'] as Timestamp?;
               final timeString = timestamp != null
                   ? _formatTimestamp(timestamp)
@@ -92,7 +93,7 @@ class EmergencyTab extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'User ID: $userId',
+                                  'Username: $username',
                                   style: const TextStyle(
                                     color: Colors.white,
                                     fontWeight: FontWeight.bold,

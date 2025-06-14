@@ -44,11 +44,12 @@ class _EditProfilePageState extends State<EditProfilePage> {
       'phone': _phoneController.text.trim(),
       'address': _addressController.text.trim(),
       'email': user.email,
+      'userId': user.uid,
     }, SetOptions(merge: true));
     setState(() => _isLoading = false);
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Profile updated successfully!')),
+        SnackBar(content: Text('Profile updated! Your User ID: ${user.uid}')),
       );
     }
   }

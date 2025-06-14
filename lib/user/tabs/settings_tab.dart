@@ -53,6 +53,17 @@ class SettingsTab extends StatelessWidget {
                       fontSize: 22,
                     ),
                   ),
+                  if (user != null) ...[
+                    const SizedBox(height: 6),
+                    Text(
+                      'User ID: ${user.uid}',
+                      style: const TextStyle(
+                        color: Colors.grey,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ),
