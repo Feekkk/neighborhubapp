@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class SettingsTab extends StatelessWidget {
   const SettingsTab({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final user = FirebaseAuth.instance.currentUser;
     return SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -12,6 +14,53 @@ class SettingsTab extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 16),
+            // Profile section
+            Center(
+              child: Column(
+                children: [
+                  Stack(
+                    children: [
+                      const CircleAvatar(
+                        radius: 48,
+                        backgroundImage: NetworkImage('https://i.imgur.com/BoN9kdC.png'), // Placeholder image
+                        backgroundColor: Colors.black,
+                      ),
+                      Positioned(
+                        bottom: 8,
+                        right: 8,
+                        child: Container(
+                          width: 22,
+                          height: 22,
+                          decoration: BoxDecoration(
+                            color: Colors.green,
+                            shape: BoxShape.circle,
+                            border: Border.all(color: Colors.black, width: 3),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    '@${user?.email?.split('@').first ?? "username"}',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 22,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    user?.email ?? '',
+                    style: const TextStyle(
+                      color: Colors.grey,
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 32),
             const Text(
               'Settings and privacy',
               style: TextStyle(
@@ -43,15 +92,15 @@ class SettingsTab extends StatelessWidget {
                     title: 'Account',
                   ),
                   _SettingsTile(
-                    icon: Icons.lock,
-                    title: 'Privacy',
+                    icon: Icons.info_outline,
+                    title: 'About Us',
                   ),
                   _SettingsTile(
-                    icon: Icons.shield,
-                    title: 'Security & permissions',
+                    icon: Icons.lock_outline,
+                    title: 'Forget Password',
                   ),
                   _SettingsTile(
-                    icon: Icons.account_circle,
+                    icon: Icons.logout,
                     title: 'Logout',
                     isLast: true,
                   ),
