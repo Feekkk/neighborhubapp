@@ -68,62 +68,69 @@ class _DashboardUserState extends State<DashboardUser> with SingleTickerProvider
             ),
           ],
         ),
-        child: TabBar(
-          controller: _tabController,
-          indicatorColor: const Color(0xFF6C63FF),
-          indicatorWeight: 2,
-          labelColor: const Color(0xFF6C63FF),
-          unselectedLabelColor: Colors.grey,
-          labelStyle: const TextStyle(
-            fontSize: 10,
-            fontWeight: FontWeight.bold,
+        child: Theme(
+          data: Theme.of(context).copyWith(
+            splashColor: Colors.transparent,
+            highlightColor: Colors.transparent,
           ),
-          unselectedLabelStyle: const TextStyle(
-            fontSize: 10,
-            fontWeight: FontWeight.normal,
+          child: TabBar(
+            controller: _tabController,
+            indicatorColor: const Color(0xFF6C63FF),
+            indicatorWeight: 2,
+            labelColor: const Color(0xFF6C63FF),
+            unselectedLabelColor: Colors.grey,
+            labelStyle: const TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.bold,
+            ),
+            unselectedLabelStyle: const TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.normal,
+            ),
+            dividerColor: Colors.transparent,
+            tabs: [
+              Tab(
+                icon: Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Icon(Icons.home_rounded, size: 22),
+                ),
+                text: 'Home',
+              ),
+              Tab(
+                icon: Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Icon(Icons.warning_rounded, size: 22),
+                ),
+                text: 'Emergency',
+              ),
+              Tab(
+                icon: Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Icon(Icons.calendar_today_rounded, size: 22),
+                ),
+                text: 'Timetable',
+              ),
+              Tab(
+                icon: Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Icon(Icons.settings_rounded, size: 22),
+                ),
+                text: 'Settings',
+              ),
+            ],
           ),
-          tabs: [
-            Tab(
-              icon: Container(
-                padding: const EdgeInsets.all(4),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const Icon(Icons.home_rounded, size: 22),
-              ),
-              text: 'Home',
-            ),
-            Tab(
-              icon: Container(
-                padding: const EdgeInsets.all(4),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const Icon(Icons.warning_rounded, size: 22),
-              ),
-              text: 'Emergency',
-            ),
-            Tab(
-              icon: Container(
-                padding: const EdgeInsets.all(4),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const Icon(Icons.calendar_today_rounded, size: 22),
-              ),
-              text: 'Timetable',
-            ),
-            Tab(
-              icon: Container(
-                padding: const EdgeInsets.all(4),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const Icon(Icons.settings_rounded, size: 22),
-              ),
-              text: 'Settings',
-            ),
-          ],
         ),
       ),
     );
