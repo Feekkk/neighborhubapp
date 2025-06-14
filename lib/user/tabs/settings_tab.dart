@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:neighborhub/user/pages/edit_profile.dart';
 
 class SettingsTab extends StatelessWidget {
   const SettingsTab({super.key});
@@ -60,18 +61,9 @@ class SettingsTab extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(height: 32),
-            const Text(
-              'Settings and privacy',
-              style: TextStyle(
-                fontSize: 28,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-            ),
             const SizedBox(height: 24),
             const Text(
-              'Account',
+              'Settings',
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
@@ -90,6 +82,12 @@ class SettingsTab extends StatelessWidget {
                   _SettingsTile(
                     icon: Icons.person,
                     title: 'Account',
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const EditProfilePage()),
+                      );
+                    },
                   ),
                   _SettingsTile(
                     icon: Icons.info_outline,
@@ -118,11 +116,13 @@ class _SettingsTile extends StatelessWidget {
   final IconData icon;
   final String title;
   final bool isLast;
+  final VoidCallback? onTap;
 
   const _SettingsTile({
     required this.icon,
     required this.title,
     this.isLast = false,
+    this.onTap,
   });
 
   @override
@@ -140,7 +140,7 @@ class _SettingsTile extends StatelessWidget {
             ),
           ),
           trailing: const Icon(Icons.chevron_right, color: Colors.white),
-          onTap: () {}, // No function
+          onTap: onTap,
         ),
         if (!isLast)
           const Divider(
