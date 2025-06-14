@@ -4,6 +4,8 @@ import 'package:neighborhub/firebase_options.dart';
 import 'package:neighborhub/pages/login_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:neighborhub/user/dashboarduser.dart';
+import 'package:neighborhub/admin/dashboardadmin.dart';
+import 'package:neighborhub/services/admin_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -26,7 +28,6 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.dark(
           primary: const Color(0xFF6C63FF),
           secondary: const Color(0xFF6C63FF),
-          background: const Color(0xFF1A1A1A),
           surface: const Color(0xFF2D2D2D),
         ),
         scaffoldBackgroundColor: const Color(0xFF1A1A1A),
@@ -55,7 +56,27 @@ class MyApp extends StatelessWidget {
           }
           
           if (snapshot.hasData) {
-            return const DashboardUser();
+            return FutureBuilder<bool>(
+              future: AdminService().isAdmin(),
+              builder: (context, adminSnapshot) {
+                if (adminSnapshot.connectionState == ConnectionState.waiting) {
+                  return const Scaffold(
+                    backgroundColor: Color(0xFF1A1A1A),
+                    body: Center(
+                      child: CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF6C63FF)),
+                      ),
+                    ),
+                  );
+                }
+                
+                if (adminSnapshot.data == true) {
+                  return const DashboardAdmin();
+                }
+                
+                return const DashboardUser();
+              },
+            );
           }
           
           return const LoginPage();

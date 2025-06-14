@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class EmergencyTab extends StatelessWidget {
-  const EmergencyTab({Key? key}) : super(key: key);
+  const EmergencyTab({super.key});
 
   @override
   Widget build(BuildContext context) {

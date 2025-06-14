@@ -6,7 +6,7 @@ import 'package:neighborhub/user/tabs/timetable_tab.dart';
 import 'package:neighborhub/user/tabs/settings_tab.dart';
 
 class DashboardUser extends StatefulWidget {
-  const DashboardUser({Key? key}) : super(key: key);
+  const DashboardUser({super.key});
 
   @override
   State<DashboardUser> createState() => _DashboardUserState();
