@@ -137,6 +137,14 @@ class _EmergencyTabState extends State<EmergencyTab> {
     }
   }
 
+  void _zoomIn() {
+    mapController?.animateCamera(CameraUpdate.zoomIn());
+  }
+
+  void _zoomOut() {
+    mapController?.animateCamera(CameraUpdate.zoomOut());
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -169,7 +177,7 @@ class _EmergencyTabState extends State<EmergencyTab> {
             ),
             myLocationEnabled: true,
             myLocationButtonEnabled: false,
-            zoomControlsEnabled: true,
+            zoomControlsEnabled: false,
             mapType: MapType.normal,
           ),
           if (isLoading)
@@ -238,6 +246,42 @@ class _EmergencyTabState extends State<EmergencyTab> {
                   ),
                 ),
               ),
+            ),
+          ),
+          Positioned(
+            top: 50,
+            left: 16,
+            child: Column(
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(8),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.1),
+                        blurRadius: 4,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    children: [
+                      IconButton(
+                        onPressed: _zoomIn,
+                        icon: const Icon(Icons.add),
+                        color: Colors.black87,
+                      ),
+                      const Divider(height: 1),
+                      IconButton(
+                        onPressed: _zoomOut,
+                        icon: const Icon(Icons.remove),
+                        color: Colors.black87,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ),
         ],
