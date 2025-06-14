@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class EmergencyTab extends StatefulWidget {
   const EmergencyTab({super.key});
@@ -13,6 +15,7 @@ class _EmergencyTabState extends State<EmergencyTab> {
   GoogleMapController? mapController;
   Position? currentPosition;
   bool isLoading = true;
+  bool isSaving = false;
 
   @override
   void initState() {
@@ -73,6 +76,51 @@ class _EmergencyTabState extends State<EmergencyTab> {
     }
   }
 
+  Future<void> _saveLocation() async {
+    if (currentPosition == null) return;
+
+    setState(() {
+      isSaving = true;
+    });
+
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) return;
+
+      await FirebaseFirestore.instance.collection('locations').add({
+        'userId': user.uid,
+        'latitude': currentPosition!.latitude,
+        'longitude': currentPosition!.longitude,
+        'timestamp': FieldValue.serverTimestamp(),
+      });
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Location saved successfully!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      debugPrint('Error saving location: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Failed to save location. Please try again.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          isSaving = false;
+        });
+      }
+    }
+  }
+
   void _goToCurrentLocation() {
     if (currentPosition != null && mapController != null && mounted) {
       mapController!.animateCamera(
@@ -120,7 +168,7 @@ class _EmergencyTabState extends State<EmergencyTab> {
               zoom: 15,
             ),
             myLocationEnabled: true,
-            myLocationButtonEnabled: false, // Disable default button
+            myLocationButtonEnabled: false,
             zoomControlsEnabled: true,
             mapType: MapType.normal,
           ),
@@ -137,6 +185,58 @@ class _EmergencyTabState extends State<EmergencyTab> {
               child: const Icon(
                 Icons.my_location,
                 color: Colors.blue,
+              ),
+            ),
+          ),
+          Positioned(
+            bottom: 32,
+            left: 0,
+            right: 0,
+            child: Center(
+              child: Container(
+                width: MediaQuery.of(context).size.width * 0.8,
+                height: 56,
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFFB06AB3), Color(0xFF4568DC)],
+                    begin: Alignment.centerLeft,
+                    end: Alignment.centerRight,
+                  ),
+                  borderRadius: BorderRadius.circular(28),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.2),
+                      blurRadius: 8,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: isSaving ? null : _saveLocation,
+                    borderRadius: BorderRadius.circular(28),
+                    child: Center(
+                      child: isSaving
+                          ? const SizedBox(
+                              width: 24,
+                              height: 24,
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                                strokeWidth: 2,
+                              ),
+                            )
+                          : const Text(
+                              'Save Current Location',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                    ),
+                  ),
+                ),
               ),
             ),
           ),
