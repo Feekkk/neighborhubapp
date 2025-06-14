@@ -34,9 +34,30 @@ class _DashboardUserState extends State<DashboardUser> with SingleTickerProvider
       backgroundColor: const Color(0xFF1A1A1A),
       appBar: AppBar(
         backgroundColor: const Color(0xFF2D2D2D),
-        title: const Text(
-          'Dashboard',
-          style: TextStyle(color: Colors.white),
+        title: ShaderMask(
+          shaderCallback: (Rect bounds) {
+            return const LinearGradient(
+              colors: [Color(0xFF6C63FF), Color(0xFFB06AB3)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ).createShader(bounds);
+          },
+          child: const Text(
+            'NeighborHub',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 26,
+              fontWeight: FontWeight.w900,
+              letterSpacing: 2,
+              shadows: [
+                Shadow(
+                  color: Colors.black26,
+                  blurRadius: 4,
+                  offset: Offset(0, 2),
+                ),
+              ],
+            ),
+          ),
         ),
         actions: [
           IconButton(
