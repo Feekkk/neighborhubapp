@@ -206,15 +206,15 @@ class _EmergencyTabState extends State<EmergencyTab> {
                 height: 56,
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(
-                    colors: [Color(0xFFB06AB3), Color(0xFF4568DC)],
+                    colors: [Color(0xFFFF1744), Color(0xFFD50000)],
                     begin: Alignment.centerLeft,
                     end: Alignment.centerRight,
                   ),
                   borderRadius: BorderRadius.circular(28),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.2),
-                      blurRadius: 8,
+                      color: const Color(0xFFFF1744).withOpacity(0.3),
+                      blurRadius: 12,
                       offset: const Offset(0, 4),
                     ),
                   ],
@@ -235,7 +235,7 @@ class _EmergencyTabState extends State<EmergencyTab> {
                               ),
                             )
                           : const Text(
-                              'Save Current Location',
+                              'Report Emergency',
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 18,
