@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:neighborhub/firebase_options.dart';
 import 'package:neighborhub/pages/login_page.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -14,7 +15,6 @@ void main() async {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -39,7 +39,35 @@ class MyApp extends StatelessWidget {
           labelStyle: const TextStyle(color: Colors.grey),
         ),
       ),
-      home: const LoginPage(),
+      home: StreamBuilder<User?>(
+        stream: FirebaseAuth.instance.authStateChanges(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(
+              child: CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF6C63FF)),
+              ),
+            );
+          }
+          
+          if (snapshot.hasData) {
+            // TODO: Replace with your home page
+            return const Scaffold(
+              body: Center(
+                child: Text(
+                  'Welcome to NeighborHub!',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 24,
+                  ),
+                ),
+              ),
+            );
+          }
+          
+          return const LoginPage();
+        },
+      ),
     );
   }
 }
