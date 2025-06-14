@@ -20,12 +20,18 @@ class _HomeTabState extends State<HomeTab> {
   void initState() {
     super.initState();
     _now = DateTime.now();
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      setState(() {
-        _now = DateTime.now();
-      });
-    });
+    _startTimer();
     _loadUsername();
+  }
+
+  void _startTimer() {
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (mounted) {
+        setState(() {
+          _now = DateTime.now();
+        });
+      }
+    });
   }
 
   @override
@@ -35,16 +41,25 @@ class _HomeTabState extends State<HomeTab> {
   }
 
   Future<void> _loadUsername() async {
+    if (!mounted) return;
+    
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return;
-    final doc =
-        await FirebaseFirestore.instance
-            .collection('users')
-            .doc(user.uid)
-            .get();
-    setState(() {
-      username = doc.data()?['username'] ?? 'user';
-    });
+    
+    try {
+      final doc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .get();
+      
+      if (mounted) {
+        setState(() {
+          username = doc.data()?['username'] ?? 'user';
+        });
+      }
+    } catch (e) {
+      debugPrint('Error loading username: $e');
+    }
   }
 
   @override
