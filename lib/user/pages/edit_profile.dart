@@ -122,6 +122,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                             'Save',
                             style: TextStyle(
                               fontSize: 16,
+                              color: Colors.white,
                               fontWeight: FontWeight.bold,
                             ),
                           ),

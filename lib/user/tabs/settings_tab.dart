@@ -42,20 +42,13 @@ class SettingsTab extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 12),
-                  Text(
-                    '@${user?.email?.split('@').first ?? "username"}',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 22,
-                    ),
-                  ),
                   const SizedBox(height: 4),
                   Text(
                     user?.email ?? '',
                     style: const TextStyle(
-                      color: Colors.grey,
-                      fontSize: 14,
+                      color: Color.fromARGB(255, 255, 255, 255),
+                      fontWeight: FontWeight.bold,
+                      fontSize: 22,
                     ),
                   ),
                 ],
