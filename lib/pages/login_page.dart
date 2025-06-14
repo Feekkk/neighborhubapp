@@ -25,19 +25,26 @@ class _LoginPageState extends State<LoginPage> {
 
   Future<void> _handleLogin() async {
     if (_formKey.currentState!.validate()) {
+      if (!mounted) return;
       setState(() => _isLoading = true);
+      
       try {
         await _loginService.signInWithEmailAndPassword(
           _emailController.text.trim(),
           _passwordController.text,
         );
-        // Navigate to home page or handle successful login
+        
+        if (!mounted) return;
+        // No need to navigate manually as StreamBuilder in main.dart will handle it
       } catch (e) {
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(e.toString())),
         );
       } finally {
-        setState(() => _isLoading = false);
+        if (mounted) {
+          setState(() => _isLoading = false);
+        }
       }
     }
   }

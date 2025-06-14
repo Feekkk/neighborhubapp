@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:neighborhub/services/register.dart';
+import 'package:neighborhub/user/dashboarduser.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({Key? key}) : super(key: key);
@@ -34,7 +35,12 @@ class _RegisterPageState extends State<RegisterPage> {
           _emailController.text.trim(),
           _passwordController.text,
         );
-        // Navigate to home page or handle successful registration
+        if (mounted) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const DashboardUser()),
+          );
+        }
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(e.toString())),

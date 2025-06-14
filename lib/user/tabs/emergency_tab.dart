@@ -1,0 +1,19 @@
+import 'package:flutter/material.dart';
+
+class EmergencyTab extends StatelessWidget {
+  const EmergencyTab({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return const Center(
+      child: Text(
+        'Emergency Report',
+        style: TextStyle(
+          fontSize: 24,
+          fontWeight: FontWeight.bold,
+          color: Colors.white,
+        ),
+      ),
+    );
+  }
+} 
