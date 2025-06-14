@@ -46,7 +46,10 @@ class EmergencyTab extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const EmergencyResolvePage(),
+                        builder: (context) => EmergencyResolvePage(
+                          latitude: data['latitude'],
+                          longitude: data['longitude'],
+                        ),
                       ),
                     );
                   },

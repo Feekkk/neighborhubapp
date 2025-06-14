@@ -1,8 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class EmergencyResolvePage extends StatelessWidget {
-  const EmergencyResolvePage({super.key});
+  final double latitude;
+  final double longitude;
+
+  const EmergencyResolvePage({
+    super.key,
+    required this.latitude,
+    required this.longitude,
+  });
 
   Future<void> _resolveEmergency(BuildContext context, DocumentSnapshot doc) async {
     final data = doc.data() as Map<String, dynamic>;
@@ -28,6 +36,15 @@ class EmergencyResolvePage extends StatelessWidget {
           ),
         );
       }
+    }
+  }
+
+  void _openGoogleMaps() async {
+    final url = 'https://www.google.com/maps/dir/?api=1&destination=$latitude,$longitude';
+    if (await canLaunchUrl(Uri.parse(url))) {
+      await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+    } else {
+      // Handle error
     }
   }
 
@@ -142,6 +159,25 @@ class EmergencyResolvePage extends StatelessWidget {
                             style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
                           ),
                           onPressed: () => _resolveEmergency(context, doc),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton.icon(
+                          onPressed: _openGoogleMaps,
+                          icon: const Icon(Icons.directions, color: Colors.white),
+                          label: const Text(
+                            'Show Direction',
+                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.blue[700],
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
                         ),
                       ),
                     ],
