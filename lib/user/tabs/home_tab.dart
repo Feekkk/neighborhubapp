@@ -50,56 +50,171 @@ class _HomeTabState extends State<HomeTab> {
   @override
   Widget build(BuildContext context) {
     final timeString = DateFormat('HH:mm:ss').format(_now);
-    return Align(
-      alignment: Alignment.topCenter,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(20, 32, 20, 0),
-        child: Container(
-          width: double.infinity,
-          decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              colors: [Color(0xFFB06AB3), Color(0xFF4568DC)],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-            borderRadius: BorderRadius.circular(28),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.08),
-                blurRadius: 16,
-                offset: const Offset(0, 8),
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          // Welcome Card
+          Align(
+            alignment: Alignment.topCenter,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(20, 32, 20, 0),
+              child: Container(
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFFB06AB3), Color(0xFF4568DC)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(28),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.08),
+                      blurRadius: 16,
+                      offset: const Offset(0, 8),
+                    ),
+                  ],
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(24.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'Welcome, ${username ?? 'user'}',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 18),
+                      Text(
+                        timeString,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 48,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 2,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
-            ],
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  'Welcome, ${username ?? 'user'}',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 18),
-                Text(
-                  timeString,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 48,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 2,
-                  ),
-                ),
-              ],
             ),
           ),
-        ),
+          // Quick Actions Card
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 24, 20, 0),
+            child: Container(
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(28),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.06),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          DateFormat('d MMMM yyyy').format(_now),
+                          style: const TextStyle(
+                            color: Color(0xFF4568DC),
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                        Text(
+                          '|',
+                          style: TextStyle(
+                            color: Colors.grey[400],
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                          ),
+                        ),
+                        Text(
+                          'NeighborHub',
+                          style: const TextStyle(
+                            color: Color(0xFFB06AB3),
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 18),
+                    // Quick Actions Grid
+                    GridView.count(
+                      crossAxisCount: 4,
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      mainAxisSpacing: 16,
+                      crossAxisSpacing: 8,
+                      children: const [
+                        _QuickAction(icon: Icons.report_problem, label: 'Report Issue', color: Color(0xFF6C63FF)),
+                        _QuickAction(icon: Icons.newspaper, label: 'News', color: Color(0xFFB06AB3)),
+                        _QuickAction(icon: Icons.event, label: 'Events', color: Color(0xFF4568DC)),
+                        _QuickAction(icon: Icons.home_repair_service, label: 'Services', color: Color(0xFFFFD600)),
+                        _QuickAction(icon: Icons.people, label: 'Community', color: Color(0xFF00BFAE)),
+                        _QuickAction(icon: Icons.chat, label: 'Chat', color: Color(0xFF00B0FF)),
+                        _QuickAction(icon: Icons.book, label: 'Guides', color: Color(0xFF8D6E63)),
+                        _QuickAction(icon: Icons.more_horiz, label: 'More', color: Color(0xFFBDBDBD)),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
+    );
+  }
+}
+
+class _QuickAction extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final Color color;
+
+  const _QuickAction({required this.icon, required this.label, required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          decoration: BoxDecoration(
+            color: color.withOpacity(0.12),
+            shape: BoxShape.circle,
+          ),
+          padding: const EdgeInsets.all(12),
+          child: Icon(icon, color: color, size: 28),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          label,
+          style: const TextStyle(
+            color: Color(0xFF232323),
+            fontWeight: FontWeight.w600,
+            fontSize: 13,
+          ),
+          textAlign: TextAlign.center,
+        ),
+      ],
     );
   }
 }
