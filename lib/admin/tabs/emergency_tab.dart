@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../pages/emergency_resolve.dart';
 
 class EmergencyTab extends StatelessWidget {
   const EmergencyTab({super.key});
@@ -140,25 +141,5 @@ class EmergencyTab extends StatelessWidget {
     } else {
       return '${difference.inDays} days ago';
     }
-  }
-}
-
-class EmergencyResolvePage extends StatelessWidget {
-  const EmergencyResolvePage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Emergency Resolve'),
-        backgroundColor: Colors.red[800],
-      ),
-      body: const Center(
-        child: Text(
-          'Emergency Resolve Page',
-          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-        ),
-      ),
-    );
   }
 } 
