@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:neighborhub/user/pages/edit_profile.dart';
+import 'package:neighborhub/user/pages/aboutus.dart';
 
 class SettingsTab extends StatelessWidget {
   const SettingsTab({super.key});
@@ -85,6 +86,12 @@ class SettingsTab extends StatelessWidget {
                   _SettingsTile(
                     icon: Icons.info_outline,
                     title: 'About Us',
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const AboutUsPage()),
+                      );
+                    },
                   ),
                   _SettingsTile(
                     icon: Icons.lock_outline,
