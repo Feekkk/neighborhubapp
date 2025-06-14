@@ -214,8 +214,9 @@ class _RegisterPageState extends State<RegisterPage> {
                               ),
                             )
                           : const Text(
-                              'Register',
+                              'Create Account',
                               style: TextStyle(
+                                color: Colors.white,
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -237,7 +238,7 @@ class _RegisterPageState extends State<RegisterPage> {
                           child: const Text(
                             'Login',
                             style: TextStyle(
-                              color: Color(0xFF6C63FF),
+                              color: Color.fromARGB(255, 255, 255, 255),
                               fontWeight: FontWeight.bold,
                             ),
                           ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:neighborhub/user/pages/edit_profile.dart';
 import 'package:neighborhub/user/pages/aboutus.dart';
+import 'package:neighborhub/user/pages/forgetpassword.dart';
 
 class SettingsTab extends StatelessWidget {
   const SettingsTab({super.key});
@@ -84,6 +85,16 @@ class SettingsTab extends StatelessWidget {
                     },
                   ),
                   _SettingsTile(
+                    icon: Icons.lock_outline,
+                    title: 'Change Password',
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const ForgetPasswordPage()),
+                      );
+                    },
+                  ),
+                  _SettingsTile(
                     icon: Icons.info_outline,
                     title: 'About Us',
                     onTap: () {
@@ -92,10 +103,6 @@ class SettingsTab extends StatelessWidget {
                         MaterialPageRoute(builder: (context) => const AboutUsPage()),
                       );
                     },
-                  ),
-                  _SettingsTile(
-                    icon: Icons.lock_outline,
-                    title: 'Forget Password',
                   ),
                   _SettingsTile(
                     icon: Icons.logout,
