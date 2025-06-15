@@ -18,15 +18,40 @@ class SettingsTab extends StatelessWidget {
           children: [
             const SizedBox(height: 16),
             // Profile section
-            Center(
+            Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: const Color(0xFF2A2A2A),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: const Color(0xFF6C63FF).withOpacity(0.3)),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFF6C63FF).withOpacity(0.1),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
               child: Column(
                 children: [
                   Stack(
                     children: [
-                      const CircleAvatar(
-                        radius: 48,
-                        backgroundImage: NetworkImage('https://i.imgur.com/BoN9kdC.png'), // Placeholder image
-                        backgroundColor: Colors.black,
+                      Container(
+                        padding: const EdgeInsets.all(3),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          gradient: LinearGradient(
+                            colors: [
+                              const Color(0xFF6C63FF),
+                              const Color(0xFF6C63FF).withOpacity(0.5),
+                            ],
+                          ),
+                        ),
+                        child: const CircleAvatar(
+                          radius: 48,
+                          backgroundImage: NetworkImage('https://i.imgur.com/BoN9kdC.png'),
+                          backgroundColor: Colors.black,
+                        ),
                       ),
                       Positioned(
                         bottom: 8,
@@ -37,46 +62,70 @@ class SettingsTab extends StatelessWidget {
                           decoration: BoxDecoration(
                             color: Colors.green,
                             shape: BoxShape.circle,
-                            border: Border.all(color: Colors.black, width: 3),
+                            border: Border.all(color: const Color(0xFF2A2A2A), width: 3),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.2),
+                                blurRadius: 4,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
                           ),
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 12),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 16),
                   Text(
                     user?.email ?? '',
                     style: const TextStyle(
-                      color: Color.fromARGB(255, 255, 255, 255),
+                      color: Colors.white,
                       fontWeight: FontWeight.bold,
                       fontSize: 22,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Container(
+                    alignment: Alignment.center,
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF6C63FF).withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: const Text(
+                      'Administrator',
+                      style: TextStyle(
+                        color: Color(0xFF6C63FF),
+                        fontWeight: FontWeight.w600,
+                        fontSize: 14,
+                      ),
                     ),
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 32),
             const Text(
               'Settings',
               style: TextStyle(
-                fontSize: 16,
+                fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: Colors.grey,
+                color: Colors.white,
               ),
             ),
-            const SizedBox(height: 12),
-            Card(
-              color: const Color(0xFF232323),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+            const SizedBox(height: 16),
+            Container(
+              decoration: BoxDecoration(
+                color: const Color(0xFF2A2A2A),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: const Color(0xFF6C63FF).withOpacity(0.1)),
               ),
-              elevation: 0,
               child: Column(
                 children: [
                   _SettingsTile(
                     icon: Icons.analytics_rounded,
                     title: 'Generate Report',
+                    subtitle: 'Create detailed community reports',
                     onTap: () {
                       Navigator.push(
                         context,
@@ -87,6 +136,7 @@ class SettingsTab extends StatelessWidget {
                   _SettingsTile(
                     icon: Icons.book,
                     title: 'Admin Guidelines',
+                    subtitle: 'View admin responsibilities',
                     onTap: () {
                       Navigator.push(
                         context,
@@ -97,6 +147,7 @@ class SettingsTab extends StatelessWidget {
                   _SettingsTile(
                     icon: Icons.info_outline,
                     title: 'About Us',
+                    subtitle: 'Learn more about NeighborHub',
                     onTap: () {
                       Navigator.push(
                         context,
@@ -107,6 +158,7 @@ class SettingsTab extends StatelessWidget {
                   _SettingsTile(
                     icon: Icons.logout,
                     title: 'Logout',
+                    subtitle: 'Sign out from your account',
                     isLast: true,
                   ),
                 ],
@@ -129,12 +181,14 @@ class SettingsTab extends StatelessWidget {
 class _SettingsTile extends StatelessWidget {
   final IconData icon;
   final String title;
+  final String subtitle;
   final bool isLast;
   final VoidCallback? onTap;
 
   const _SettingsTile({
     required this.icon,
     required this.title,
+    required this.subtitle,
     this.isLast = false,
     this.onTap,
   });
@@ -144,7 +198,15 @@ class _SettingsTile extends StatelessWidget {
     return Column(
       children: [
         ListTile(
-          leading: Icon(icon, color: Colors.grey[300]),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+          leading: Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: const Color(0xFF6C63FF).withOpacity(0.1),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(icon, color: const Color(0xFF6C63FF)),
+          ),
           title: Text(
             title,
             style: const TextStyle(
@@ -153,7 +215,21 @@ class _SettingsTile extends StatelessWidget {
               fontSize: 16,
             ),
           ),
-          trailing: const Icon(Icons.chevron_right, color: Colors.white),
+          subtitle: Text(
+            subtitle,
+            style: TextStyle(
+              color: Colors.grey[400],
+              fontSize: 13,
+            ),
+          ),
+          trailing: Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.05),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: const Icon(Icons.chevron_right, color: Colors.white70, size: 20),
+          ),
           onTap: onTap,
         ),
         if (!isLast)
@@ -161,8 +237,8 @@ class _SettingsTile extends StatelessWidget {
             color: Color(0xFF353535),
             height: 1,
             thickness: 1,
-            indent: 16,
-            endIndent: 16,
+            indent: 20,
+            endIndent: 20,
           ),
       ],
     );
