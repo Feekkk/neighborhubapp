@@ -15,10 +15,19 @@ class EmergencyResolvePage extends StatelessWidget {
   Future<void> _resolveEmergency(BuildContext context, DocumentSnapshot doc) async {
     final data = doc.data() as Map<String, dynamic>;
     try {
-      // Add to 'report' collection
-      await FirebaseFirestore.instance.collection('report').add(data);
+      // Create a new map with the existing data and add resolved timestamp
+      final reportData = {
+        ...data,
+        'resolvedAt': FieldValue.serverTimestamp(),
+        'resolvedBy': 'admin', // You can replace this with actual admin ID if available
+      };
+
+      // Add to 'report' collection with the new data
+      await FirebaseFirestore.instance.collection('report').add(reportData);
+      
       // Delete from 'locations' collection
       await FirebaseFirestore.instance.collection('locations').doc(doc.id).delete();
+      
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
