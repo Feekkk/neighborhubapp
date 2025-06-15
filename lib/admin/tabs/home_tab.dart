@@ -6,6 +6,7 @@ import '../pages/guidelines.dart';
 import '../pages/about_us.dart';
 import '../pages/add_event.dart';
 import '../pages/add_assign.dart';
+import 'emergency_tab.dart';
 
 class HomeTab extends StatefulWidget {
   const HomeTab({super.key});
@@ -168,10 +169,13 @@ class _HomeTabState extends State<HomeTab> {
                       children: [
                         _AdminQuickAction(
                           icon: Icons.warning_amber_rounded,
-                          label: 'Report Emergency',
+                          label: 'View Emergency',
                           color: Colors.redAccent,
                           onTap: () {
-                            DefaultTabController.of(context)?.animateTo(1); // Emergency tab
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => const EmergencyTab()),
+                            );
                           },
                         ),
                         _AdminQuickAction(
