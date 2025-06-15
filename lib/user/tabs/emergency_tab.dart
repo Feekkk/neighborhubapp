@@ -3,6 +3,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:neighborhub/user/pages/map_help.dart';
 
 class EmergencyTab extends StatefulWidget {
   const EmergencyTab({super.key});
@@ -280,6 +281,19 @@ class _EmergencyTabState extends State<EmergencyTab> {
                       ),
                     ],
                   ),
+                ),
+                const SizedBox(height: 12),
+                FloatingActionButton(
+                  heroTag: 'helpBtn',
+                  mini: true,
+                  backgroundColor: Colors.white,
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder: (context) => const MapHelpDialog(),
+                    );
+                  },
+                  child: const Icon(Icons.help_outline, color: Colors.blue),
                 ),
               ],
             ),
