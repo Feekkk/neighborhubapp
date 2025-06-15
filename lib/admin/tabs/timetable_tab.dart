@@ -43,8 +43,7 @@ class _TimetableTabState extends State<TimetableTab> {
                   ),
                   textTheme: Theme.of(context).textTheme.copyWith(
                     bodyMedium: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w600),
-                  ),
-                  dialogBackgroundColor: const Color(0xFF232323),
+                  ), dialogTheme: DialogThemeData(backgroundColor: const Color(0xFF232323)),
                 ),
                 child: CalendarDatePicker(
                   initialDate: _focusedDay,
