@@ -112,6 +112,13 @@ class SettingsTab extends StatelessWidget {
                 ],
               ),
             ),
+            const SizedBox(height: 32),
+            Center(
+              child: Text(
+                '© 2025 NeighborHub. All rights reserved.',
+                style: TextStyle(color: Colors.white24, fontSize: 13),
+              ),
+            ),
           ],
         ),
       ),
