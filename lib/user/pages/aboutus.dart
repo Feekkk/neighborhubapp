@@ -23,12 +23,12 @@ class AboutUsPage extends StatelessWidget {
               Center(
                 child: Column(
                   children: [
-                    Icon(Icons.verified_user, color: Theme.of(context).primaryColor, size: 48),
+                    Icon(Icons.verified_user, color: Colors.white, size: 48),
                     const SizedBox(height: 10),
                     Text(
                       'NeighborHub',
-                      style: TextStyle(
-                        color: Theme.of(context).primaryColor,
+            style: TextStyle(
+              color: Colors.white,
                         fontWeight: FontWeight.bold,
                         fontSize: 28,
                         letterSpacing: 1.2,
@@ -41,8 +41,8 @@ class AboutUsPage extends StatelessWidget {
                         color: Colors.white70,
                         fontSize: 16,
                         fontStyle: FontStyle.italic,
-                      ),
-                      textAlign: TextAlign.center,
+            ),
+            textAlign: TextAlign.center,
                     ),
                   ],
                 ),
