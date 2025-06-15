@@ -14,81 +14,118 @@ class _TimetableTabState extends State<TimetableTab> {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            Container(
-              decoration: BoxDecoration(
-                color: const Color(0xFF232323),
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.18),
-                    blurRadius: 16,
-                    offset: const Offset(0, 6),
-                  ),
-                ],
-                border: Border.all(color: Colors.white24, width: 1.2),
-              ),
-              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
-              child: Theme(
-                data: Theme.of(context).copyWith(
-                  colorScheme: Theme.of(context).colorScheme.copyWith(
-                    surface: const Color(0xFF232323),
-                    onSurface: Colors.white,
-                    primary: Theme.of(context).primaryColor,
-                  ),
-                  textTheme: Theme.of(context).textTheme.copyWith(
-                    bodyMedium: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w600),
-                  ), dialogTheme: DialogThemeData(backgroundColor: const Color(0xFF232323)),
-                ),
-                child: CalendarDatePicker(
-                  initialDate: _focusedDay,
-                  firstDate: DateTime(DateTime.now().year - 1),
-                  lastDate: DateTime(DateTime.now().year + 2),
-                  onDateChanged: (date) {
-                    setState(() {
-                      _focusedDay = date;
-                    });
-                  },
+    return Container(
+      color: const Color(0xFF1A1A1A),
+      child: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Schedule Management',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
-            ),
-            const SizedBox(height: 24),
-            Row(
-              children: [
-                Expanded(
-                  child: _buildActionCard(
-                    context,
-                    'Add Event',
-                    Icons.event,
-                    Colors.blue,
-                    () async {
-                      await Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => const AddEvent()),
-                      );
+              const SizedBox(height: 8),
+              const Text(
+                'Manage events and member assignments',
+                style: TextStyle(
+                  color: Colors.white70,
+                  fontSize: 14,
+                ),
+              ),
+              const SizedBox(height: 24),
+              Container(
+                decoration: BoxDecoration(
+                  color: const Color(0xFF2A2A2A),
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                  border: Border.all(color: const Color(0xFF6C63FF).withOpacity(0.3)),
+                ),
+                padding: const EdgeInsets.all(16),
+                child: Theme(
+                  data: Theme.of(context).copyWith(
+                    colorScheme: Theme.of(context).colorScheme.copyWith(
+                      surface: const Color(0xFF2A2A2A),
+                      onSurface: Colors.white,
+                      primary: const Color(0xFF6C63FF),
+                    ),
+                    textTheme: Theme.of(context).textTheme.copyWith(
+                      bodyMedium: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    dialogTheme: const DialogTheme(
+                      backgroundColor: Color(0xFF2A2A2A),
+                    ),
+                  ),
+                  child: CalendarDatePicker(
+                    initialDate: _focusedDay,
+                    firstDate: DateTime(DateTime.now().year - 1),
+                    lastDate: DateTime(DateTime.now().year + 2),
+                    onDateChanged: (date) {
+                      setState(() {
+                        _focusedDay = date;
+                      });
                     },
                   ),
                 ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: _buildActionCard(
-                    context,
-                    'Assign Member',
-                    Icons.person_add,
-                    Colors.green,
-                    () => Navigator.push(
+              ),
+              const SizedBox(height: 32),
+              const Text(
+                'Quick Actions',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Expanded(
+                    child: _buildActionCard(
                       context,
-                      MaterialPageRoute(builder: (context) => const AddAssign()),
+                      'Add Event',
+                      Icons.event,
+                      const Color(0xFF6C63FF),
+                      () async {
+                        await Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const AddEvent()),
+                        );
+                      },
                     ),
                   ),
-                ),
-              ],
-            ),
-          ],
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: _buildActionCard(
+                      context,
+                      'Assign Member',
+                      Icons.person_add,
+                      const Color(0xFF6C63FF),
+                      () => Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const AddAssign()),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -101,46 +138,53 @@ class _TimetableTabState extends State<TimetableTab> {
     Color color,
     VoidCallback onTap,
   ) {
-    return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(
+    return Container(
+      decoration: BoxDecoration(
+        color: const Color(0xFF2A2A2A),
         borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: color.withOpacity(0.3)),
+        boxShadow: [
+          BoxShadow(
+            color: color.withOpacity(0.1),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
-        child: Container(
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16),
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                color.withOpacity(0.7),
-                color,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(16),
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: color.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(
+                    icon,
+                    size: 32,
+                    color: color,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  title,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
               ],
             ),
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                icon,
-                size: 48,
-                color: Colors.white,
-              ),
-              const SizedBox(height: 16),
-              Text(
-                title,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ],
           ),
         ),
       ),
