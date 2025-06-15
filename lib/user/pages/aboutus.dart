@@ -7,7 +7,10 @@ class AboutUsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('About Us', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+        title: const Text(
+          'About Us',
+          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+        ),
         backgroundColor: const Color(0xFF1A1A1A),
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.white),
@@ -23,12 +26,16 @@ class AboutUsPage extends StatelessWidget {
               Center(
                 child: Column(
                   children: [
-                    Icon(Icons.verified_user, color: Colors.white, size: 48),
+                    Icon(
+                      Icons.verified_user,
+                      color: const Color(0xFF6C63FF),
+                      size: 48,
+                    ),
                     const SizedBox(height: 10),
                     Text(
                       'NeighborHub',
-            style: TextStyle(
-              color: Colors.white,
+                      style: TextStyle(
+                        color: const Color(0xFF6C63FF),
                         fontWeight: FontWeight.bold,
                         fontSize: 28,
                         letterSpacing: 1.2,
@@ -41,41 +48,69 @@ class AboutUsPage extends StatelessWidget {
                         color: Colors.white70,
                         fontSize: 16,
                         fontStyle: FontStyle.italic,
-            ),
-            textAlign: TextAlign.center,
+                      ),
+                      textAlign: TextAlign.center,
                     ),
                   ],
                 ),
               ),
               const SizedBox(height: 28),
               // Regulations & Consent
-              _SectionHeader(icon: Icons.privacy_tip, title: 'User Consent & Regulations'),
+              _SectionHeader(
+                icon: Icons.privacy_tip,
+                title: 'User Consent & Regulations',
+
+              ),
               _CardSection(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: const [
                     Text(
                       'By using NeighborHub, you agree to:',
-                      style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 16),
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                        fontSize: 16,
+                      ),
                     ),
                     SizedBox(height: 8),
-                    _Bullet(text: 'Your data (profile, location, reports) is stored securely and only used for community features.'),
-                    _Bullet(text: 'Emergencies and reports are visible to admins for your safety.'),
-                    _Bullet(text: 'You consent to receive notifications for important community updates.'),
-                    _Bullet(text: 'You agree to use the app respectfully and not misuse emergency features.'),
+                    _Bullet(
+                      text:
+                          'Your data (profile, location, reports) is stored securely and only used for community features.',
+                    ),
+                    _Bullet(
+                      text:
+                          'Emergencies and reports are visible to admins for your safety.',
+                    ),
+                    _Bullet(
+                      text:
+                          'You consent to receive notifications for important community updates.',
+                    ),
+                    _Bullet(
+                      text:
+                          'You agree to use the app respectfully and not misuse emergency features.',
+                    ),
                   ],
                 ),
               ),
               const SizedBox(height: 24),
               // Contribution
-              _SectionHeader(icon: Icons.volunteer_activism, title: 'Contribution'),
+              _SectionHeader(
+                icon: Icons.volunteer_activism,
+                title: 'Contribution',
+                
+              ),
               _CardSection(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: const [
                     Text(
                       'NeighborHub is open for feedback and suggestions! You can contribute by:',
-                      style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 16),
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                        fontSize: 16,
+                      ),
                     ),
                     SizedBox(height: 8),
                     _Bullet(text: 'Reporting bugs or issues via the app.'),
@@ -91,10 +126,22 @@ class AboutUsPage extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: const [
-                    _TechRow(icon: Icons.flutter_dash, name: 'Flutter (UI Framework)'),
-                    _TechRow(icon: Icons.cloud, name: 'Firebase (Auth, Firestore, Cloud Functions)'),
-                    _TechRow(icon: Icons.map, name: 'Google Maps (Emergency Location)'),
-                    _TechRow(icon: Icons.notifications, name: 'Push Notifications'),
+                    _TechRow(
+                      icon: Icons.flutter_dash,
+                      name: 'Flutter (UI Framework)',
+                    ),
+                    _TechRow(
+                      icon: Icons.cloud,
+                      name: 'Firebase (Auth, Firestore, Cloud Functions)',
+                    ),
+                    _TechRow(
+                      icon: Icons.map,
+                      name: 'Google Maps (Emergency Location)',
+                    ),
+                    _TechRow(
+                      icon: Icons.notifications,
+                      name: 'Push Notifications',
+                    ),
                   ],
                 ),
               ),
@@ -106,18 +153,33 @@ class AboutUsPage extends StatelessWidget {
                   children: [
                     const CircleAvatar(
                       radius: 28,
-                      backgroundImage: AssetImage('assets/solo_dev.png'), // Replace with your own asset or use NetworkImage
+                      backgroundImage: AssetImage(
+                        'assets/solo_dev.png',
+                      ), // Replace with your own asset or use NetworkImage
                       backgroundColor: Colors.white12,
                     ),
                     const SizedBox(width: 18),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: const [
-                        Text('Wan Afiq', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18)),
+                        Text(
+                          'Wan Afiq',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                          ),
+                        ),
                         SizedBox(height: 4),
-                        Text('Solo Developer', style: TextStyle(color: Colors.white70, fontSize: 15)),
+                        Text(
+                          'Solo Developer',
+                          style: TextStyle(color: Colors.white70, fontSize: 15),
+                        ),
                         SizedBox(height: 2),
-                        Text('Contact: afiqd503@gmail.com', style: TextStyle(color: Colors.white54, fontSize: 13)),
+                        Text(
+                          'Contact: afiqd503@gmail.com',
+                          style: TextStyle(color: Colors.white54, fontSize: 13),
+                        ),
                       ],
                     ),
                   ],
@@ -146,12 +208,12 @@ class _SectionHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Icon(icon, color: Theme.of(context).primaryColor, size: 22),
+        Icon(icon, color: const Color(0xFF6C63FF), size: 22),
         const SizedBox(width: 8),
         Text(
           title,
           style: const TextStyle(
-            color: Colors.white,
+            color: const Color(0xFF6C63FF),
             fontWeight: FontWeight.bold,
             fontSize: 17,
           ),
