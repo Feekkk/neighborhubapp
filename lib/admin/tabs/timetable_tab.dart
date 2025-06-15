@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:calendar_date_picker2/calendar_date_picker2.dart';
 import '../pages/add_event.dart';
 import '../pages/add_assign.dart';
+import 'package:intl/intl.dart';
 
 class TimetableTab extends StatefulWidget {
   const TimetableTab({super.key});
@@ -11,61 +11,55 @@ class TimetableTab extends StatefulWidget {
 }
 
 class _TimetableTabState extends State<TimetableTab> {
-  List<DateTime?> _selectedDates = [];
+  DateTime _focusedDay = DateTime.now();
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        children: [
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
-            child: CalendarDatePicker2(
-              config: CalendarDatePicker2Config(
-                calendarType: CalendarDatePicker2Type.single,
-                selectedDayHighlightColor: Theme.of(context).primaryColor,
-                weekdayLabelTextStyle: const TextStyle(
-                  color: Colors.black87,
-                  fontWeight: FontWeight.bold,
-                ),
-                controlsTextStyle: const TextStyle(
-                  color: Colors.black,
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-                dayTextStyle: const TextStyle(
-                  color: Colors.black87,
-                  fontWeight: FontWeight.w500,
-                ),
-                disabledDayTextStyle: const TextStyle(
-                  color: Colors.grey,
-                ),
-                selectableDayPredicate: (day) => true,
-                firstDayOfWeek: 1,
-                weekdayLabels: const ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+    return SingleChildScrollView(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                color: const Color(0xFF232323),
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.18),
+                    blurRadius: 16,
+                    offset: const Offset(0, 6),
+                  ),
+                ],
+                border: Border.all(color: Colors.white24, width: 1.2),
               ),
-              value: _selectedDates,
-              onValueChanged: (dates) {
-                setState(() {
-                  _selectedDates = dates;
-                });
-              },
+              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+              child: Theme(
+                data: Theme.of(context).copyWith(
+                  colorScheme: Theme.of(context).colorScheme.copyWith(
+                    surface: const Color(0xFF232323),
+                    onSurface: Colors.white,
+                    primary: Theme.of(context).primaryColor,
+                  ),
+                  textTheme: Theme.of(context).textTheme.copyWith(
+                    bodyMedium: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w600),
+                  ),
+                  dialogBackgroundColor: const Color(0xFF232323),
+                ),
+                child: CalendarDatePicker(
+                  initialDate: _focusedDay,
+                  firstDate: DateTime(DateTime.now().year - 1),
+                  lastDate: DateTime(DateTime.now().year + 2),
+                  onDateChanged: (date) {
+                    setState(() {
+                      _focusedDay = date;
+                    });
+                  },
+                ),
+              ),
             ),
-          ),
-          const SizedBox(height: 24),
-          Expanded(
-            child: Row(
+            const SizedBox(height: 24),
+            Row(
               children: [
                 Expanded(
                   child: _buildActionCard(
@@ -73,10 +67,12 @@ class _TimetableTabState extends State<TimetableTab> {
                     'Add Event',
                     Icons.event,
                     Colors.blue,
-                    () => Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const AddEvent()),
-                    ),
+                    () async {
+                      await Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const AddEvent()),
+                      );
+                    },
                   ),
                 ),
                 const SizedBox(width: 16),
@@ -94,8 +90,8 @@ class _TimetableTabState extends State<TimetableTab> {
                 ),
               ],
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
