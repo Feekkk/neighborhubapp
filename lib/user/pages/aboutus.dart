@@ -113,11 +113,11 @@ class AboutUsPage extends StatelessWidget {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: const [
-                        Text('Afiq', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18)),
+                        Text('Wan Afiq', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18)),
                         SizedBox(height: 4),
                         Text('Solo Developer', style: TextStyle(color: Colors.white70, fontSize: 15)),
                         SizedBox(height: 2),
-                        Text('Contact: afiq@example.com', style: TextStyle(color: Colors.white54, fontSize: 13)),
+                        Text('Contact: afiqd503@gmail.com', style: TextStyle(color: Colors.white54, fontSize: 13)),
                       ],
                     ),
                   ],
@@ -126,7 +126,7 @@ class AboutUsPage extends StatelessWidget {
               const SizedBox(height: 32),
               Center(
                 child: Text(
-                  '© 2024 NeighborHub. All rights reserved.',
+                  '© 2025 NeighborHub. All rights reserved.',
                   style: TextStyle(color: Colors.white24, fontSize: 13),
                 ),
               ),
