@@ -17,7 +17,6 @@ class _DashboardAdminState extends State<DashboardAdmin>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   final user = FirebaseAuth.instance.currentUser;
-  bool _isExpanded = false;
 
   @override
   void initState() {

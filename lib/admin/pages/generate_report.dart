@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:neighborhub/services/generate_pdf.dart';
+import 'dart:typed_data';
+import 'package:pdfx/pdfx.dart';
 
 class GenerateReportPage extends StatelessWidget {
   const GenerateReportPage({super.key});
@@ -125,8 +128,42 @@ class GenerateReportPage extends StatelessWidget {
               width: double.infinity,
               height: 56,
               child: ElevatedButton.icon(
-                onPressed: () {
-                  // PDF generation will be implemented here
+                onPressed: () async {
+                  showDialog(
+                    context: context,
+                    barrierDismissible: false,
+                    builder: (context) => const Center(child: CircularProgressIndicator()),
+                  );
+                  try {
+                    final pdfBytes = await generateReportPdf();
+                    if (!context.mounted) return;
+                    Navigator.of(context).pop(); // Remove loading dialog
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => PdfViewPage(pdfBytes: pdfBytes),
+                      ),
+                    );
+                  } catch (e) {
+                    if (!context.mounted) return;
+                    Navigator.of(context).pop(); // Remove loading dialog
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Failed to generate PDF: ${e.toString()}'),
+                        backgroundColor: Colors.red,
+                        duration: const Duration(seconds: 5),
+                        action: SnackBarAction(
+                          label: 'Retry',
+                          onPressed: () {
+                            // Retry the operation
+                            Navigator.of(context).pop();
+                            Navigator.of(context).push(
+                              MaterialPageRoute(builder: (context) => const GenerateReportPage()),
+                            );
+                          },
+                        ),
+                      ),
+                    );
+                  }
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF6C63FF),
@@ -191,6 +228,29 @@ class GenerateReportPage extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class PdfViewPage extends StatelessWidget {
+  final Uint8List pdfBytes;
+  const PdfViewPage({super.key, required this.pdfBytes});
+
+  @override
+  Widget build(BuildContext context) {
+    final controller = PdfControllerPinch(document: PdfDocument.openData(pdfBytes));
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('View Report', style: TextStyle(color: Colors.white)),
+        backgroundColor: const Color(0xFF1A1A1A),
+        iconTheme: const IconThemeData(color: Colors.white),
+      ),
+      backgroundColor: const Color(0xFF1A1A1A),
+      body: PdfViewPinch(
+        controller: controller,
+        scrollDirection: Axis.vertical,
+        backgroundDecoration: const BoxDecoration(color: Color(0xFF1A1A1A)),
       ),
     );
   }
