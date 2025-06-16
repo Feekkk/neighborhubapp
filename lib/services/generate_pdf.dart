@@ -13,8 +13,8 @@ Future<List<Map<String, dynamic>>> fetchReportsFromFirestore() async {
 Future<Uint8List> generateReportPdf() async {
   try {
     final reports = await fetchReportsFromFirestore();
-    final font = pw.Font.ttf(await rootBundle.load('lib/assets/fonts/Roboto-Regular.ttf'));
-    final boldFont = pw.Font.ttf(await rootBundle.load('lib/assets/fonts/Roboto-Bold.ttf'));
+    final font = pw.Font.ttf(await rootBundle.load('assets/fonts/Roboto-Regular.ttf'));
+    final boldFont = pw.Font.ttf(await rootBundle.load('assets/fonts/Roboto-Bold.ttf'));
 
     final pdf = pw.Document();
     final now = DateTime.now();
