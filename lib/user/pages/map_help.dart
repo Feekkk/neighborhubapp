@@ -16,7 +16,7 @@ class MapHelpDialog extends StatelessWidget {
           children: [
             Row(
               children: [
-                const Icon(Icons.help_outline, color: Colors.blue, size: 28),
+                const Icon(Icons.help_outline, color: Color.fromARGB(255, 108, 99, 255), size: 28),
                 const SizedBox(width: 10),
                 Text(
                   'Emergency Map Help',
@@ -38,7 +38,7 @@ class MapHelpDialog extends StatelessWidget {
               width: double.infinity,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
+                  backgroundColor: const Color.fromARGB(255, 108, 99, 255),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),
                 onPressed: () => Navigator.of(context).pop(),

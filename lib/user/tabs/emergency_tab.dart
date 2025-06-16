@@ -17,6 +17,7 @@ class _EmergencyTabState extends State<EmergencyTab> {
   Position? currentPosition;
   bool isLoading = true;
   bool isSaving = false;
+  MapType _currentMapType = MapType.normal;
 
   @override
   void initState() {
@@ -179,7 +180,7 @@ class _EmergencyTabState extends State<EmergencyTab> {
             myLocationEnabled: true,
             myLocationButtonEnabled: false,
             zoomControlsEnabled: false,
-            mapType: MapType.normal,
+            mapType: _currentMapType,
           ),
           if (isLoading)
             const Center(
@@ -188,13 +189,70 @@ class _EmergencyTabState extends State<EmergencyTab> {
           Positioned(
             top: 50,
             right: 16,
-            child: FloatingActionButton(
-              onPressed: _goToCurrentLocation,
-              backgroundColor: Colors.white,
-              child: const Icon(
-                Icons.my_location,
-                color: Colors.blue,
-              ),
+            child: Column(
+              children: [
+                _buildElegantCircleButton(
+                  icon: Icons.my_location,
+                  onPressed: _goToCurrentLocation,
+                  tooltip: 'Recenter',
+                  iconColor: const Color.fromARGB(255, 255, 255, 255),
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFF6C63FF), Color(0xFFB06AB3)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                _buildElegantCircleButton(
+                  icon: Icons.layers_rounded,
+                  onPressed: () async {
+                    final selectedType = await showDialog<MapType>(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        backgroundColor: const Color(0xFF2D2D2D),
+                        title: Row(
+                          children: const [
+                            Icon(Icons.map_rounded, color: Color.fromARGB(255, 255, 255, 255)),
+                            SizedBox(width: 8),
+                            Text(
+                              'Choose Map Type',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 20,
+                              ),
+                            ),
+                          ],
+                        ),
+                        content: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            _buildMapTypeOption(context, MapType.normal, 'Normal', Icons.map),
+                            _buildMapTypeOption(context, MapType.satellite, 'Satellite', Icons.satellite_alt),
+                            _buildMapTypeOption(context, MapType.terrain, 'Terrain', Icons.terrain),
+                            _buildMapTypeOption(context, MapType.hybrid, 'Hybrid', Icons.layers),
+                          ],
+                        ),
+                      ),
+                    );
+                    if (selectedType != null && selectedType != _currentMapType) {
+                      setState(() {
+                        _currentMapType = selectedType;
+                      });
+                    }
+                  },
+                  tooltip: 'Map Type',
+                  iconColor: const Color.fromARGB(255, 255, 255, 255),
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFFB06AB3), Color(0xFF6C63FF)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                ),
+              ],
             ),
           ),
           Positioned(
@@ -256,49 +314,131 @@ class _EmergencyTabState extends State<EmergencyTab> {
               children: [
                 Container(
                   decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(8),
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFF6C63FF), Color(0xFFB06AB3)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(16),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
-                        blurRadius: 4,
-                        offset: const Offset(0, 2),
+                        color: const Color(0xFF6C63FF).withOpacity(0.15),
+                        blurRadius: 8,
+                        offset: const Offset(0, 4),
                       ),
                     ],
                   ),
                   child: Column(
                     children: [
-                      IconButton(
+                      _buildElegantIconButton(
+                        icon: Icons.add,
                         onPressed: _zoomIn,
-                        icon: const Icon(Icons.add),
-                        color: Colors.black87,
+                        tooltip: 'Zoom In',
                       ),
-                      const Divider(height: 1),
-                      IconButton(
+                      Container(
+                        height: 1,
+                        width: 32,
+                        color: Colors.white.withOpacity(0.2),
+                      ),
+                      _buildElegantIconButton(
+                        icon: Icons.remove,
                         onPressed: _zoomOut,
-                        icon: const Icon(Icons.remove),
-                        color: Colors.black87,
+                        tooltip: 'Zoom Out',
                       ),
                     ],
                   ),
                 ),
                 const SizedBox(height: 12),
-                FloatingActionButton(
-                  heroTag: 'helpBtn',
-                  mini: true,
-                  backgroundColor: Colors.white,
+                _buildElegantCircleButton(
+                  icon: Icons.help_outline,
                   onPressed: () {
                     showDialog(
                       context: context,
                       builder: (context) => const MapHelpDialog(),
                     );
                   },
-                  child: const Icon(Icons.help_outline, color: Colors.blue),
+                  tooltip: 'Help',
+                  iconColor: const Color.fromARGB(255, 255, 255, 255),
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFF6C63FF), Color(0xFFB06AB3)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
                 ),
               ],
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildMapTypeOption(BuildContext context, MapType type, String label, IconData icon) {
+    return ListTile(
+      leading: Icon(icon, color: Colors.white),
+      title: Text(label, style: const TextStyle(color: Colors.white)),
+      trailing: _currentMapType == type
+          ? const Icon(Icons.check_circle, color: Color(0xFF6C63FF))
+          : null,
+      onTap: () => Navigator.of(context).pop(type),
+    );
+  }
+
+  Widget _buildElegantCircleButton({
+    required IconData icon,
+    required VoidCallback onPressed,
+    String? tooltip,
+    Color iconColor = Colors.white,
+    Gradient? gradient,
+  }) {
+    return Tooltip(
+      message: tooltip ?? '',
+      child: InkWell(
+        onTap: onPressed,
+        borderRadius: BorderRadius.circular(30),
+        child: Container(
+          width: 48,
+          height: 48,
+          decoration: BoxDecoration(
+            gradient: gradient ?? const LinearGradient(colors: [Color(0xFF2D2D2D), Color(0xFF1A1A1A)]),
+            borderRadius: BorderRadius.circular(30),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.12),
+                blurRadius: 8,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Center(
+            child: Icon(icon, color: iconColor, size: 26),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildElegantIconButton({
+    required IconData icon,
+    required VoidCallback onPressed,
+    String? tooltip,
+  }) {
+    return Tooltip(
+      message: tooltip ?? '',
+      child: InkWell(
+        onTap: onPressed,
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          width: 40,
+          height: 40,
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.15),
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Center(
+            child: Icon(icon, color: Colors.white, size: 22),
+          ),
+        ),
       ),
     );
   }
