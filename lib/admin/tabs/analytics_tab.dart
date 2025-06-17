@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import '../pages/view_annoucement.dart';
+import '../pages/view_events.dart';
 
 class AnalyticsTab extends StatefulWidget {
   const AnalyticsTab({super.key});
@@ -14,8 +15,10 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
   int totalUsers = 0;
   int totalReports = 0;
   int totalAnnouncements = 0;
+  int totalEvents = 0;
   List<ReportData> reportData = [];
   List<AnnouncementData> announcementData = [];
+  List<EventData> eventData = [];
 
   @override
   void initState() {
@@ -33,10 +36,14 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
     // Get announcements data
     final announcementsSnapshot = await FirebaseFirestore.instance.collection('announcements').get();
 
+    // Get events data
+    final eventsSnapshot = await FirebaseFirestore.instance.collection('events').get();
+
     setState(() {
       totalUsers = usersSnapshot.size;
       totalReports = reportsSnapshot.size;
       totalAnnouncements = announcementsSnapshot.size;
+      totalEvents = eventsSnapshot.size;
     });
 
     // Process report data for chart
@@ -63,6 +70,18 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
       }
     }
 
+    // Process events data for chart
+    final Map<String, int> eventsByDate = {};
+    for (var doc in eventsSnapshot.docs) {
+      final data = doc.data();
+      final timestamp = data['dateTime'] as Timestamp?;
+      if (timestamp != null) {
+        final date = timestamp.toDate();
+        final dateString = '${date.day}/${date.month}/${date.year}';
+        eventsByDate[dateString] = (eventsByDate[dateString] ?? 0) + 1;
+      }
+    }
+
     setState(() {
       reportData = reportsByDate.entries
           .map((e) => ReportData(e.key, e.value))
@@ -71,6 +90,11 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
 
       announcementData = announcementsByDate.entries
           .map((e) => AnnouncementData(e.key, e.value))
+          .toList()
+        ..sort((a, b) => a.date.compareTo(b.date));
+
+      eventData = eventsByDate.entries
+          .map((e) => EventData(e.key, e.value))
           .toList()
         ..sort((a, b) => a.date.compareTo(b.date));
     });
@@ -181,6 +205,29 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
                     totalAnnouncements.toString(),
                     Icons.announcement,
                     Colors.green,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const ViewEvents(),
+                      ),
+                    );
+                  },
+                  child: _buildStatCard(
+                    'Total Events',
+                    totalEvents.toString(),
+                    Icons.event,
+                    Colors.purple,
                   ),
                 ),
               ),
@@ -298,6 +345,62 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
               ],
             ),
           ),
+          const SizedBox(height: 24),
+
+          // Events Chart
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: const Color(0xFF2A2A2A),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Events Over Time',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                SizedBox(
+                  height: 300,
+                  child: SfCartesianChart(
+                    primaryXAxis: CategoryAxis(
+                      labelStyle: const TextStyle(color: Colors.white70),
+                      majorGridLines: const MajorGridLines(width: 0),
+                    ),
+                    primaryYAxis: NumericAxis(
+                      labelStyle: const TextStyle(color: Colors.white70),
+                      majorGridLines: const MajorGridLines(width: 0.5, color: Colors.white24),
+                    ),
+                    legend: Legend(
+                      isVisible: true,
+                      textStyle: const TextStyle(color: Colors.white70),
+                    ),
+                    tooltipBehavior: TooltipBehavior(enable: true),
+                    series: <CartesianSeries<EventData, String>>[
+                      ColumnSeries<EventData, String>(
+                        name: 'Events',
+                        dataSource: eventData,
+                        xValueMapper: (EventData data, _) => data.date,
+                        yValueMapper: (EventData data, _) => data.count,
+                        dataLabelSettings: const DataLabelSettings(
+                          isVisible: true,
+                          labelAlignment: ChartDataLabelAlignment.top,
+                          textStyle: TextStyle(color: Colors.white70),
+                        ),
+                        color: Colors.purple,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );
@@ -349,4 +452,11 @@ class AnnouncementData {
   final int count;
 
   AnnouncementData(this.date, this.count);
+}
+
+class EventData {
+  final String date;
+  final int count;
+
+  EventData(this.date, this.count);
 } 
