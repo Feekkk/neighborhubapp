@@ -213,7 +213,7 @@ class _SectionHeader extends StatelessWidget {
         Text(
           title,
           style: const TextStyle(
-            color: const Color(0xFF6C63FF),
+            color: Color(0xFF6C63FF),
             fontWeight: FontWeight.bold,
             fontSize: 17,
           ),

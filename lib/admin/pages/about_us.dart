@@ -191,7 +191,7 @@ class AboutUsPage extends StatelessWidget {
         children: [
           const Icon(
             Icons.check_circle,
-            color: const Color(0xFF6C63FF),
+            color: Color(0xFF6C63FF),
             size: 20,
           ),
           const SizedBox(width: 12),
