@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:neighborhub/services/register.dart';
 import 'package:neighborhub/user/dashboarduser.dart';
+import 'package:neighborhub/widgets/error_message.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -18,6 +19,7 @@ class _RegisterPageState extends State<RegisterPage> {
   bool _isLoading = false;
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
+  String? _errorMessage;
 
   @override
   void dispose() {
@@ -27,9 +29,24 @@ class _RegisterPageState extends State<RegisterPage> {
     super.dispose();
   }
 
+  void _showError(String message) {
+    setState(() {
+      _errorMessage = message;
+    });
+  }
+
+  void _clearError() {
+    setState(() {
+      _errorMessage = null;
+    });
+  }
+
   Future<void> _handleRegister() async {
     if (_formKey.currentState!.validate()) {
-      setState(() => _isLoading = true);
+      setState(() {
+        _isLoading = true;
+        _errorMessage = null;
+      });
       try {
         await _registerService.createUserWithEmailAndPassword(
           _emailController.text.trim(),
@@ -42,9 +59,7 @@ class _RegisterPageState extends State<RegisterPage> {
           );
         }
       } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.toString())),
-        );
+        _showError(e.toString());
       } finally {
         setState(() => _isLoading = false);
       }
@@ -99,6 +114,12 @@ class _RegisterPageState extends State<RegisterPage> {
                       ),
                     ),
                     const SizedBox(height: 32),
+                    // Error Message
+                    if (_errorMessage != null)
+                      ErrorMessage(
+                        message: _errorMessage!,
+                        onDismiss: _clearError,
+                      ),
                     // Email Field
                     TextFormField(
                       controller: _emailController,
@@ -113,6 +134,10 @@ class _RegisterPageState extends State<RegisterPage> {
                           borderSide: BorderSide.none,
                         ),
                         prefixIcon: const Icon(Icons.email, color: Colors.grey),
+                        errorStyle: const TextStyle(
+                          color: Color(0xFFFF5252),
+                          fontSize: 12,
+                        ),
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -153,6 +178,10 @@ class _RegisterPageState extends State<RegisterPage> {
                             });
                           },
                         ),
+                        errorStyle: const TextStyle(
+                          color: Color(0xFFFF5252),
+                          fontSize: 12,
+                        ),
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -192,6 +221,10 @@ class _RegisterPageState extends State<RegisterPage> {
                               _obscureConfirmPassword = !_obscureConfirmPassword;
                             });
                           },
+                        ),
+                        errorStyle: const TextStyle(
+                          color: Color(0xFFFF5252),
+                          fontSize: 12,
                         ),
                       ),
                       validator: (value) {

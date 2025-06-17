@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:neighborhub/services/login.dart';
 import 'package:neighborhub/pages/register_page.dart';
+import 'package:neighborhub/widgets/error_message.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -15,6 +16,7 @@ class _LoginPageState extends State<LoginPage> {
   final _passwordController = TextEditingController();
   final _loginService = LoginService();
   bool _isLoading = false;
+  String? _errorMessage;
 
   @override
   void dispose() {
@@ -23,10 +25,25 @@ class _LoginPageState extends State<LoginPage> {
     super.dispose();
   }
 
+  void _showError(String message) {
+    setState(() {
+      _errorMessage = message;
+    });
+  }
+
+  void _clearError() {
+    setState(() {
+      _errorMessage = null;
+    });
+  }
+
   Future<void> _handleLogin() async {
     if (_formKey.currentState!.validate()) {
       if (!mounted) return;
-      setState(() => _isLoading = true);
+      setState(() {
+        _isLoading = true;
+        _errorMessage = null;
+      });
       
       try {
         await _loginService.signInWithEmailAndPassword(
@@ -38,9 +55,7 @@ class _LoginPageState extends State<LoginPage> {
         // No need to navigate manually as StreamBuilder in main.dart will handle it
       } catch (e) {
         if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.toString())),
-        );
+        _showError(e.toString());
       } finally {
         if (mounted) {
           setState(() => _isLoading = false);
@@ -97,6 +112,12 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ),
                     const SizedBox(height: 32),
+                    // Error Message
+                    if (_errorMessage != null)
+                      ErrorMessage(
+                        message: _errorMessage!,
+                        onDismiss: _clearError,
+                      ),
                     // Email Field
                     TextFormField(
                       controller: _emailController,
@@ -111,6 +132,10 @@ class _LoginPageState extends State<LoginPage> {
                           borderSide: BorderSide.none,
                         ),
                         prefixIcon: const Icon(Icons.email, color: Colors.grey),
+                        errorStyle: const TextStyle(
+                          color: Color(0xFFFF5252),
+                          fontSize: 12,
+                        ),
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -135,6 +160,10 @@ class _LoginPageState extends State<LoginPage> {
                           borderSide: BorderSide.none,
                         ),
                         prefixIcon: const Icon(Icons.lock, color: Colors.grey),
+                        errorStyle: const TextStyle(
+                          color: Color(0xFFFF5252),
+                          fontSize: 12,
+                        ),
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
