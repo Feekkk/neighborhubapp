@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../pages/add_event.dart';
 import '../pages/add_assign.dart';
+import '../pages/view_events.dart';
 
 class TimetableTab extends StatefulWidget {
   const TimetableTab({super.key});
@@ -119,6 +120,23 @@ class _TimetableTabState extends State<TimetableTab> {
                       () => Navigator.push(
                         context,
                         MaterialPageRoute(builder: (context) => const AddAssign()),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Expanded(
+                    child: _buildActionCard(
+                      context,
+                      'View All Events',
+                      Icons.calendar_month,
+                      const Color(0xFF6C63FF),
+                      () => Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const ViewEvents()),
                       ),
                     ),
                   ),
