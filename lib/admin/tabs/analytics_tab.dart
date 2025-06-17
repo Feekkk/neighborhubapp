@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
+import '../pages/view_annoucement.dart';
 
 class AnalyticsTab extends StatefulWidget {
   const AnalyticsTab({super.key});
@@ -12,7 +13,9 @@ class AnalyticsTab extends StatefulWidget {
 class _AnalyticsTabState extends State<AnalyticsTab> {
   int totalUsers = 0;
   int totalReports = 0;
+  int totalAnnouncements = 0;
   List<ReportData> reportData = [];
+  List<AnnouncementData> announcementData = [];
 
   @override
   void initState() {
@@ -23,14 +26,17 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
   Future<void> _loadData() async {
     // Get total users count
     final usersSnapshot = await FirebaseFirestore.instance.collection('users').get();
-    setState(() {
-      totalUsers = usersSnapshot.size;
-    });
-
+    
     // Get reports data
     final reportsSnapshot = await FirebaseFirestore.instance.collection('report').get();
+    
+    // Get announcements data
+    final announcementsSnapshot = await FirebaseFirestore.instance.collection('announcements').get();
+
     setState(() {
+      totalUsers = usersSnapshot.size;
       totalReports = reportsSnapshot.size;
+      totalAnnouncements = announcementsSnapshot.size;
     });
 
     // Process report data for chart
@@ -45,9 +51,26 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
       }
     }
 
+    // Process announcement data for chart
+    final Map<String, int> announcementsByDate = {};
+    for (var doc in announcementsSnapshot.docs) {
+      final data = doc.data();
+      final timestamp = data['createdAt'] as Timestamp?;
+      if (timestamp != null) {
+        final date = timestamp.toDate();
+        final dateString = '${date.day}/${date.month}/${date.year}';
+        announcementsByDate[dateString] = (announcementsByDate[dateString] ?? 0) + 1;
+      }
+    }
+
     setState(() {
       reportData = reportsByDate.entries
           .map((e) => ReportData(e.key, e.value))
+          .toList()
+        ..sort((a, b) => a.date.compareTo(b.date));
+
+      announcementData = announcementsByDate.entries
+          .map((e) => AnnouncementData(e.key, e.value))
           .toList()
         ..sort((a, b) => a.date.compareTo(b.date));
     });
@@ -140,6 +163,29 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
               ),
             ],
           ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const ViewAnnouncement(),
+                      ),
+                    );
+                  },
+                  child: _buildStatCard(
+                    'Total Announcements',
+                    totalAnnouncements.toString(),
+                    Icons.announcement,
+                    Colors.green,
+                  ),
+                ),
+              ),
+            ],
+          ),
           const SizedBox(height: 32),
 
           // Reports Chart
@@ -196,6 +242,62 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
               ],
             ),
           ),
+          const SizedBox(height: 24),
+
+          // Announcements Chart
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: const Color(0xFF2A2A2A),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Announcements Over Time',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                SizedBox(
+                  height: 300,
+                  child: SfCartesianChart(
+                    primaryXAxis: CategoryAxis(
+                      labelStyle: const TextStyle(color: Colors.white70),
+                      majorGridLines: const MajorGridLines(width: 0),
+                    ),
+                    primaryYAxis: NumericAxis(
+                      labelStyle: const TextStyle(color: Colors.white70),
+                      majorGridLines: const MajorGridLines(width: 0.5, color: Colors.white24),
+                    ),
+                    legend: Legend(
+                      isVisible: true,
+                      textStyle: const TextStyle(color: Colors.white70),
+                    ),
+                    tooltipBehavior: TooltipBehavior(enable: true),
+                    series: <CartesianSeries<AnnouncementData, String>>[
+                      ColumnSeries<AnnouncementData, String>(
+                        name: 'Announcements',
+                        dataSource: announcementData,
+                        xValueMapper: (AnnouncementData data, _) => data.date,
+                        yValueMapper: (AnnouncementData data, _) => data.count,
+                        dataLabelSettings: const DataLabelSettings(
+                          isVisible: true,
+                          labelAlignment: ChartDataLabelAlignment.top,
+                          textStyle: TextStyle(color: Colors.white70),
+                        ),
+                        color: Colors.green,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );
@@ -240,4 +342,11 @@ class ReportData {
   final int count;
 
   ReportData(this.date, this.count);
+}
+
+class AnnouncementData {
+  final String date;
+  final int count;
+
+  AnnouncementData(this.date, this.count);
 } 
