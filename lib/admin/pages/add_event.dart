@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
-import 'dart:ui';
 
 class AddEvent extends StatefulWidget {
   const AddEvent({super.key});
@@ -19,7 +18,6 @@ class _AddEventState extends State<AddEvent> with SingleTickerProviderStateMixin
   bool _isLoading = false;
 
   late AnimationController _animationController;
-  late Animation<double> _fadeAnimation;
 
   @override
   void initState() {
@@ -27,10 +25,6 @@ class _AddEventState extends State<AddEvent> with SingleTickerProviderStateMixin
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 700),
-    );
-    _fadeAnimation = CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeInOut,
     );
     _animationController.forward();
   }

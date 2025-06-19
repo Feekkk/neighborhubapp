@@ -45,7 +45,8 @@ class _ForgetPasswordPageState extends State<ForgetPasswordPage> {
             backgroundColor: Colors.green,
           ),
         );
-        Navigator.pop(context);
+        // If you are not receiving emails, ensure Firebase is initialized in main.dart and you are using the correct Firebase project.
+        Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false); // Navigate to home page
       }
     } on FirebaseAuthException catch (e) {
       setState(() {
@@ -105,7 +106,7 @@ class _ForgetPasswordPageState extends State<ForgetPasswordPage> {
                 decoration: InputDecoration(
                   filled: true,
                   fillColor: const Color(0xFF2A2A2A),
-                  hintText: 'Enter your new password',
+                  hintText: 'Enter your email address',
                   hintStyle: TextStyle(color: Colors.grey[400]),
                   prefixIcon: const Icon(Icons.email_outlined, color: Colors.grey),
                   border: OutlineInputBorder(
