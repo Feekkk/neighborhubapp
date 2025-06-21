@@ -222,6 +222,36 @@ class ViewEventsPage extends StatelessWidget {
                                         ],
                                       ],
                                     ),
+                                    // Add attendance indicator here
+                                    Container(
+                                      margin: const EdgeInsets.only(top: 8),
+                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                      decoration: BoxDecoration(
+                                        color: Colors.grey[800],
+                                        borderRadius: BorderRadius.circular(8),
+                                        border: Border.all(color: Colors.grey[600]!),
+                                      ),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Icon(
+                                            Icons.person_outline,
+                                            size: 14,
+                                            color: Colors.grey[400],
+                                          ),
+                                          const SizedBox(width: 4),
+                                          Text(
+                                            'Not Responded',
+                                            style: TextStyle(
+                                              color: Colors.grey[400],
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w500,
+                                              fontFamily: 'Poppins',
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
                                   ],
                                 ),
                               ),
@@ -354,16 +384,16 @@ class ViewEventsPage extends StatelessWidget {
                       child: OutlinedButton(
                         onPressed: () => Navigator.of(context).pop(),
                         style: OutlinedButton.styleFrom(
-                          side: const BorderSide(color: Colors.grey),
+                          side: const BorderSide(color: Colors.red),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
                           padding: const EdgeInsets.symmetric(vertical: 12),
                         ),
                         child: const Text(
-                          'Close',
+                          'Unattend',
                           style: TextStyle(
-                            color: Colors.white,
+                            color: Colors.red,
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
                             fontFamily: 'Poppins',
@@ -379,12 +409,12 @@ class ViewEventsPage extends StatelessWidget {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
                               content: Text('Attend functionality coming soon!'),
-                              backgroundColor: Color(0xFF6C63FF),
+                              backgroundColor: Colors.green,
                             ),
                           );
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF6C63FF),
+                          backgroundColor: Colors.green,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
