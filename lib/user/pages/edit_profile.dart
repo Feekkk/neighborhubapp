@@ -37,20 +37,140 @@ class _EditProfilePageState extends State<EditProfilePage> {
   Future<void> _saveProfile() async {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _isLoading = true);
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) return;
-    await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
-      'username': _usernameController.text.trim(),
-      'phone': _phoneController.text.trim(),
-      'address': _addressController.text.trim(),
-      'email': user.email,
-      'userId': user.uid,
-    }, SetOptions(merge: true));
-    setState(() => _isLoading = false);
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Profile updated! Your User ID: ${user.uid}')),
-      );
+    
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) return;
+      
+      await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
+        'username': _usernameController.text.trim(),
+        'phone': _phoneController.text.trim(),
+        'address': _addressController.text.trim(),
+        'email': user.email,
+        'userId': user.uid,
+      }, SetOptions(merge: true));
+      
+      setState(() => _isLoading = false);
+      
+      if (mounted) {
+        // Show beautiful success message
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Icon(
+                    Icons.check_circle,
+                    color: Colors.white,
+                    size: 20,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Profile Updated Successfully!',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'Poppins',
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        'Your information has been saved',
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.8),
+                          fontSize: 14,
+                          fontFamily: 'Poppins',
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            backgroundColor: const Color(0xFF6C63FF),
+            duration: const Duration(seconds: 3),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            margin: const EdgeInsets.all(16),
+            elevation: 8,
+          ),
+        );
+      }
+    } catch (e) {
+      setState(() => _isLoading = false);
+      
+      if (mounted) {
+        // Show error message
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Icon(
+                    Icons.error_outline,
+                    color: Colors.white,
+                    size: 20,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Update Failed',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'Poppins',
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        'Please try again later',
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.8),
+                          fontSize: 14,
+                          fontFamily: 'Poppins',
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            backgroundColor: Colors.red[600],
+            duration: const Duration(seconds: 4),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            margin: const EdgeInsets.all(16),
+            elevation: 8,
+          ),
+        );
+      }
     }
   }
 
