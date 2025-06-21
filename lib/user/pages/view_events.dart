@@ -2,8 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 
-class ViewEventsPage extends StatelessWidget {
+class ViewEventsPage extends StatefulWidget {
   const ViewEventsPage({super.key});
+
+  @override
+  State<ViewEventsPage> createState() => _ViewEventsPageState();
+}
+
+class _ViewEventsPageState extends State<ViewEventsPage> {
+  // For demo purposes, you'll need to replace this with actual user ID
+  // In a real app, this would come from your authentication system
+  final String currentUserId = 'demo_user_123'; // Replace with actual user ID
 
   @override
   Widget build(BuildContext context) {
@@ -222,35 +231,67 @@ class ViewEventsPage extends StatelessWidget {
                                         ],
                                       ],
                                     ),
-                                    // Add attendance indicator here
-                                    Container(
-                                      margin: const EdgeInsets.only(top: 8),
-                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                      decoration: BoxDecoration(
-                                        color: Colors.grey[800],
-                                        borderRadius: BorderRadius.circular(8),
-                                        border: Border.all(color: Colors.grey[600]!),
-                                      ),
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Icon(
-                                            Icons.person_outline,
-                                            size: 14,
-                                            color: Colors.grey[400],
+                                    // Attendance indicator with real-time data
+                                    StreamBuilder<DocumentSnapshot>(
+                                      stream: FirebaseFirestore.instance
+                                          .collection('event_attendances')
+                                          .doc('${event.id}_$currentUserId')
+                                          .snapshots(),
+                                      builder: (context, attendanceSnapshot) {
+                                        String statusText = 'Not Responded';
+                                        Color statusColor = Colors.grey[400]!;
+                                        Color backgroundColor = Colors.grey[800]!;
+                                        Color borderColor = Colors.grey[600]!;
+                                        IconData statusIcon = Icons.person_outline;
+
+                                        if (attendanceSnapshot.hasData && 
+                                            attendanceSnapshot.data!.exists) {
+                                          final status = attendanceSnapshot.data!['status'] as String?;
+                                          if (status == 'attending') {
+                                            statusText = 'Attending';
+                                            statusColor = Colors.green;
+                                            backgroundColor = Colors.green.withOpacity(0.1);
+                                            borderColor = Colors.green.withOpacity(0.3);
+                                            statusIcon = Icons.check_circle_outline;
+                                          } else if (status == 'not_attending') {
+                                            statusText = 'Not Attending';
+                                            statusColor = Colors.red;
+                                            backgroundColor = Colors.red.withOpacity(0.1);
+                                            borderColor = Colors.red.withOpacity(0.3);
+                                            statusIcon = Icons.cancel_outlined;
+                                          }
+                                        }
+
+                                        return Container(
+                                          margin: const EdgeInsets.only(top: 8),
+                                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                          decoration: BoxDecoration(
+                                            color: backgroundColor,
+                                            borderRadius: BorderRadius.circular(8),
+                                            border: Border.all(color: borderColor),
                                           ),
-                                          const SizedBox(width: 4),
-                                          Text(
-                                            'Not Responded',
-                                            style: TextStyle(
-                                              color: Colors.grey[400],
-                                              fontSize: 12,
-                                              fontWeight: FontWeight.w500,
-                                              fontFamily: 'Poppins',
-                                            ),
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Icon(
+                                                statusIcon,
+                                                size: 14,
+                                                color: statusColor,
+                                              ),
+                                              const SizedBox(width: 4),
+                                              Text(
+                                                statusText,
+                                                style: TextStyle(
+                                                  color: statusColor,
+                                                  fontSize: 12,
+                                                  fontWeight: FontWeight.w500,
+                                                  fontFamily: 'Poppins',
+                                                ),
+                                              ),
+                                            ],
                                           ),
-                                        ],
-                                      ),
+                                        );
+                                      },
                                     ),
                                   ],
                                 ),
@@ -382,7 +423,10 @@ class ViewEventsPage extends StatelessWidget {
                   children: [
                     Expanded(
                       child: OutlinedButton(
-                        onPressed: () => Navigator.of(context).pop(),
+                        onPressed: () async {
+                          await _updateAttendance(event.id, 'not_attending');
+                          Navigator.of(context).pop();
+                        },
                         style: OutlinedButton.styleFrom(
                           side: const BorderSide(color: Colors.red),
                           shape: RoundedRectangleBorder(
@@ -404,14 +448,9 @@ class ViewEventsPage extends StatelessWidget {
                     const SizedBox(width: 12),
                     Expanded(
                       child: ElevatedButton(
-                        onPressed: () {
-                          // TODO: Implement attend functionality
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Attend functionality coming soon!'),
-                              backgroundColor: Colors.green,
-                            ),
-                          );
+                        onPressed: () async {
+                          await _updateAttendance(event.id, 'attending');
+                          Navigator.of(context).pop();
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.green,
@@ -439,5 +478,48 @@ class ViewEventsPage extends StatelessWidget {
         );
       },
     );
+  }
+
+  // Function to update attendance in Firestore
+  Future<void> _updateAttendance(String eventId, String status) async {
+    try {
+      final attendanceDocId = '${eventId}_$currentUserId';
+      
+      await FirebaseFirestore.instance
+          .collection('event_attendances')
+          .doc(attendanceDocId)
+          .set({
+        'eventId': eventId,
+        'userId': currentUserId,
+        'status': status,
+        'timestamp': FieldValue.serverTimestamp(),
+      });
+
+      // Show success message
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              status == 'attending' 
+                  ? 'You are now attending this event!' 
+                  : 'You have declined to attend this event.',
+            ),
+            backgroundColor: status == 'attending' ? Colors.green : Colors.red,
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+    } catch (e) {
+      // Show error message
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error updating attendance: $e'),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+    }
   }
 }
