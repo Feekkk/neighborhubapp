@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
+import '../pages/view_events.dart';
 
 class TimetableTab extends StatefulWidget {
   const TimetableTab({super.key});
@@ -62,7 +63,48 @@ class _TimetableTabState extends State<TimetableTab> {
                 ),
               ),
               const SizedBox(height: 36),
-              const _SectionHeader(title: 'Upcoming Events', icon: Icons.event),
+              Row(
+                children: [
+                  Icon(Icons.event, color: const Color(0xFF6C63FF), size: 22),
+                  const SizedBox(width: 8),
+                  const Text(
+                    'Upcoming Events',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'Poppins',
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Divider(
+                      color: Colors.white24,
+                      thickness: 1,
+                      endIndent: 8,
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const ViewEventsPage(),
+                        ),
+                      );
+                    },
+                    child: const Text(
+                      'See More',
+                      style: TextStyle(
+                        color: Color(0xFF6C63FF),
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        fontFamily: 'Poppins',
+                      ),
+                    ),
+                  ),
+                ],
+              ),
               const SizedBox(height: 16),
               StreamBuilder<QuerySnapshot>(
                 stream: FirebaseFirestore.instance
