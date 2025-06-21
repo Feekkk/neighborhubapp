@@ -49,7 +49,7 @@ class SettingsTab extends StatelessWidget {
                         ),
                         child: const CircleAvatar(
                           radius: 48,
-                          backgroundImage: NetworkImage('https://i.imgur.com/BoN9kdC.png'),
+                          backgroundImage: NetworkImage('https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/340px-Default_pfp.svg.png?20220226140232'),
                           backgroundColor: Colors.black,
                         ),
                       ),

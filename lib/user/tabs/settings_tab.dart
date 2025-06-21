@@ -25,7 +25,7 @@ class SettingsTab extends StatelessWidget {
                     children: [
                       const CircleAvatar(
                         radius: 48,
-                        backgroundImage: NetworkImage('https://i.imgur.com/BoN9kdC.png'), // Placeholder image
+                        backgroundImage: NetworkImage('https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/340px-Default_pfp.svg.png?20220226140232'), // Placeholder image
                         backgroundColor: Colors.black,
                       ),
                       Positioned(
