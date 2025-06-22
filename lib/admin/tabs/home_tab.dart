@@ -69,7 +69,7 @@ class _HomeTabState extends State<HomeTab> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      'Assalamualaikum,',
+                      'Hello,',
                       style: TextStyle(
                         color: Colors.white.withOpacity(0.9),
                         fontSize: 18,
@@ -224,7 +224,7 @@ class _HomeTabState extends State<HomeTab> {
                           onTap: () {
                             Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (context) => const EmergencyTab()),
+                              MaterialPageRoute(builder: (context) => const AdminEmergencyTab()),
                             );
                           },
                         ),
@@ -350,7 +350,8 @@ class _EnhancedAdminQuickAction extends StatefulWidget {
 class _EnhancedAdminQuickActionState extends State<_EnhancedAdminQuickAction> 
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
-  late Animation<double> _scaleAnimation;
+  late Animation<double> _opacityAnimation;
+  late Animation<double> _elevationAnimation;
   bool _isPressed = false;
 
   @override
@@ -360,9 +361,16 @@ class _EnhancedAdminQuickActionState extends State<_EnhancedAdminQuickAction>
       duration: const Duration(milliseconds: 150),
       vsync: this,
     );
-    _scaleAnimation = Tween<double>(
+    _opacityAnimation = Tween<double>(
       begin: 1.0,
-      end: 0.95,
+      end: 0.8,
+    ).animate(CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeInOut,
+    ));
+    _elevationAnimation = Tween<double>(
+      begin: 12.0,
+      end: 4.0,
     ).animate(CurvedAnimation(
       parent: _animationController,
       curve: Curves.easeInOut,
@@ -392,10 +400,10 @@ class _EnhancedAdminQuickActionState extends State<_EnhancedAdminQuickAction>
         _animationController.reverse();
       },
       child: AnimatedBuilder(
-        animation: _scaleAnimation,
+        animation: _animationController,
         builder: (context, child) {
-          return Transform.scale(
-            scale: _scaleAnimation.value,
+          return Opacity(
+            opacity: _opacityAnimation.value,
             child: Container(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
@@ -407,7 +415,7 @@ class _EnhancedAdminQuickActionState extends State<_EnhancedAdminQuickAction>
                 boxShadow: [
                   BoxShadow(
                     color: widget.gradient[0].withOpacity(0.3),
-                    blurRadius: _isPressed ? 8 : 12,
+                    blurRadius: _elevationAnimation.value,
                     offset: Offset(0, _isPressed ? 2 : 4),
                   ),
                   BoxShadow(
@@ -433,17 +441,19 @@ class _EnhancedAdminQuickActionState extends State<_EnhancedAdminQuickAction>
                     ),
                   ),
                   const SizedBox(height: 8),
-                  Text(
-                    widget.label,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 11,
-                      fontFamily: 'Poppins',
+                  Flexible(
+                    child: Text(
+                      widget.label,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 11,
+                        fontFamily: 'Poppins',
+                      ),
+                      textAlign: TextAlign.center,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    textAlign: TextAlign.center,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
                   ),
                 ],
               ),

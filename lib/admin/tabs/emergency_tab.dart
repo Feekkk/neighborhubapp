@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../pages/emergency_resolve.dart';
 
-class EmergencyTab extends StatelessWidget {
-  const EmergencyTab({super.key});
+class AdminEmergencyTab extends StatelessWidget {
+  const AdminEmergencyTab({super.key});
 
   @override
   Widget build(BuildContext context) {

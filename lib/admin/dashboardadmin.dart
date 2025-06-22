@@ -170,7 +170,7 @@ class _DashboardAdminState extends State<DashboardAdmin>
         controller: _tabController,
         children: const [
           HomeTab(),
-          EmergencyTab(),
+          AdminEmergencyTab(),
           TimetableTab(),
           AnalyticsTab(),
           SettingsTab(),
