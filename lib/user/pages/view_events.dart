@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
 
 class ViewEventsPage extends StatefulWidget {
@@ -10,9 +11,7 @@ class ViewEventsPage extends StatefulWidget {
 }
 
 class _ViewEventsPageState extends State<ViewEventsPage> {
-  // For demo purposes, you'll need to replace this with actual user ID
-  // In a real app, this would come from your authentication system
-  final String currentUserId = 'demo_user_123'; // Replace with actual user ID
+  String? get currentUserId => FirebaseAuth.instance.currentUser?.uid;
 
   @override
   Widget build(BuildContext context) {
@@ -232,67 +231,68 @@ class _ViewEventsPageState extends State<ViewEventsPage> {
                                       ],
                                     ),
                                     // Attendance indicator with real-time data
-                                    StreamBuilder<DocumentSnapshot>(
-                                      stream: FirebaseFirestore.instance
-                                          .collection('event_attendances')
-                                          .doc('${event.id}_$currentUserId')
-                                          .snapshots(),
-                                      builder: (context, attendanceSnapshot) {
-                                        String statusText = 'Not Responded';
-                                        Color statusColor = Colors.grey[400]!;
-                                        Color backgroundColor = Colors.grey[800]!;
-                                        Color borderColor = Colors.grey[600]!;
-                                        IconData statusIcon = Icons.person_outline;
+                                    if (currentUserId != null)
+                                      StreamBuilder<DocumentSnapshot>(
+                                        stream: FirebaseFirestore.instance
+                                            .collection('event_attendances')
+                                            .doc('${event.id}_$currentUserId')
+                                            .snapshots(),
+                                        builder: (context, attendanceSnapshot) {
+                                          String statusText = 'Not Responded';
+                                          Color statusColor = Colors.grey[400]!;
+                                          Color backgroundColor = Colors.grey[800]!;
+                                          Color borderColor = Colors.grey[600]!;
+                                          IconData statusIcon = Icons.person_outline;
 
-                                        if (attendanceSnapshot.hasData && 
-                                            attendanceSnapshot.data!.exists) {
-                                          final status = attendanceSnapshot.data!['status'] as String?;
-                                          if (status == 'attending') {
-                                            statusText = 'Attending';
-                                            statusColor = Colors.green;
-                                            backgroundColor = Colors.green.withOpacity(0.1);
-                                            borderColor = Colors.green.withOpacity(0.3);
-                                            statusIcon = Icons.check_circle_outline;
-                                          } else if (status == 'not_attending') {
-                                            statusText = 'Not Attending';
-                                            statusColor = Colors.red;
-                                            backgroundColor = Colors.red.withOpacity(0.1);
-                                            borderColor = Colors.red.withOpacity(0.3);
-                                            statusIcon = Icons.cancel_outlined;
+                                          if (attendanceSnapshot.hasData && 
+                                              attendanceSnapshot.data!.exists) {
+                                            final status = attendanceSnapshot.data!['status'] as String?;
+                                            if (status == 'attending') {
+                                              statusText = 'Attending';
+                                              statusColor = Colors.green;
+                                              backgroundColor = Colors.green.withOpacity(0.1);
+                                              borderColor = Colors.green.withOpacity(0.3);
+                                              statusIcon = Icons.check_circle_outline;
+                                            } else if (status == 'not_attending') {
+                                              statusText = 'Not Attending';
+                                              statusColor = Colors.red;
+                                              backgroundColor = Colors.red.withOpacity(0.1);
+                                              borderColor = Colors.red.withOpacity(0.3);
+                                              statusIcon = Icons.cancel_outlined;
+                                            }
                                           }
-                                        }
 
-                                        return Container(
-                                          margin: const EdgeInsets.only(top: 8),
-                                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                          decoration: BoxDecoration(
-                                            color: backgroundColor,
-                                            borderRadius: BorderRadius.circular(8),
-                                            border: Border.all(color: borderColor),
-                                          ),
-                                          child: Row(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              Icon(
-                                                statusIcon,
-                                                size: 14,
-                                                color: statusColor,
-                                              ),
-                                              const SizedBox(width: 4),
-                                              Text(
-                                                statusText,
-                                                style: TextStyle(
+                                          return Container(
+                                            margin: const EdgeInsets.only(top: 8),
+                                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                            decoration: BoxDecoration(
+                                              color: backgroundColor,
+                                              borderRadius: BorderRadius.circular(8),
+                                              border: Border.all(color: borderColor),
+                                            ),
+                                            child: Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                Icon(
+                                                  statusIcon,
+                                                  size: 14,
                                                   color: statusColor,
-                                                  fontSize: 12,
-                                                  fontWeight: FontWeight.w500,
-                                                  fontFamily: 'Poppins',
                                                 ),
-                                              ),
-                                            ],
-                                          ),
-                                        );
-                                      },
-                                    ),
+                                                const SizedBox(width: 4),
+                                                Text(
+                                                  statusText,
+                                                  style: TextStyle(
+                                                    color: statusColor,
+                                                    fontSize: 12,
+                                                    fontWeight: FontWeight.w500,
+                                                    fontFamily: 'Poppins',
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          );
+                                        },
+                                      ),
                                   ],
                                 ),
                               ),
@@ -482,6 +482,16 @@ class _ViewEventsPageState extends State<ViewEventsPage> {
 
   // Function to update attendance in Firestore
   Future<void> _updateAttendance(String eventId, String status) async {
+    if (currentUserId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please login to update attendance'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
     try {
       final attendanceDocId = '${eventId}_$currentUserId';
       
