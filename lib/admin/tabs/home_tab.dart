@@ -6,7 +6,7 @@ import '../pages/guidelines.dart';
 import '../pages/about_us.dart';
 import '../pages/add_event.dart';
 import '../pages/add_assign.dart';
-import 'emergency_tab.dart';
+import 'analytics_tab.dart';
 
 class HomeTab extends StatefulWidget {
   const HomeTab({super.key});
@@ -218,13 +218,13 @@ class _HomeTabState extends State<HomeTab> {
                       childAspectRatio: 0.85,
                       children: [
                         _EnhancedAdminQuickAction(
-                          icon: Icons.warning_amber_rounded,
-                          label: 'View Emergency',
+                          icon: Icons.analytics_rounded,
+                          label: 'View Analytics',
                           gradient: [Colors.redAccent, Colors.red],
                           onTap: () {
                             Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (context) => const AdminEmergencyTab()),
+                              MaterialPageRoute(builder: (context) => const AnalyticsTab()),
                             );
                           },
                         ),
