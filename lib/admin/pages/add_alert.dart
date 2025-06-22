@@ -15,6 +15,9 @@ class _AddAlertState extends State<AddAlert> {
   final _descriptionController = TextEditingController();
   bool _isLoading = false;
   String? _errorMessage;
+  String _selectedPriority = 'medium'; // Default priority
+
+  final List<String> _priorities = ['high', 'medium', 'low'];
 
   @override
   void dispose() {
@@ -55,6 +58,7 @@ class _AddAlertState extends State<AddAlert> {
           'title': _titleController.text.trim(),
           'description': _descriptionController.text.trim(),
           'author': authorName,
+          'priority': _selectedPriority,
           'createdAt': FieldValue.serverTimestamp(),
         });
 
@@ -74,6 +78,19 @@ class _AddAlertState extends State<AddAlert> {
           setState(() => _isLoading = false);
         }
       }
+    }
+  }
+
+  Color _getPriorityColor(String priority) {
+    switch (priority) {
+      case 'high':
+        return const Color(0xFFFF5252);
+      case 'medium':
+        return const Color(0xFFFF9800);
+      case 'low':
+        return const Color(0xFF4CAF50);
+      default:
+        return const Color(0xFF6C63FF);
     }
   }
 
@@ -223,6 +240,68 @@ class _AddAlertState extends State<AddAlert> {
                     }
                     return null;
                   },
+                ),
+                const SizedBox(height: 16),
+
+                // Priority Dropdown
+                Container(
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF2D2D2D),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: DropdownButtonFormField<String>(
+                    value: _selectedPriority,
+                    style: const TextStyle(color: Colors.white),
+                    decoration: InputDecoration(
+                      labelText: 'Priority',
+                      labelStyle: const TextStyle(color: Colors.grey),
+                      filled: true,
+                      fillColor: const Color(0xFF2D2D2D),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide.none,
+                      ),
+                      prefixIcon: Icon(
+                        Icons.priority_high,
+                        color: _getPriorityColor(_selectedPriority),
+                      ),
+                      errorStyle: const TextStyle(
+                        color: Color(0xFFFF5252),
+                        fontSize: 12,
+                      ),
+                    ),
+                    dropdownColor: const Color(0xFF2D2D2D),
+                    items: _priorities.map((String priority) {
+                      return DropdownMenuItem<String>(
+                        value: priority,
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 12,
+                              height: 12,
+                              decoration: BoxDecoration(
+                                color: _getPriorityColor(priority),
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Text(
+                              priority.toUpperCase(),
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }).toList(),
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        _selectedPriority = newValue!;
+                      });
+                    },
+                  ),
                 ),
                 const SizedBox(height: 16),
 

@@ -10,6 +10,19 @@ class ViewAnnouncementPage extends StatefulWidget {
 }
 
 class _ViewAnnouncementPageState extends State<ViewAnnouncementPage> {
+  Color _getPriorityColor(String priority) {
+    switch (priority) {
+      case 'high':
+        return const Color(0xFFFF5252);
+      case 'medium':
+        return const Color(0xFFFF9800);
+      case 'low':
+        return const Color(0xFF4CAF50);
+      default:
+        return const Color(0xFF6C63FF);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -22,7 +35,7 @@ class _ViewAnnouncementPageState extends State<ViewAnnouncementPage> {
           onPressed: () => Navigator.pop(context),
         ),
         title: const Text(
-          'All Announcements',
+          'Announcements',
           style: TextStyle(
             color: Colors.white,
             fontSize: 20,
@@ -87,6 +100,7 @@ class _ViewAnnouncementPageState extends State<ViewAnnouncementPage> {
             itemBuilder: (context, index) {
               final announcement = announcements[index];
               final createdAt = (announcement['createdAt'] as Timestamp?)?.toDate();
+              final priority = announcement['priority'] ?? 'medium';
               
               return Container(
                 margin: const EdgeInsets.only(bottom: 16),
@@ -94,6 +108,8 @@ class _ViewAnnouncementPageState extends State<ViewAnnouncementPage> {
                   title: announcement['title'] ?? 'Announcement',
                   description: announcement['description'] ?? '',
                   createdAt: createdAt,
+                  priority: priority,
+                  getPriorityColor: _getPriorityColor,
                   onTap: () => _showAnnouncementDialog(context, announcement),
                 ),
               );
@@ -106,6 +122,7 @@ class _ViewAnnouncementPageState extends State<ViewAnnouncementPage> {
 
   void _showAnnouncementDialog(BuildContext context, DocumentSnapshot announcement) {
     final createdAt = (announcement['createdAt'] as Timestamp?)?.toDate();
+    final priority = announcement['priority'] ?? 'medium';
     
     showDialog(
       context: context,
@@ -126,12 +143,12 @@ class _ViewAnnouncementPageState extends State<ViewAnnouncementPage> {
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: Colors.green.withOpacity(0.13),
+                        color: _getPriorityColor(priority).withOpacity(0.13),
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.campaign,
-                        color: Colors.green,
+                        color: _getPriorityColor(priority),
                         size: 24,
                       ),
                     ),
@@ -152,7 +169,7 @@ class _ViewAnnouncementPageState extends State<ViewAnnouncementPage> {
                           if (createdAt != null) ...[
                             const SizedBox(height: 4),
                             Text(
-                              DateFormat('MMM dd, yyyy • h:mm a').format(createdAt!),
+                              DateFormat('MMM dd, yyyy • h:mm a').format(createdAt),
                               style: const TextStyle(
                                 color: Colors.white70,
                                 fontSize: 14,
@@ -161,6 +178,26 @@ class _ViewAnnouncementPageState extends State<ViewAnnouncementPage> {
                             ),
                           ],
                         ],
+                      ),
+                    ),
+                    // Priority Badge
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: _getPriorityColor(priority).withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: _getPriorityColor(priority).withOpacity(0.5),
+                        ),
+                      ),
+                      child: Text(
+                        priority.toUpperCase(),
+                        style: TextStyle(
+                          color: _getPriorityColor(priority),
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'Poppins',
+                        ),
                       ),
                     ),
                   ],
@@ -211,12 +248,16 @@ class _AnnouncementCard extends StatelessWidget {
   final String title;
   final String description;
   final DateTime? createdAt;
+  final String priority;
+  final Function(String) getPriorityColor;
   final VoidCallback onTap;
 
   const _AnnouncementCard({
     required this.title,
     required this.description,
     required this.createdAt,
+    required this.priority,
+    required this.getPriorityColor,
     required this.onTap,
   });
 
@@ -231,12 +272,12 @@ class _AnnouncementCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.green.withOpacity(0.08),
+              color: getPriorityColor(priority).withOpacity(0.08),
               blurRadius: 14,
               offset: const Offset(0, 6),
             ),
           ],
-          border: Border.all(color: Colors.green.withOpacity(0.13)),
+          border: Border.all(color: getPriorityColor(priority).withOpacity(0.13)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -246,12 +287,12 @@ class _AnnouncementCard extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: Colors.green.withOpacity(0.13),
+                    color: getPriorityColor(priority).withOpacity(0.13),
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.campaign,
-                    color: Colors.green,
+                    color: getPriorityColor(priority),
                     size: 24,
                   ),
                 ),
@@ -283,6 +324,27 @@ class _AnnouncementCard extends StatelessWidget {
                     ],
                   ),
                 ),
+                // Priority Badge
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: getPriorityColor(priority).withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: getPriorityColor(priority).withOpacity(0.5),
+                    ),
+                  ),
+                  child: Text(
+                    priority.toUpperCase(),
+                    style: TextStyle(
+                      color: getPriorityColor(priority),
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'Poppins',
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
                 const Icon(
                   Icons.arrow_forward_ios,
                   color: Colors.white54,
