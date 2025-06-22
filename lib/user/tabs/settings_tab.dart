@@ -3,13 +3,51 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:neighborhub/user/pages/edit_profile.dart';
 import 'package:neighborhub/user/pages/aboutus.dart';
 import 'package:neighborhub/user/pages/forgetpassword.dart';
+import 'package:neighborhub/user/pages/verify_emails.dart';
 
-class SettingsTab extends StatelessWidget {
+class SettingsTab extends StatefulWidget {
   const SettingsTab({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  State<SettingsTab> createState() => _SettingsTabState();
+}
+
+class _SettingsTabState extends State<SettingsTab> {
+  User? _user;
+  bool _isEmailVerified = false;
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+  Future<void> _loadUserData() async {
     final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      // Reload user to get latest verification status
+      await user.reload();
+      final updatedUser = FirebaseAuth.instance.currentUser;
+      
+      if (mounted) {
+        setState(() {
+          _user = updatedUser;
+          _isEmailVerified = updatedUser?.emailVerified ?? false;
+          _isLoading = false;
+        });
+      }
+    } else {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -25,7 +63,7 @@ class SettingsTab extends StatelessWidget {
                     children: [
                       const CircleAvatar(
                         radius: 48,
-                        backgroundImage: NetworkImage('https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/340px-Default_pfp.svg.png?20220226140232'), // Placeholder image
+                        backgroundImage: NetworkImage('https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/340px-Default_pfp.svg.png?20220226140232'),
                         backgroundColor: Colors.black,
                       ),
                       Positioned(
@@ -45,22 +83,102 @@ class SettingsTab extends StatelessWidget {
                   ),
                   const SizedBox(height: 12),
                   const SizedBox(height: 4),
-                  Text(
-                    user?.email ?? '',
-                    style: const TextStyle(
-                      color: Color.fromARGB(255, 255, 255, 255),
-                      fontWeight: FontWeight.bold,
-                      fontSize: 22,
-                    ),
+                  
+                  // Email with verification indicator
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Flexible(
+                        child: Text(
+                          _user?.email ?? '',
+                          style: const TextStyle(
+                            color: Color.fromARGB(255, 255, 255, 255),
+                            fontWeight: FontWeight.bold,
+                            fontSize: 22,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      if (_isLoading)
+                        const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(Colors.grey),
+                          ),
+                        )
+                      else if (_isEmailVerified)
+                        Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: BoxDecoration(
+                            color: Colors.blue,
+                            shape: BoxShape.circle,
+                            border: Border.all(color: Colors.white, width: 2),
+                          ),
+                          child: const Icon(
+                            Icons.verified,
+                            color: Colors.white,
+                            size: 16,
+                          ),
+                        )
+                      else
+                        Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: BoxDecoration(
+                            color: Colors.orange,
+                            shape: BoxShape.circle,
+                            border: Border.all(color: Colors.white, width: 2),
+                          ),
+                          child: const Icon(
+                            Icons.warning_amber_rounded,
+                            color: Colors.white,
+                            size: 16,
+                          ),
+                        ),
+                    ],
                   ),
-                  if (user != null) ...[
-                    const SizedBox(height: 6),
-                    Text(
-                      'User ID: ${user.uid}',
-                      style: const TextStyle(
-                        color: Colors.grey,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
+                  
+                  // Verification status text
+                  if (!_isLoading) ...[
+                    const SizedBox(height: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: _isEmailVerified 
+                            ? Colors.green.withOpacity(0.2)
+                            : Colors.orange.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(
+                          color: _isEmailVerified 
+                              ? Colors.green.withOpacity(0.5)
+                              : Colors.orange.withOpacity(0.5),
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            _isEmailVerified 
+                                ? Icons.verified
+                                : Icons.warning_amber_rounded,
+                            color: _isEmailVerified ? Colors.green : Colors.orange,
+                            size: 16,
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            _isEmailVerified 
+                                ? 'Email Verified'
+                                : 'Email Not Verified',
+                            style: TextStyle(
+                              color: _isEmailVerified ? Colors.green : Colors.orange,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              fontFamily: 'Poppins',
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ],
@@ -105,6 +223,19 @@ class SettingsTab extends StatelessWidget {
                       );
                     },
                   ),
+                  // Email verification tile (only show if not verified)
+                  if (!_isEmailVerified && !_isLoading)
+                    _SettingsTile(
+                      icon: Icons.mark_email_unread_outlined,
+                      title: 'Verify Email',
+                      subtitle: 'Complete email verification',
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const VerifyEmailsPage()),
+                        );
+                      },
+                    ),
                   _SettingsTile(
                     icon: Icons.info_outline,
                     title: 'About Us',
@@ -140,12 +271,14 @@ class SettingsTab extends StatelessWidget {
 class _SettingsTile extends StatelessWidget {
   final IconData icon;
   final String title;
+  final String? subtitle;
   final bool isLast;
   final VoidCallback? onTap;
 
   const _SettingsTile({
     required this.icon,
     required this.title,
+    this.subtitle,
     this.isLast = false,
     this.onTap,
   });
@@ -164,6 +297,16 @@ class _SettingsTile extends StatelessWidget {
               fontSize: 16,
             ),
           ),
+          subtitle: subtitle != null
+              ? Text(
+                  subtitle!,
+                  style: TextStyle(
+                    color: Colors.grey[400],
+                    fontSize: 12,
+                    fontFamily: 'Poppins',
+                  ),
+                )
+              : null,
           trailing: const Icon(Icons.chevron_right, color: Colors.white),
           onTap: onTap,
         ),
