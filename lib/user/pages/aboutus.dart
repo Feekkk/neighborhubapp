@@ -153,9 +153,9 @@ class AboutUsPage extends StatelessWidget {
                   children: [
                     const CircleAvatar(
                       radius: 28,
-                      backgroundImage: AssetImage(
-                        'assets/solo_dev.png',
-                      ), // Replace with your own asset or use NetworkImage
+                      backgroundImage: NetworkImage(
+                        'https://cdn-icons-png.flaticon.com/512/25/25231.png',
+                      ),
                       backgroundColor: Colors.white12,
                     ),
                     const SizedBox(width: 18),
