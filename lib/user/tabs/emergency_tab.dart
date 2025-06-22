@@ -4,6 +4,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:neighborhub/user/pages/map_help.dart';
+import 'package:neighborhub/user/pages/error_page.dart';
 
 class EmergencyTab extends StatefulWidget {
   const EmergencyTab({super.key});
@@ -22,6 +23,27 @@ class _EmergencyTabState extends State<EmergencyTab> {
   @override
   void initState() {
     super.initState();
+    _checkEmailVerificationAndRedirect();
+  }
+
+  Future<void> _checkEmailVerificationAndRedirect() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+    
+    // Reload user to get latest verification status
+    await user.reload();
+    final updatedUser = FirebaseAuth.instance.currentUser;
+    
+    if (updatedUser != null && !updatedUser.emailVerified && mounted) {
+      // Redirect to error page immediately
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const ErrorPage()),
+      );
+      return;
+    }
+    
+    // If verified, proceed with getting location
     _getCurrentLocation();
   }
 
@@ -79,23 +101,29 @@ class _EmergencyTabState extends State<EmergencyTab> {
   }
 
   Future<void> _saveLocation() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+    await user.reload();
+    if (!user.emailVerified) {
+      if (mounted) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const ErrorPage()),
+        );
+      }
+      return;
+    }
     if (currentPosition == null) return;
-
     setState(() {
       isSaving = true;
     });
-
     try {
-      final user = FirebaseAuth.instance.currentUser;
-      if (user == null) return;
-
       await FirebaseFirestore.instance.collection('locations').add({
         'userId': user.uid,
         'latitude': currentPosition!.latitude,
         'longitude': currentPosition!.longitude,
         'timestamp': FieldValue.serverTimestamp(),
       });
-
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
