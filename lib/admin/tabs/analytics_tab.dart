@@ -208,11 +208,7 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
                   ),
                 ),
               ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
+              const SizedBox(width: 16),
               Expanded(
                 child: GestureDetector(
                   onTap: () {
