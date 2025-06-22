@@ -18,6 +18,7 @@ class _EmergencyTabState extends State<EmergencyTab> {
   Position? currentPosition;
   bool isLoading = true;
   bool isSaving = false;
+  bool isVerifying = true;
   MapType _currentMapType = MapType.normal;
 
   @override
@@ -44,6 +45,11 @@ class _EmergencyTabState extends State<EmergencyTab> {
     }
     
     // If verified, proceed with getting location
+    if (mounted) {
+      setState(() {
+        isVerifying = false;
+      });
+    }
     _getCurrentLocation();
   }
 
@@ -177,6 +183,31 @@ class _EmergencyTabState extends State<EmergencyTab> {
 
   @override
   Widget build(BuildContext context) {
+    if (isVerifying) {
+      return Scaffold(
+        backgroundColor: const Color(0xFF1A1A1A),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF6C63FF)),
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'Verifying access...',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontFamily: 'Poppins',
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
       body: Stack(
         children: [
