@@ -112,6 +112,198 @@ class _ViewEventsState extends State<ViewEvents> {
                 ),
                 const SizedBox(height: 24),
               ],
+              
+              // Attendance Statistics Section
+              const Text(
+                'Attendance Statistics',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 16),
+              
+              // Real-time attendance data
+              StreamBuilder<QuerySnapshot>(
+                stream: _firestore
+                    .collection('event_attendances')
+                    .where('eventId', isEqualTo: event.id)
+                    .snapshots(),
+                builder: (context, attendanceSnapshot) {
+                  if (attendanceSnapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(16.0),
+                        child: CircularProgressIndicator(
+                          color: Color(0xFF6C63FF),
+                          strokeWidth: 2,
+                        ),
+                      ),
+                    );
+                  }
+
+                  final attendances = attendanceSnapshot.data?.docs ?? [];
+                  final attendingCount = attendances.where((doc) => 
+                      (doc.data() as Map<String, dynamic>)['status'] == 'attending').length;
+                  final notAttendingCount = attendances.where((doc) => 
+                      (doc.data() as Map<String, dynamic>)['status'] == 'not_attending').length;
+                  final totalResponses = attendances.length;
+
+                  return FutureBuilder<QuerySnapshot>(
+                    future: _firestore.collection('users').get(),
+                    builder: (context, usersSnapshot) {
+                      final totalUsers = usersSnapshot.data?.size ?? 0;
+                      final attendancePercentage = totalUsers > 0 
+                          ? (attendingCount / totalUsers) * 100 
+                          : 0.0;
+
+                      return Column(
+                        children: [
+                          // Attendance Progress Bar
+                          Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF232323),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: const Color(0xFF6C63FF).withOpacity(0.2),
+                              ),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      'Attendance Progress',
+                                      style: TextStyle(
+                                        color: Colors.white.withOpacity(0.9),
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                    Text(
+                                      '${attendancePercentage.toStringAsFixed(1)}%',
+                                      style: TextStyle(
+                                        color: attendancePercentage >= 50 
+                                            ? Colors.green 
+                                            : Colors.orange,
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 12),
+                                LinearProgressIndicator(
+                                  value: attendancePercentage / 100,
+                                  backgroundColor: Colors.grey[800],
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    attendancePercentage >= 50 
+                                        ? Colors.green 
+                                        : Colors.orange,
+                                  ),
+                                  minHeight: 8,
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  '$attendingCount of $totalUsers users attending',
+                                  style: TextStyle(
+                                    color: Colors.white.withOpacity(0.7),
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          
+                          // Detailed Statistics
+                          Row(
+                            children: [
+                              Expanded(
+                                child: _buildStatCard(
+                                  'Attending',
+                                  attendingCount.toString(),
+                                  Icons.check_circle,
+                                  Colors.green,
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: _buildStatCard(
+                                  'Not Attending',
+                                  notAttendingCount.toString(),
+                                  Icons.cancel,
+                                  Colors.red,
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: _buildStatCard(
+                                  'No Response',
+                                  (totalUsers - totalResponses).toString(),
+                                  Icons.person_outline,
+                                  Colors.grey,
+                                ),
+                              ),
+                            ],
+                          ),
+                          
+                          // Event Status Indicator
+                          const SizedBox(height: 16),
+                          Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: attendancePercentage >= 50 
+                                  ? Colors.green.withOpacity(0.1)
+                                  : Colors.orange.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(
+                                color: attendancePercentage >= 50 
+                                    ? Colors.green.withOpacity(0.3)
+                                    : Colors.orange.withOpacity(0.3),
+                              ),
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(
+                                  attendancePercentage >= 50 
+                                      ? Icons.check_circle
+                                      : Icons.warning,
+                                  color: attendancePercentage >= 50 
+                                      ? Colors.green
+                                      : Colors.orange,
+                                  size: 20,
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    attendancePercentage >= 50 
+                                        ? 'Event will proceed (${attendancePercentage.toStringAsFixed(1)}% attendance)'
+                                        : 'Event may be cancelled (${attendancePercentage.toStringAsFixed(1)}% attendance)',
+                                    style: TextStyle(
+                                      color: attendancePercentage >= 50 
+                                          ? Colors.green
+                                          : Colors.orange,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                },
+              ),
+              
+              const SizedBox(height: 24),
               const Divider(color: Colors.white24),
               const SizedBox(height: 16),
               Row(
@@ -145,6 +337,41 @@ class _ViewEventsState extends State<ViewEvents> {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  // Helper method to build stat cards
+  Widget _buildStatCard(String title, String value, IconData icon, Color color) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: const Color(0xFF232323),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: color.withOpacity(0.2)),
+      ),
+      child: Column(
+        children: [
+          Icon(icon, color: color, size: 20),
+          const SizedBox(height: 4),
+          Text(
+            value,
+            style: TextStyle(
+              color: color,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            title,
+            style: TextStyle(
+              color: Colors.white.withOpacity(0.7),
+              fontSize: 12,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
       ),
     );
   }
