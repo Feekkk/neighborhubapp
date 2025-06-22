@@ -73,8 +73,14 @@ class _HomeTabState extends State<HomeTab> {
     
     final user = FirebaseAuth.instance.currentUser;
     if (user != null && !user.emailVerified && !_hasShownVerificationDialog) {
-      _hasShownVerificationDialog = true;
-      _showEmailVerificationDialog();
+      // Reload user to get latest verification status
+      await user.reload();
+      final updatedUser = FirebaseAuth.instance.currentUser;
+      
+      if (updatedUser != null && !updatedUser.emailVerified && mounted) {
+        _hasShownVerificationDialog = true;
+        _showEmailVerificationDialog();
+      }
     }
   }
 
