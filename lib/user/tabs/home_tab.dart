@@ -4,6 +4,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
 import 'dart:async';
 import '../pages/verify_emails.dart';
+import '../pages/view_events.dart';
+import '../pages/aboutus.dart';
+import 'emergency_tab.dart';
 
 class HomeTab extends StatefulWidget {
   const HomeTab({super.key});
@@ -268,7 +271,6 @@ class _HomeTabState extends State<HomeTab> {
               ),
             ),
           ),
-          // Quick Actions Card - Redesigned
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 24, 20, 0),
             child: Container(
@@ -359,54 +361,57 @@ class _HomeTabState extends State<HomeTab> {
                       mainAxisSpacing: 20,
                       crossAxisSpacing: 16,
                       childAspectRatio: 0.85,
-                      children: const [
+                      children: [
                         _EnhancedQuickAction(
                           icon: Icons.report_problem, 
-                          label: 'Report Issue', 
-                          color: Color(0xFF6C63FF),
-                          gradient: [Color(0xFF6C63FF), Color(0xFF8B7CF6)],
+                          label: 'Report Emergency', 
+                          color: const Color(0xFF6C63FF),
+                          gradient: const [Color(0xFF6C63FF), Color(0xFF8B7CF6)],
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => const EmergencyTab()),
+                            );
+                          },
                         ),
                         _EnhancedQuickAction(
                           icon: Icons.newspaper, 
-                          label: 'News', 
-                          color: Color(0xFFB06AB3),
-                          gradient: [Color(0xFFB06AB3), Color(0xFFD4A5F5)],
+                          label: 'Announcements', 
+                          color: const Color(0xFFB06AB3),
+                          gradient: const [Color(0xFFB06AB3), Color(0xFFD4A5F5)],
+                          onTap: () {
+                            // Navigate to announcements page
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Announcements feature coming soon!'),
+                                backgroundColor: Color(0xFFB06AB3),
+                              ),
+                            );
+                          },
                         ),
                         _EnhancedQuickAction(
                           icon: Icons.event, 
                           label: 'Events', 
-                          color: Color(0xFF4568DC),
-                          gradient: [Color(0xFF4568DC), Color(0xFF6B8CFF)],
+                          color: const Color(0xFF4568DC),
+                          gradient: const [Color(0xFF4568DC), Color(0xFF6B8CFF)],
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => const ViewEventsPage()),
+                            );
+                          },
                         ),
                         _EnhancedQuickAction(
-                          icon: Icons.home_repair_service, 
-                          label: 'Services', 
-                          color: Color(0xFFFFD600),
-                          gradient: [Color(0xFFFFD600), Color(0xFFFFE55C)],
-                        ),
-                        _EnhancedQuickAction(
-                          icon: Icons.people, 
-                          label: 'Community', 
-                          color: Color(0xFF00BFAE),
-                          gradient: [Color(0xFF00BFAE), Color(0xFF4DD0E1)],
-                        ),
-                        _EnhancedQuickAction(
-                          icon: Icons.chat, 
-                          label: 'Chat', 
-                          color: Color(0xFF00B0FF),
-                          gradient: [Color(0xFF00B0FF), Color(0xFF64B5F6)],
-                        ),
-                        _EnhancedQuickAction(
-                          icon: Icons.book, 
-                          label: 'Guides', 
-                          color: Color(0xFF8D6E63),
-                          gradient: [Color(0xFF8D6E63), Color(0xFFA1887F)],
-                        ),
-                        _EnhancedQuickAction(
-                          icon: Icons.more_horiz, 
-                          label: 'More', 
-                          color: Color(0xFFBDBDBD),
-                          gradient: [Color(0xFFBDBDBD), Color(0xFFE0E0E0)],
+                          icon: Icons.info_outline, 
+                          label: 'About Us', 
+                          color: const Color(0xFFFFD600),
+                          gradient: const [Color(0xFFFFD600), Color(0xFFFFE55C)],
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => const AboutUsPage()),
+                            );
+                          },
                         ),
                       ],
                     ),
@@ -460,12 +465,14 @@ class _EnhancedQuickAction extends StatefulWidget {
   final String label;
   final Color color;
   final List<Color> gradient;
+  final VoidCallback onTap;
 
   const _EnhancedQuickAction({
-    required this.icon, 
-    required this.label, 
+    required this.icon,
+    required this.label,
     required this.color,
     required this.gradient,
+    required this.onTap,
   });
 
   @override
@@ -503,6 +510,7 @@ class _EnhancedQuickActionState extends State<_EnhancedQuickAction>
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
+      onTap: widget.onTap,
       onTapDown: (_) {
         setState(() => _isPressed = true);
         _animationController.forward();
