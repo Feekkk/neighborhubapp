@@ -149,7 +149,91 @@ class _DashboardUserState extends State<DashboardUser> with SingleTickerProvider
                         ),
                         elevation: 0,
                       ),
-                      onPressed: () => Navigator.of(context).pop(true),
+                      onPressed: () async {
+                        final shouldLogout = await showDialog<bool>(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            backgroundColor: const Color(0xFF2D2D2D),
+                            title: Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    gradient: const LinearGradient(
+                                      colors: [Color(0xFF6C63FF), Color(0xFFB06AB3)],
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                    ),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: const Icon(Icons.logout_rounded, color: Colors.white, size: 24),
+                                ),
+                                const SizedBox(width: 12),
+                                const Text(
+                                  'Confirm Logout',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 20,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            content: const Text(
+                              'Are you sure you want to logout from NeighborHub?',
+                              style: TextStyle(color: Colors.white70, fontSize: 16),
+                            ),
+                            actions: [
+                              TextButton(
+                                style: TextButton.styleFrom(
+                                  foregroundColor: Colors.white,
+                                  textStyle: const TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                                onPressed: () => Navigator.of(context).pop(false),
+                                child: const Text('Cancel'),
+                              ),
+                              ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFF6C63FF),
+                                  foregroundColor: Colors.white,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  elevation: 0,
+                                ),
+                                onPressed: () async {
+                                  try {
+                                    await FirebaseAuth.instance.signOut();
+                                    
+                                    // Force navigation to login page
+                                    if (mounted) {
+                                      Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
+                                    }
+                                    
+                                  } catch (e) {
+                                    debugPrint('Error during logout: $e');
+                                    if (mounted) {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(
+                                          content: Text('Error logging out: ${e.toString()}'),
+                                          backgroundColor: Colors.red,
+                                        ),
+                                      );
+                                    }
+                                  }
+                                },
+                                child: const Text('Logout'),
+                              ),
+                            ],
+                          ),
+                        );
+                        if (shouldLogout == true) {
+                          await FirebaseAuth.instance.signOut();
+                        }
+                      },
                       child: const Text('Logout'),
                     ),
                   ],
