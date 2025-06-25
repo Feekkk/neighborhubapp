@@ -56,7 +56,7 @@ class _LoginPageState extends State<LoginPage> {
         
         if (!mounted) return;
         // Navigate to admin dashboard if admin credentials, else user dashboard
-        if (_usernameController.text.trim() == 'admin@gmail.com' && _passwordController.text == 'admin123') {
+        if (_usernameController.text.trim() == 'admin-account' && _passwordController.text == 'admin123') {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) => const DashboardAdmin()),
