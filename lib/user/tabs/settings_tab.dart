@@ -154,9 +154,9 @@ class _SettingsTile extends StatelessWidget {
   const _SettingsTile({
     required this.icon,
     required this.title,
-    this.subtitle,
     this.isLast = false,
     this.onTap,
+    this.subtitle,
   });
 
   @override

@@ -17,7 +17,7 @@ class _HomeTabState extends State<HomeTab> {
   String? username = 'user';
   Timer? _timer;
   late DateTime _now;
-  bool _hasShownVerificationDialog = false;
+  final bool _hasShownVerificationDialog = false;
 
   @override
   void initState() {

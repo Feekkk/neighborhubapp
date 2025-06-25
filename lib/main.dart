@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:neighborhub/pages/login_page.dart';
-import 'package:neighborhub/user/dashboarduser.dart';
-import 'package:neighborhub/admin/dashboardadmin.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

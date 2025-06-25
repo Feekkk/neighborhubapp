@@ -4,7 +4,7 @@ class RegisterService {
       String email, String password) async {
     try {
       //TODO: Create user with email and password
-      return null;
+      return;
     } catch (e) {
       throw 'An error occurred during registration';
     }

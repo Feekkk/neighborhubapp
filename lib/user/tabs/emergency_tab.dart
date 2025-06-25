@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:neighborhub/user/pages/map_help.dart';
-import 'package:neighborhub/user/pages/error_page.dart';
 
 class EmergencyTab extends StatefulWidget {
   const EmergencyTab({super.key});
