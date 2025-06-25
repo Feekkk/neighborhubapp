@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:neighborhub/services/login.dart';
 import 'package:neighborhub/pages/register_page.dart';
 import 'package:neighborhub/widgets/error_message.dart';
+import 'package:neighborhub/services/auth_services.dart';
+import 'package:neighborhub/user/dashboarduser.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -15,6 +17,7 @@ class _LoginPageState extends State<LoginPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _loginService = LoginService();
+  final AuthService _authService = AuthService();
   bool _isLoading = false;
   String? _errorMessage;
 
@@ -46,13 +49,17 @@ class _LoginPageState extends State<LoginPage> {
       });
       
       try {
-        await _loginService.signInWithEmailAndPassword(
+        final result = await _loginService.signInWithEmailAndPassword(
           _emailController.text.trim(),
           _passwordController.text,
         );
         
         if (!mounted) return;
-        // No need to navigate manually as StreamBuilder in main.dart will handle it
+        // Navigate to dashboard or home page after successful login
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const DashboardUser()),
+        );
       } catch (e) {
         if (!mounted) return;
         _showError(e.toString());

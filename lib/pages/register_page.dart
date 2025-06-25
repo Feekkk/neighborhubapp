@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:neighborhub/services/register.dart';
 import 'package:neighborhub/user/dashboarduser.dart';
 import 'package:neighborhub/widgets/error_message.dart';
+import 'package:neighborhub/services/auth_services.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -16,6 +17,8 @@ class _RegisterPageState extends State<RegisterPage> {
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
   final _registerService = RegisterService();
+  final AuthService _authService = AuthService();
+  final _usernameController = TextEditingController();
   bool _isLoading = false;
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
@@ -23,6 +26,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
   @override
   void dispose() {
+    _usernameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
@@ -48,7 +52,8 @@ class _RegisterPageState extends State<RegisterPage> {
         _errorMessage = null;
       });
       try {
-        await _registerService.createUserWithEmailAndPassword(
+        final result = await _registerService.createUserWithEmailAndPassword(
+          _usernameController.text.trim(),
           _emailController.text.trim(),
           _passwordController.text,
         );
@@ -120,6 +125,33 @@ class _RegisterPageState extends State<RegisterPage> {
                         message: _errorMessage!,
                         onDismiss: _clearError,
                       ),
+                    // Username Field
+                    TextFormField(
+                      controller: _usernameController,
+                      style: const TextStyle(color: Colors.white),
+                      decoration: InputDecoration(
+                        labelText: 'Username',
+                        labelStyle: const TextStyle(color: Colors.grey),
+                        filled: true,
+                        fillColor: const Color(0xFF2D2D2D),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide.none,
+                        ),
+                        prefixIcon: const Icon(Icons.person, color: Colors.grey),
+                        errorStyle: const TextStyle(
+                          color: Color(0xFFFF5252),
+                          fontSize: 12,
+                        ),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter your username';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 16),
                     // Email Field
                     TextFormField(
                       controller: _emailController,

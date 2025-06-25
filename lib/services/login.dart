@@ -1,16 +1,19 @@
+import 'auth_services.dart';
 
 class LoginService {
+  final AuthService _authService = AuthService();
 
-  Future<void> signInWithEmailAndPassword(
+  Future<Map<String, dynamic>> signInWithEmailAndPassword(
       String email, String password) async {
     try {
+      final result = await _authService.login(email, password);
+      return result;
     } catch (e) {
-      throw 'An error occurred during sign in';
+      throw e.toString();
     }
   }
 
   Future<void> signOut() async {
-    //TODO: Sign out
-    throw 'An error occurred during sign out';
+    _authService.logout();
   }
 }

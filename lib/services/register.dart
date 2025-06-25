@@ -1,18 +1,20 @@
-class RegisterService {
+import 'auth_services.dart';
 
-  Future<void> createUserWithEmailAndPassword(
-      String email, String password) async {
+class RegisterService {
+  final AuthService _authService = AuthService();
+
+  Future<Map<String, dynamic>> createUserWithEmailAndPassword(
+      String username, String email, String password) async {
     try {
-      //TODO: Create user with email and password
-      return;
+      final result = await _authService.register(username, email, password);
+      return result;
     } catch (e) {
-      throw 'An error occurred during registration';
+      throw e.toString();
     }
   }
 
   Future<void> signOut() async {
-    //TODO: Sign out
-    throw 'An error occurred during sign out';
+    _authService.logout();
   }
 }
 

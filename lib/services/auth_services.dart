@@ -1,8 +1,10 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
+// AuthService: Handles authentication and HTTP requests to backend endpoints for login and registration.
+// Integrates with /api/auth/login and /api/auth/register
 class AuthService {
-  static const String baseUrl = 'http://localhost:3000/api/auth'; // Change to your backend URL if needed
+  static const String baseUrl = 'http://192.168.1.6:3000/api/auth'; // Change to your backend URL if needed
   String? _token;
 
   String? get token => _token;
