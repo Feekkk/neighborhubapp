@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:neighborhub/user/pages/map_help.dart';
 import 'package:neighborhub/user/pages/error_page.dart';
 
@@ -18,38 +16,12 @@ class _EmergencyTabState extends State<EmergencyTab> {
   Position? currentPosition;
   bool isLoading = true;
   bool isSaving = false;
-  bool isVerifying = true;
+  bool isVerifying = false;
   MapType _currentMapType = MapType.normal;
 
   @override
   void initState() {
     super.initState();
-    _checkEmailVerificationAndRedirect();
-  }
-
-  Future<void> _checkEmailVerificationAndRedirect() async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) return;
-    
-    // Reload user to get latest verification status
-    await user.reload();
-    final updatedUser = FirebaseAuth.instance.currentUser;
-    
-    if (updatedUser != null && !updatedUser.emailVerified && mounted) {
-      // Redirect to error page immediately
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const ErrorPage()),
-      );
-      return;
-    }
-    
-    // If verified, proceed with getting location
-    if (mounted) {
-      setState(() {
-        isVerifying = false;
-      });
-    }
     _getCurrentLocation();
   }
 
@@ -106,57 +78,6 @@ class _EmergencyTabState extends State<EmergencyTab> {
     }
   }
 
-  Future<void> _saveLocation() async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) return;
-    await user.reload();
-    if (!user.emailVerified) {
-      if (mounted) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const ErrorPage()),
-        );
-      }
-      return;
-    }
-    if (currentPosition == null) return;
-    setState(() {
-      isSaving = true;
-    });
-    try {
-      await FirebaseFirestore.instance.collection('locations').add({
-        'userId': user.uid,
-        'latitude': currentPosition!.latitude,
-        'longitude': currentPosition!.longitude,
-        'timestamp': FieldValue.serverTimestamp(),
-      });
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Location saved successfully!'),
-            backgroundColor: Colors.green,
-          ),
-        );
-      }
-    } catch (e) {
-      debugPrint('Error saving location: $e');
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Failed to save location. Please try again.'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    } finally {
-      if (mounted) {
-        setState(() {
-          isSaving = false;
-        });
-      }
-    }
-  }
-
   void _goToCurrentLocation() {
     if (currentPosition != null && mapController != null && mounted) {
       mapController!.animateCamera(
@@ -183,31 +104,6 @@ class _EmergencyTabState extends State<EmergencyTab> {
 
   @override
   Widget build(BuildContext context) {
-    if (isVerifying) {
-      return Scaffold(
-        backgroundColor: const Color(0xFF1A1A1A),
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF6C63FF)),
-              ),
-              const SizedBox(height: 16),
-              const Text(
-                'Verifying access...',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
-                  fontFamily: 'Poppins',
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
-
     return Scaffold(
       body: Stack(
         children: [
@@ -340,7 +236,7 @@ class _EmergencyTabState extends State<EmergencyTab> {
                 child: Material(
                   color: Colors.transparent,
                   child: InkWell(
-                    onTap: isSaving ? null : _saveLocation,
+                    onTap: () {},
                     borderRadius: BorderRadius.circular(28),
                     child: Center(
                       child: isSaving

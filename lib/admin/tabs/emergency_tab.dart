@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import '../pages/emergency_resolve.dart';
 
 class AdminEmergencyTab extends StatelessWidget {
@@ -9,11 +8,8 @@ class AdminEmergencyTab extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       color: const Color(0xFF1A1A1A),
-      child: StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance
-            .collection('locations')
-            .orderBy('timestamp', descending: true)
-            .snapshots(),
+      child: StreamBuilder<List<dynamic>>(
+        stream: null,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(
@@ -22,7 +18,7 @@ class AdminEmergencyTab extends StatelessWidget {
               ),
             );
           }
-          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+          if (!snapshot.hasData || snapshot.data!.isEmpty) {
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -61,16 +57,16 @@ class AdminEmergencyTab extends StatelessWidget {
               ),
             );
           }
-          final emergencies = snapshot.data!.docs;
+          final emergencies = snapshot.data!;
           return ListView.builder(
             padding: const EdgeInsets.all(16),
             itemCount: emergencies.length,
             itemBuilder: (context, index) {
               final doc = emergencies[index];
-              final data = doc.data() as Map<String, dynamic>;
+              final data = doc;
               final userId = data['userId'] ?? 'Unknown';
               final username = data['username'] ?? userId;
-              final timestamp = data['timestamp'] as Timestamp?;
+              final timestamp = data['timestamp'];
               final timeString = timestamp != null
                   ? _formatTimestamp(timestamp)
                   : 'Unknown time';
@@ -192,8 +188,8 @@ class AdminEmergencyTab extends StatelessWidget {
     );
   }
 
-  String _formatTimestamp(Timestamp timestamp) {
-    final date = timestamp.toDate();
+  String _formatTimestamp(DateTime timestamp) {
+    final date = timestamp;
     final now = DateTime.now();
     final difference = now.difference(date);
     if (difference.inMinutes < 1) {

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 
 class ViewAnnouncement extends StatefulWidget {
@@ -12,10 +11,7 @@ class ViewAnnouncement extends StatefulWidget {
 class _ViewAnnouncementState extends State<ViewAnnouncement> {
   Future<void> _deleteAnnouncement(String announcementId) async {
     try {
-      await FirebaseFirestore.instance
-          .collection('announcements')
-          .doc(announcementId)
-          .delete();
+      //TODO: Delete announcement from database
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -105,11 +101,8 @@ class _ViewAnnouncementState extends State<ViewAnnouncement> {
           onPressed: () => Navigator.pop(context),
         ),
       ),
-      body: StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance
-            .collection('announcements')
-            .orderBy('createdAt', descending: true)
-            .snapshots(),
+      body: StreamBuilder<List<dynamic>>(
+        stream: null,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(
@@ -119,7 +112,7 @@ class _ViewAnnouncementState extends State<ViewAnnouncement> {
             );
           }
 
-          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+          if (!snapshot.hasData || snapshot.data!.isEmpty) {
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -144,12 +137,12 @@ class _ViewAnnouncementState extends State<ViewAnnouncement> {
 
           return ListView.builder(
             padding: const EdgeInsets.all(16),
-            itemCount: snapshot.data!.docs.length,
+            itemCount: snapshot.data!.length,
             itemBuilder: (context, index) {
-              final announcement = snapshot.data!.docs[index];
-              final data = announcement.data() as Map<String, dynamic>;
-              final timestamp = data['createdAt'] as Timestamp?;
-              final date = timestamp?.toDate();
+              final announcement = snapshot.data![index];
+              final data = announcement;
+              final timestamp = data['createdAt'];
+              final date = timestamp;
 
               return Card(
                 margin: const EdgeInsets.only(bottom: 16),

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 
 class AddEvent extends StatefulWidget {
@@ -72,12 +71,7 @@ class _AddEventState extends State<AddEvent> with SingleTickerProviderStateMixin
         );
 
         // Add to Firestore
-        await FirebaseFirestore.instance.collection('events').add({
-          'title': _titleController.text,
-          'description': _descriptionController.text,
-          'dateTime': eventDateTime,
-          'createdAt': FieldValue.serverTimestamp(),
-        });
+          //TODO: Add event to database
 
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(

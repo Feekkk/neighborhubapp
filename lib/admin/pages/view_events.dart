@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 
 class ViewEvents extends StatefulWidget {
@@ -10,11 +9,10 @@ class ViewEvents extends StatefulWidget {
 }
 
 class _ViewEventsState extends State<ViewEvents> {
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   Future<void> _deleteEvent(String eventId) async {
     try {
-      await _firestore.collection('events').doc(eventId).delete();
+      //TODO: Delete event from database
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -35,9 +33,9 @@ class _ViewEventsState extends State<ViewEvents> {
     }
   }
 
-  void _showEventDetails(BuildContext context, DocumentSnapshot event) {
-    final eventData = event.data() as Map<String, dynamic>;
-    final eventDate = (eventData['dateTime'] as Timestamp).toDate();
+  void _showEventDetails(BuildContext context, Map<String, dynamic> event) {
+    final eventData = event;
+    final eventDate = eventData['dateTime'];
 
     showDialog(
       context: context,
@@ -125,11 +123,8 @@ class _ViewEventsState extends State<ViewEvents> {
               const SizedBox(height: 16),
               
               // Real-time attendance data
-              StreamBuilder<QuerySnapshot>(
-                stream: _firestore
-                    .collection('event_attendances')
-                    .where('eventId', isEqualTo: event.id)
-                    .snapshots(),
+              StreamBuilder<List<dynamic>>(
+                stream: null,
                 builder: (context, attendanceSnapshot) {
                   if (attendanceSnapshot.connectionState == ConnectionState.waiting) {
                     return const Center(
@@ -143,17 +138,17 @@ class _ViewEventsState extends State<ViewEvents> {
                     );
                   }
 
-                  final attendances = attendanceSnapshot.data?.docs ?? [];
+                  final attendances = attendanceSnapshot.data ?? [];
                   final attendingCount = attendances.where((doc) => 
-                      (doc.data() as Map<String, dynamic>)['status'] == 'attending').length;
+                      doc['status'] == 'attending').length;
                   final notAttendingCount = attendances.where((doc) => 
-                      (doc.data() as Map<String, dynamic>)['status'] == 'not_attending').length;
+                      doc['status'] == 'not_attending').length;
                   final totalResponses = attendances.length;
 
-                  return FutureBuilder<QuerySnapshot>(
-                    future: _firestore.collection('users').get(),
+                  return FutureBuilder<List<dynamic>>(
+                    future: null,
                     builder: (context, usersSnapshot) {
-                      final totalUsers = usersSnapshot.data?.size ?? 0;
+                      final totalUsers = usersSnapshot.data?.length ?? 0;
                       final attendancePercentage = totalUsers > 0 
                           ? (attendingCount / totalUsers) * 100 
                           : 0.0;
@@ -320,7 +315,7 @@ class _ViewEventsState extends State<ViewEvents> {
                   ElevatedButton(
                     onPressed: () {
                       Navigator.pop(context);
-                      _deleteEvent(event.id);
+                      _deleteEvent(eventData['id']);
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.red,
@@ -394,11 +389,8 @@ class _ViewEventsState extends State<ViewEvents> {
           onPressed: () => Navigator.pop(context),
         ),
       ),
-      body: StreamBuilder<QuerySnapshot>(
-        stream: _firestore
-            .collection('events')
-            .orderBy('dateTime')
-            .snapshots(),
+      body: StreamBuilder<List<dynamic>>(
+        stream: null,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(
@@ -408,7 +400,7 @@ class _ViewEventsState extends State<ViewEvents> {
             );
           }
 
-          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+          if (!snapshot.hasData || snapshot.data!.isEmpty) {
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -433,11 +425,11 @@ class _ViewEventsState extends State<ViewEvents> {
 
           return ListView.builder(
             padding: const EdgeInsets.all(16),
-            itemCount: snapshot.data!.docs.length,
+            itemCount: snapshot.data!.length,
             itemBuilder: (context, index) {
-              final event = snapshot.data!.docs[index];
-              final eventData = event.data() as Map<String, dynamic>;
-              final eventDate = (eventData['dateTime'] as Timestamp).toDate();
+              final event = snapshot.data![index];
+              final eventData = event;
+              final eventDate = eventData['dateTime'];
 
               return Card(
                 margin: const EdgeInsets.only(bottom: 16),
@@ -446,7 +438,7 @@ class _ViewEventsState extends State<ViewEvents> {
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: InkWell(
-                  onTap: () => _showEventDetails(context, event),
+                  onTap: () => _showEventDetails(context, eventData),
                   borderRadius: BorderRadius.circular(16),
                   child: Padding(
                     padding: const EdgeInsets.all(16),

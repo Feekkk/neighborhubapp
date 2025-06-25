@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 class EditProfilePage extends StatefulWidget {
   const EditProfilePage({super.key});
@@ -23,15 +21,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
   }
 
   Future<void> _loadUserData() async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) return;
-    final doc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
-    final data = doc.data();
-    if (data != null) {
-      _usernameController.text = data['username'] ?? '';
-      _phoneController.text = data['phone'] ?? '';
-      _addressController.text = data['address'] ?? '';
-    }
+
   }
 
   Future<void> _saveProfile() async {
@@ -39,16 +29,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
     setState(() => _isLoading = true);
     
     try {
-      final user = FirebaseAuth.instance.currentUser;
-      if (user == null) return;
-      
-      await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
-        'username': _usernameController.text.trim(),
-        'phone': _phoneController.text.trim(),
-        'address': _addressController.text.trim(),
-        'email': user.email,
-        'userId': user.uid,
-      }, SetOptions(merge: true));
+        //TODO: Save profile to database  
       
       setState(() => _isLoading = false);
       

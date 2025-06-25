@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 
 class ViewAnnouncementPage extends StatefulWidget {
@@ -45,11 +44,8 @@ class _ViewAnnouncementPageState extends State<ViewAnnouncementPage> {
         ),
         centerTitle: true,
       ),
-      body: StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance
-            .collection('announcements')
-            .orderBy('createdAt', descending: true)
-            .snapshots(),
+      body: StreamBuilder<List<dynamic>>(
+        stream: null,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(
@@ -59,7 +55,7 @@ class _ViewAnnouncementPageState extends State<ViewAnnouncementPage> {
             );
           }
 
-          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+          if (!snapshot.hasData || snapshot.data!.isEmpty) {
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -92,14 +88,14 @@ class _ViewAnnouncementPageState extends State<ViewAnnouncementPage> {
             );
           }
 
-          final announcements = snapshot.data!.docs;
+          final announcements = snapshot.data!;
 
           return ListView.builder(
             padding: const EdgeInsets.all(16),
             itemCount: announcements.length,
             itemBuilder: (context, index) {
               final announcement = announcements[index];
-              final createdAt = (announcement['createdAt'] as Timestamp?)?.toDate();
+              final createdAt = announcement['createdAt'];
               final priority = announcement['priority'] ?? 'medium';
               
               return Container(
@@ -120,8 +116,8 @@ class _ViewAnnouncementPageState extends State<ViewAnnouncementPage> {
     );
   }
 
-  void _showAnnouncementDialog(BuildContext context, DocumentSnapshot announcement) {
-    final createdAt = (announcement['createdAt'] as Timestamp?)?.toDate();
+    void _showAnnouncementDialog(BuildContext context, Map<String, dynamic> announcement) {
+    final createdAt = announcement['createdAt'];
     final priority = announcement['priority'] ?? 'medium';
     
     showDialog(

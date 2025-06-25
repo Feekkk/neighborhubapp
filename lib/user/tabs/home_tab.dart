@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
 import 'dart:async';
 import '../pages/verify_emails.dart';
@@ -16,7 +14,7 @@ class HomeTab extends StatefulWidget {
 }
 
 class _HomeTabState extends State<HomeTab> {
-  String? username;
+  String? username = 'user';
   Timer? _timer;
   late DateTime _now;
   bool _hasShownVerificationDialog = false;
@@ -26,8 +24,6 @@ class _HomeTabState extends State<HomeTab> {
     super.initState();
     _now = DateTime.now();
     _startTimer();
-    _loadUsername();
-    _checkEmailVerification();
   }
 
   void _startTimer() {
@@ -44,173 +40,6 @@ class _HomeTabState extends State<HomeTab> {
   void dispose() {
     _timer?.cancel();
     super.dispose();
-  }
-
-  Future<void> _loadUsername() async {
-    if (!mounted) return;
-    
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) return;
-    
-    try {
-      final doc = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(user.uid)
-          .get();
-      
-      if (mounted) {
-        setState(() {
-          username = doc.data()?['username'] ?? 'user';
-        });
-      }
-    } catch (e) {
-      debugPrint('Error loading username: $e');
-    }
-  }
-
-  Future<void> _checkEmailVerification() async {
-    // Wait a bit for the UI to load first
-    await Future.delayed(const Duration(seconds: 2));
-    
-    if (!mounted) return;
-    
-    final user = FirebaseAuth.instance.currentUser;
-    if (user != null && !user.emailVerified && !_hasShownVerificationDialog) {
-      // Reload user to get latest verification status
-      await user.reload();
-      final updatedUser = FirebaseAuth.instance.currentUser;
-      
-      if (updatedUser != null && !updatedUser.emailVerified && mounted) {
-        _hasShownVerificationDialog = true;
-        _showEmailVerificationDialog();
-      }
-    }
-  }
-
-  void _showEmailVerificationDialog() {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return Dialog(
-          backgroundColor: const Color(0xFF2A2A2A),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: Container(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Warning Icon
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.orange.withOpacity(0.1),
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: Colors.orange.withOpacity(0.3),
-                      width: 2,
-                    ),
-                  ),
-                  child: const Icon(
-                    Icons.warning_amber_rounded,
-                    color: Colors.orange,
-                    size: 48,
-                  ),
-                ),
-                const SizedBox(height: 20),
-                
-                // Title
-                const Text(
-                  'Email Verification Required',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    fontFamily: 'Poppins',
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 12),
-                
-                // Message
-                Text(
-                  'Please verify your email address to access all features of NeighborHub. This helps us maintain a secure community.',
-                  style: TextStyle(
-                    color: Colors.grey[300],
-                    fontSize: 14,
-                    fontFamily: 'Poppins',
-                    height: 1.5,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 24),
-                
-                // Buttons
-                Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
-                        style: OutlinedButton.styleFrom(
-                          side: const BorderSide(color: Colors.grey),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                        ),
-                        child: const Text(
-                          'Close',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            fontFamily: 'Poppins',
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const VerifyEmailsPage(),
-                            ),
-                          );
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF6C63FF),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                        ),
-                        child: const Text(
-                          'Verify',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            fontFamily: 'Poppins',
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
   }
 
   @override

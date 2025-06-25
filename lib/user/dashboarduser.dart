@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:neighborhub/user/tabs/home_tab.dart';
 import 'package:neighborhub/user/tabs/emergency_tab.dart';
 import 'package:neighborhub/user/tabs/timetable_tab.dart';
@@ -14,7 +13,6 @@ class DashboardUser extends StatefulWidget {
 
 class _DashboardUserState extends State<DashboardUser> with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  final user = FirebaseAuth.instance.currentUser;
 
   @override
   void initState() {
@@ -206,7 +204,6 @@ class _DashboardUserState extends State<DashboardUser> with SingleTickerProvider
                                 ),
                                 onPressed: () async {
                                   try {
-                                    await FirebaseAuth.instance.signOut();
                                     
                                     // Force navigation to login page
                                     if (mounted) {
@@ -231,7 +228,6 @@ class _DashboardUserState extends State<DashboardUser> with SingleTickerProvider
                           ),
                         );
                         if (shouldLogout == true) {
-                          await FirebaseAuth.instance.signOut();
                         }
                       },
                       child: const Text('Logout'),
@@ -240,7 +236,6 @@ class _DashboardUserState extends State<DashboardUser> with SingleTickerProvider
                 ),
               );
               if (shouldLogout == true) {
-                await FirebaseAuth.instance.signOut();
               }
             },
           ),

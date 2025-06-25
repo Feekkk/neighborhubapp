@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
 class AddAlert extends StatefulWidget {
   const AddAlert({super.key});
@@ -46,21 +44,9 @@ class _AddAlertState extends State<AddAlert> {
       });
 
       try {
-        final user = FirebaseAuth.instance.currentUser;
-        if (user == null) {
-          throw Exception('User not authenticated');
-        }
+        //TODO: Add announcement to database
 
-        // Get user's display name or email
-        final String authorName = user.displayName ?? user.email ?? 'Unknown';
 
-        await FirebaseFirestore.instance.collection('announcements').add({
-          'title': _titleController.text.trim(),
-          'description': _descriptionController.text.trim(),
-          'author': authorName,
-          'priority': _selectedPriority,
-          'createdAt': FieldValue.serverTimestamp(),
-        });
 
         if (mounted) {
           Navigator.pop(context);

@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
 
 class ViewEventsPage extends StatefulWidget {
@@ -11,7 +9,6 @@ class ViewEventsPage extends StatefulWidget {
 }
 
 class _ViewEventsPageState extends State<ViewEventsPage> {
-  String? get currentUserId => FirebaseAuth.instance.currentUser?.uid;
 
   @override
   Widget build(BuildContext context) {
@@ -31,11 +28,8 @@ class _ViewEventsPageState extends State<ViewEventsPage> {
         iconTheme: const IconThemeData(color: Colors.white),
         elevation: 0,
       ),
-      body: StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance
-            .collection('events')
-            .orderBy('dateTime')
-            .snapshots(),
+      body: StreamBuilder<List<dynamic>>(
+        stream: null,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(
@@ -45,7 +39,7 @@ class _ViewEventsPageState extends State<ViewEventsPage> {
             );
           }
 
-          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+          if (!snapshot.hasData || snapshot.data!.isEmpty) {
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -80,8 +74,8 @@ class _ViewEventsPageState extends State<ViewEventsPage> {
           }
 
           final now = DateTime.now();
-          final events = snapshot.data!.docs.where((doc) {
-            final eventDate = (doc['dateTime'] as Timestamp).toDate();
+          final events = snapshot.data!.where((event) {
+            final eventDate = event['dateTime'];
             return eventDate.isAfter(now) ||
                 (eventDate.year == now.year && 
                  eventDate.month == now.month && 
@@ -127,7 +121,7 @@ class _ViewEventsPageState extends State<ViewEventsPage> {
             itemCount: events.length,
             itemBuilder: (context, index) {
               final event = events[index];
-              final eventDate = (event['dateTime'] as Timestamp).toDate();
+              final eventDate = event['dateTime'];
               final isToday = eventDate.year == now.year && 
                              eventDate.month == now.month && 
                              eventDate.day == now.day;
@@ -231,12 +225,8 @@ class _ViewEventsPageState extends State<ViewEventsPage> {
                                       ],
                                     ),
                                     // Attendance indicator with real-time data
-                                    if (currentUserId != null)
-                                      StreamBuilder<DocumentSnapshot>(
-                                        stream: FirebaseFirestore.instance
-                                            .collection('event_attendances')
-                                            .doc('${event.id}_$currentUserId')
-                                            .snapshots(),
+                                      StreamBuilder<Map<String, dynamic>>(
+                                        stream: null,
                                         builder: (context, attendanceSnapshot) {
                                           String statusText = 'Not Responded';
                                           Color statusColor = Colors.grey[400]!;
@@ -245,8 +235,8 @@ class _ViewEventsPageState extends State<ViewEventsPage> {
                                           IconData statusIcon = Icons.person_outline;
 
                                           if (attendanceSnapshot.hasData && 
-                                              attendanceSnapshot.data!.exists) {
-                                            final status = attendanceSnapshot.data!['status'] as String?;
+                                              attendanceSnapshot.data != null) {
+                                            final status = attendanceSnapshot.data!['status'];
                                             if (status == 'attending') {
                                               statusText = 'Attending';
                                               statusColor = Colors.green;
@@ -330,7 +320,7 @@ class _ViewEventsPageState extends State<ViewEventsPage> {
     );
   }
 
-  void _showEventDetails(BuildContext context, DocumentSnapshot event, DateTime eventDate) {
+  void _showEventDetails(BuildContext context, Map<String, dynamic> event, DateTime eventDate) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -424,7 +414,7 @@ class _ViewEventsPageState extends State<ViewEventsPage> {
                     Expanded(
                       child: OutlinedButton(
                         onPressed: () async {
-                          await _updateAttendance(event.id, 'not_attending');
+                          await _updateAttendance(event['id'], 'not_attending');
                           Navigator.of(context).pop();
                         },
                         style: OutlinedButton.styleFrom(
@@ -449,7 +439,7 @@ class _ViewEventsPageState extends State<ViewEventsPage> {
                     Expanded(
                       child: ElevatedButton(
                         onPressed: () async {
-                          await _updateAttendance(event.id, 'attending');
+                          await _updateAttendance(event['id'], 'attending');
                           Navigator.of(context).pop();
                         },
                         style: ElevatedButton.styleFrom(
@@ -482,28 +472,18 @@ class _ViewEventsPageState extends State<ViewEventsPage> {
 
   // Function to update attendance in Firestore
   Future<void> _updateAttendance(String eventId, String status) async {
-    if (currentUserId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please login to update attendance'),
-          backgroundColor: Colors.red,
-        ),
-      );
-      return;
-    }
+
 
     try {
-      final attendanceDocId = '${eventId}_$currentUserId';
+      //TODO: Update attendance in database
       
-      await FirebaseFirestore.instance
-          .collection('event_attendances')
-          .doc(attendanceDocId)
-          .set({
+          //TODO: Update attendance in database
+          final attendance = {
         'eventId': eventId,
-        'userId': currentUserId,
+        'userId': 'currentUserId',
         'status': status,
-        'timestamp': FieldValue.serverTimestamp(),
-      });
+        'timestamp': DateTime.now(),
+      };
 
       // Show success message
       if (mounted) {

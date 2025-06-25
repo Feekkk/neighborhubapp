@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class EmergencyResolvePage extends StatelessWidget {
@@ -12,21 +11,21 @@ class EmergencyResolvePage extends StatelessWidget {
     required this.longitude,
   });
 
-  Future<void> _resolveEmergency(BuildContext context, DocumentSnapshot doc) async {
-    final data = doc.data() as Map<String, dynamic>;
+  Future<void> _resolveEmergency(BuildContext context, Map<String, dynamic> doc) async {
+    final data = doc;
     try {
       // Create a new map with the existing data and add resolved timestamp
       final reportData = {
         ...data,
-        'resolvedAt': FieldValue.serverTimestamp(),
+        'resolvedAt': DateTime.now(),
         'resolvedBy': 'admin', // You can replace this with actual admin ID if available
       };
 
       // Add to 'report' collection with the new data
-      await FirebaseFirestore.instance.collection('report').add(reportData);
+      //TODO: Add report to database
       
       // Delete from 'locations' collection
-      await FirebaseFirestore.instance.collection('locations').doc(doc.id).delete();
+      //TODO: Delete location from database
       
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -204,8 +203,8 @@ class EmergencyResolvePage extends StatelessWidget {
           ),
         ],
       ),
-      body: StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance.collection('locations').orderBy('timestamp', descending: true).snapshots(),
+      body: StreamBuilder<List<dynamic>>(
+        stream: null,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(
@@ -214,7 +213,7 @@ class EmergencyResolvePage extends StatelessWidget {
               ),
             );
           }
-          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+          if (!snapshot.hasData || snapshot.data!.isEmpty) {
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -255,17 +254,17 @@ class EmergencyResolvePage extends StatelessWidget {
               ),
             );
           }
-          final emergencies = snapshot.data!.docs;
+          final emergencies = snapshot.data!;
           return ListView.builder(
             padding: const EdgeInsets.all(16),
             itemCount: emergencies.length,
             itemBuilder: (context, index) {
               final doc = emergencies[index];
-              final data = doc.data() as Map<String, dynamic>;
+              final data = doc;
               final userId = data['userId'] ?? 'Unknown';
               final latitude = data['latitude']?.toString() ?? '-';
               final longitude = data['longitude']?.toString() ?? '-';
-              final timestamp = data['timestamp'] as Timestamp?;
+                final timestamp = data['timestamp'];
               final timeString = timestamp != null
                   ? _formatTimestamp(timestamp)
                   : 'Unknown time';
@@ -533,8 +532,8 @@ class EmergencyResolvePage extends StatelessWidget {
     );
   }
 
-  String _formatTimestamp(Timestamp timestamp) {
-    final date = timestamp.toDate();
+  String _formatTimestamp(DateTime timestamp) {
+    final date = timestamp;
     final now = DateTime.now();
     final difference = now.difference(date);
     if (difference.inMinutes < 1) {
@@ -548,10 +547,10 @@ class EmergencyResolvePage extends StatelessWidget {
     }
   }
 
-  String _calculateUrgencyLevel(Timestamp? timestamp) {
+    String _calculateUrgencyLevel(DateTime? timestamp) {
     if (timestamp == null) return 'medium';
     
-    final date = timestamp.toDate();
+    final date = timestamp;
     final now = DateTime.now();
     final difference = now.difference(date);
     

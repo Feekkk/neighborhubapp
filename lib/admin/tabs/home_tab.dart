@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
 import '../pages/generate_report.dart';
 import '../pages/guidelines.dart';
@@ -34,8 +33,7 @@ class _HomeTabState extends State<HomeTab> {
 
   @override
   Widget build(BuildContext context) {
-    final user = FirebaseAuth.instance.currentUser;
-    final email = user?.email ?? 'admin';
+      final email = 'admin';
     final timeString = DateFormat('HH:mm').format(_now);
     final dateString = DateFormat('d MMMM yyyy').format(_now);
 

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:neighborhub/user/pages/edit_profile.dart';
 import 'package:neighborhub/user/pages/aboutus.dart';
 import 'package:neighborhub/user/pages/forgetpassword.dart';
@@ -13,37 +12,9 @@ class SettingsTab extends StatefulWidget {
 }
 
 class _SettingsTabState extends State<SettingsTab> {
-  User? _user;
-  bool _isEmailVerified = false;
-  bool _isLoading = true;
-
   @override
   void initState() {
     super.initState();
-    _loadUserData();
-  }
-
-  Future<void> _loadUserData() async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      // Reload user to get latest verification status
-      await user.reload();
-      final updatedUser = FirebaseAuth.instance.currentUser;
-      
-      if (mounted) {
-        setState(() {
-          _user = updatedUser;
-          _isEmailVerified = updatedUser?.emailVerified ?? false;
-          _isLoading = false;
-        });
-      }
-    } else {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
-    }
   }
 
   @override
@@ -83,14 +54,13 @@ class _SettingsTabState extends State<SettingsTab> {
                   ),
                   const SizedBox(height: 12),
                   const SizedBox(height: 4),
-                  
-                  // Email with verification indicator
+                  // Email with verification indicator (removed Firebase email)
                   Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Flexible(
                         child: Text(
-                          _user?.email ?? '',
+                          '', // No email
                           style: const TextStyle(
                             color: Color.fromARGB(255, 255, 255, 255),
                             fontWeight: FontWeight.bold,
@@ -99,89 +69,8 @@ class _SettingsTabState extends State<SettingsTab> {
                           textAlign: TextAlign.center,
                         ),
                       ),
-                      const SizedBox(width: 8),
-                      if (_isLoading)
-                        const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            valueColor: AlwaysStoppedAnimation<Color>(Colors.grey),
-                          ),
-                        )
-                      else if (_isEmailVerified)
-                        Container(
-                          padding: const EdgeInsets.all(4),
-                          decoration: BoxDecoration(
-                            color: Colors.blue,
-                            shape: BoxShape.circle,
-                            border: Border.all(color: Colors.white, width: 2),
-                          ),
-                          child: const Icon(
-                            Icons.verified,
-                            color: Colors.white,
-                            size: 16,
-                          ),
-                        )
-                      else
-                        Container(
-                          padding: const EdgeInsets.all(4),
-                          decoration: BoxDecoration(
-                            color: Colors.orange,
-                            shape: BoxShape.circle,
-                            border: Border.all(color: Colors.white, width: 2),
-                          ),
-                          child: const Icon(
-                            Icons.warning_amber_rounded,
-                            color: Colors.white,
-                            size: 16,
-                          ),
-                        ),
                     ],
                   ),
-                  
-                  // Verification status text
-                  if (!_isLoading) ...[
-                    const SizedBox(height: 8),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: _isEmailVerified 
-                            ? Colors.green.withOpacity(0.2)
-                            : Colors.orange.withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(
-                          color: _isEmailVerified 
-                              ? Colors.green.withOpacity(0.5)
-                              : Colors.orange.withOpacity(0.5),
-                        ),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            _isEmailVerified 
-                                ? Icons.verified
-                                : Icons.warning_amber_rounded,
-                            color: _isEmailVerified ? Colors.green : Colors.orange,
-                            size: 16,
-                          ),
-                          const SizedBox(width: 6),
-                          Text(
-                            _isEmailVerified 
-                                ? 'Email Verified'
-                                : 'Email Not Verified',
-                            style: TextStyle(
-                              color: _isEmailVerified ? Colors.green : Colors.orange,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                              fontFamily: 'Poppins',
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
                 ],
               ),
             ),
@@ -223,19 +112,6 @@ class _SettingsTabState extends State<SettingsTab> {
                       );
                     },
                   ),
-                  // Email verification tile (only show if not verified)
-                  if (!_isEmailVerified && !_isLoading)
-                    _SettingsTile(
-                      icon: Icons.mark_email_unread_outlined,
-                      title: 'Verify Email',
-                      subtitle: 'Complete email verification',
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => const VerifyEmailsPage()),
-                        );
-                      },
-                    ),
                   _SettingsTile(
                     icon: Icons.info_outline,
                     title: 'About Us',
@@ -257,7 +133,7 @@ class _SettingsTabState extends State<SettingsTab> {
             const SizedBox(height: 24),
             Center(
               child: Text(
-                '© 2025 NeighborHub. All rights reserved.',
+                '\u00a9 2025 NeighborHub. All rights reserved.',
                 style: const TextStyle(color: Colors.white24, fontSize: 13),
               ),
             ),

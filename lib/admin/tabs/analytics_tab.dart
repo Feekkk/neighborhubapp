@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+
 import 'package:syncfusion_flutter_charts/charts.dart';
 import '../pages/view_annoucement.dart';
 import '../pages/view_events.dart';
@@ -28,31 +28,31 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
 
   Future<void> _loadData() async {
     // Get total users count
-    final usersSnapshot = await FirebaseFirestore.instance.collection('users').get();
+    final usersSnapshot = null;
     
     // Get reports data
-    final reportsSnapshot = await FirebaseFirestore.instance.collection('report').get();
+    final reportsSnapshot = null;
     
     // Get announcements data
-    final announcementsSnapshot = await FirebaseFirestore.instance.collection('announcements').get();
+    final announcementsSnapshot = null;
 
     // Get events data
-    final eventsSnapshot = await FirebaseFirestore.instance.collection('events').get();
+    final eventsSnapshot = null;
 
     setState(() {
-      totalUsers = usersSnapshot.size;
-      totalReports = reportsSnapshot.size;
-      totalAnnouncements = announcementsSnapshot.size;
-      totalEvents = eventsSnapshot.size;
+      totalUsers = usersSnapshot.length;
+      totalReports = reportsSnapshot.length;
+      totalAnnouncements = announcementsSnapshot.length;
+      totalEvents = eventsSnapshot.length;
     });
 
     // Process report data for chart
     final Map<String, int> reportsByDate = {};
-    for (var doc in reportsSnapshot.docs) {
-      final data = doc.data();
-      final timestamp = data['resolvedAt'] as Timestamp?;
+    for (var doc in reportsSnapshot) {
+      final data = doc;
+      final timestamp = data['resolvedAt'];
       if (timestamp != null) {
-        final date = timestamp.toDate();
+        final date = timestamp;
         final dateString = '${date.day}/${date.month}/${date.year}';
         reportsByDate[dateString] = (reportsByDate[dateString] ?? 0) + 1;
       }
@@ -60,11 +60,11 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
 
     // Process announcement data for chart
     final Map<String, int> announcementsByDate = {};
-    for (var doc in announcementsSnapshot.docs) {
-      final data = doc.data();
-      final timestamp = data['createdAt'] as Timestamp?;
+    for (var doc in announcementsSnapshot) {
+      final data = doc;
+      final timestamp = data['createdAt'];
       if (timestamp != null) {
-        final date = timestamp.toDate();
+          final date = timestamp;
         final dateString = '${date.day}/${date.month}/${date.year}';
         announcementsByDate[dateString] = (announcementsByDate[dateString] ?? 0) + 1;
       }
@@ -72,11 +72,11 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
 
     // Process events data for chart
     final Map<String, int> eventsByDate = {};
-    for (var doc in eventsSnapshot.docs) {
-      final data = doc.data();
-      final timestamp = data['dateTime'] as Timestamp?;
+    for (var doc in eventsSnapshot) {
+      final data = doc;
+      final timestamp = data['dateTime'];
       if (timestamp != null) {
-        final date = timestamp.toDate();
+          final date = timestamp;
         final dateString = '${date.day}/${date.month}/${date.year}';
         eventsByDate[dateString] = (eventsByDate[dateString] ?? 0) + 1;
       }

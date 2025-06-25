@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
 class VerifyEmailsPage extends StatefulWidget {
   const VerifyEmailsPage({super.key});
@@ -16,16 +15,13 @@ class _VerifyEmailsPageState extends State<VerifyEmailsPage> {
   @override
   void initState() {
     super.initState();
-    _userEmail = FirebaseAuth.instance.currentUser?.email;
   }
 
   Future<void> _sendVerificationEmail() async {
     setState(() => _isLoading = true);
     
     try {
-      final user = FirebaseAuth.instance.currentUser;
-      if (user != null && !user.emailVerified) {
-        await user.sendEmailVerification();
+      //TODO: Send verification email
         setState(() => _isEmailSent = true);
         
         if (mounted) {
@@ -43,7 +39,6 @@ class _VerifyEmailsPageState extends State<VerifyEmailsPage> {
             ),
           );
         }
-      }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -69,12 +64,8 @@ class _VerifyEmailsPageState extends State<VerifyEmailsPage> {
     setState(() => _isLoading = true);
     
     try {
-      final user = FirebaseAuth.instance.currentUser;
-      if (user != null) {
-        await user.reload();
-        final updatedUser = FirebaseAuth.instance.currentUser;
+      //TODO: Check verification status
         
-        if (updatedUser?.emailVerified == true) {
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
@@ -91,8 +82,7 @@ class _VerifyEmailsPageState extends State<VerifyEmailsPage> {
             );
             Navigator.of(context).pop();
           }
-        } else {
-          if (mounted) {
+        
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: const Text(
@@ -106,9 +96,7 @@ class _VerifyEmailsPageState extends State<VerifyEmailsPage> {
                 ),
               ),
             );
-          }
-        }
-      }
+          
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

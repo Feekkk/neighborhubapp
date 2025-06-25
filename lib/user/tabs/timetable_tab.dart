@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import '../pages/view_events.dart';
 import '../pages/view_announcement.dart';
@@ -107,56 +106,6 @@ class _TimetableTabState extends State<TimetableTab> {
                 ],
               ),
               const SizedBox(height: 16),
-              StreamBuilder<QuerySnapshot>(
-                stream: FirebaseFirestore.instance
-                    .collection('events')
-                    .orderBy('dateTime')
-                    .snapshots(),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
-                  if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                    return Center(
-                      child: Text(
-                        'No upcoming events.',
-                        style: TextStyle(color: Colors.grey[500], fontSize: 16, fontFamily: 'Poppins'),
-                      ),
-                    );
-                  }
-                  final now = DateTime.now();
-                  final events = snapshot.data!.docs.where((doc) {
-                    final eventDate = (doc['dateTime'] as Timestamp).toDate();
-                    return eventDate.isAfter(now) ||
-                        (eventDate.year == now.year && eventDate.month == now.month && eventDate.day == now.day);
-                  }).toList();
-                  if (events.isEmpty) {
-                    return Center(
-                      child: Text(
-                        'No upcoming events.',
-                        style: TextStyle(color: Colors.grey[500], fontSize: 16, fontFamily: 'Poppins'),
-                      ),
-                    );
-                  }
-                  return ListView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: events.length,
-                    itemBuilder: (context, index) {
-                      final event = events[index];
-                      final eventDate = (event['dateTime'] as Timestamp).toDate();
-                      return _ModernCard(
-                        icon: Icons.event,
-                        iconColor: const Color(0xFF6C63FF),
-                        title: event['title'] ?? 'Untitled Event',
-                        subtitle: DateFormat('MMM dd, yyyy • h:mm a').format(eventDate),
-                        description: event['description'],
-                      );
-                    },
-                  );
-                },
-              ),
-              const SizedBox(height: 36),
               Row(
                 children: [
                   Icon(Icons.campaign, color: const Color(0xFF6C63FF), size: 22),
@@ -198,43 +147,6 @@ class _TimetableTabState extends State<TimetableTab> {
                     ),
                   ),
                 ],
-              ),
-              const SizedBox(height: 16),
-              StreamBuilder<QuerySnapshot>(
-                stream: FirebaseFirestore.instance
-                    .collection('announcements')
-                    .orderBy('createdAt', descending: true)
-                    .snapshots(),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
-                  if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                    return Center(
-                      child: Text(
-                        'No announcements yet.',
-                        style: TextStyle(color: Colors.grey[500], fontSize: 16, fontFamily: 'Poppins'),
-                      ),
-                    );
-                  }
-                  final announcements = snapshot.data!.docs;
-                  return ListView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: announcements.length,
-                    itemBuilder: (context, index) {
-                      final ann = announcements[index];
-                      final createdAt = (ann['createdAt'] as Timestamp?)?.toDate();
-                      return _ModernCard(
-                        icon: Icons.campaign,
-                        iconColor: Colors.green,
-                        title: ann['title'] ?? 'Announcement',
-                        subtitle: createdAt != null ? DateFormat('MMM dd, yyyy • h:mm a').format(createdAt) : '',
-                        description: ann['description'],
-                      );
-                    },
-                  );
-                },
               ),
               const SizedBox(height: 24),
               Center(

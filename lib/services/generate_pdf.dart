@@ -1,18 +1,14 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:intl/intl.dart';
 import 'dart:typed_data';
 import 'package:flutter/services.dart' show rootBundle;
 
-Future<List<Map<String, dynamic>>> fetchReportsFromFirestore() async {
-  final snapshot = await FirebaseFirestore.instance.collection('report').orderBy('timestamp', descending: true).get();
-  return snapshot.docs.map((doc) => doc.data()).toList();
-}
-
 Future<Uint8List> generateReportPdf() async {
   try {
-    final reports = await fetchReportsFromFirestore();
+    //TODO: Fetch reports from database
+    final reports = [];
     final font = pw.Font.ttf(await rootBundle.load('assets/fonts/Roboto-Regular.ttf'));
     final boldFont = pw.Font.ttf(await rootBundle.load('assets/fonts/Roboto-Bold.ttf'));
 
@@ -66,8 +62,8 @@ Future<Uint8List> generateReportPdf() async {
                 headers: ['User', 'Description', 'Time'],
                 data: reports.map((r) => [
                   r['user'] ?? '-',
-                  r['description'] ?? '-',
-                  r['timestamp'] != null ? DateFormat('dd MMM yyyy, HH:mm').format((r['timestamp'] as Timestamp).toDate()) : '-',
+                    r['description'] ?? '-',
+                  r['timestamp'] != null ? DateFormat('dd MMM yyyy, HH:mm').format(r['timestamp']) : '-',
                 ]).toList(),
               ),
               if (reports.isEmpty)

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:neighborhub/admin/pages/generate_report.dart';
 import 'package:neighborhub/admin/pages/guidelines.dart';
 import 'package:neighborhub/admin/pages/about_us.dart';
@@ -9,7 +8,6 @@ class SettingsTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final user = FirebaseAuth.instance.currentUser;
     return SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -77,7 +75,7 @@ class SettingsTab extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    user?.email ?? '',
+                    'admin',
                     style: const TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,

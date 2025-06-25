@@ -1,7 +1,6 @@
 // ignore_for_file: deprecated_member_use
 
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:neighborhub/admin/tabs/home_tab.dart';
 import 'package:neighborhub/admin/tabs/emergency_tab.dart';
 import 'package:neighborhub/admin/tabs/timetable_tab.dart';
@@ -18,7 +17,6 @@ class DashboardAdmin extends StatefulWidget {
 class _DashboardAdminState extends State<DashboardAdmin>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  final user = FirebaseAuth.instance.currentUser;
 
   @override
   void initState() {
@@ -160,7 +158,7 @@ class _DashboardAdminState extends State<DashboardAdmin>
                 ),
               );
               if (shouldLogout == true) {
-                await FirebaseAuth.instance.signOut();
+                //TODO: Sign out
               }
             },
           ),
