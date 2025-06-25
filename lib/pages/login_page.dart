@@ -3,6 +3,7 @@ import 'package:neighborhub/services/login.dart';
 import 'package:neighborhub/pages/register_page.dart';
 import 'package:neighborhub/widgets/error_message.dart';
 import 'package:neighborhub/user/dashboarduser.dart';
+import 'package:neighborhub/admin/dashboardadmin.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -13,15 +14,16 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController();
+  final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
   final _loginService = LoginService();
   bool _isLoading = false;
   String? _errorMessage;
+  bool _obscurePassword = true;
 
   @override
   void dispose() {
-    _emailController.dispose();
+    _usernameController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
@@ -47,17 +49,24 @@ class _LoginPageState extends State<LoginPage> {
       });
       
       try {
-        await _loginService.signInWithEmailAndPassword(
-          _emailController.text.trim(),
+        await _loginService.signInWithUsernameAndPassword(
+          _usernameController.text.trim(),
           _passwordController.text,
         );
         
         if (!mounted) return;
-        // Navigate to dashboard or home page after successful login
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const DashboardUser()),
-        );
+        // Navigate to admin dashboard if admin credentials, else user dashboard
+        if (_usernameController.text.trim() == 'admin@gmail.com' && _passwordController.text == 'admin123') {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const DashboardAdmin()),
+          );
+        } else {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const DashboardUser()),
+          );
+        }
       } catch (e) {
         if (!mounted) return;
         _showError(e.toString());
@@ -125,10 +134,10 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     // Email Field
                     TextFormField(
-                      controller: _emailController,
+                      controller: _usernameController,
                       style: const TextStyle(color: Colors.white),
                       decoration: InputDecoration(
-                        labelText: 'Email',
+                        labelText: 'Username',
                         labelStyle: const TextStyle(color: Colors.grey),
                         filled: true,
                         fillColor: const Color(0xFF2D2D2D),
@@ -144,7 +153,7 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Please enter your email';
+                          return 'Please enter your username';
                         }
                         return null;
                       },
@@ -154,7 +163,7 @@ class _LoginPageState extends State<LoginPage> {
                     TextFormField(
                       controller: _passwordController,
                       style: const TextStyle(color: Colors.white),
-                      obscureText: true,
+                      obscureText: _obscurePassword,
                       decoration: InputDecoration(
                         labelText: 'Password',
                         labelStyle: const TextStyle(color: Colors.grey),
@@ -168,6 +177,17 @@ class _LoginPageState extends State<LoginPage> {
                         errorStyle: const TextStyle(
                           color: Color(0xFFFF5252),
                           fontSize: 12,
+                        ),
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                            color: Colors.grey,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              _obscurePassword = !_obscurePassword;
+                            });
+                          },
                         ),
                       ),
                       validator: (value) {

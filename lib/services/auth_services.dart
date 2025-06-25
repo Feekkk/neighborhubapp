@@ -9,11 +9,11 @@ class AuthService {
 
   String? get token => _token;
 
-  Future<Map<String, dynamic>> login(String email, String password) async {
+  Future<Map<String, dynamic>> login(String username, String password) async {
     final response = await http.post(
       Uri.parse('$baseUrl/login'),
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'email': email, 'password': password}),
+      body: jsonEncode({'username': username, 'password': password}),
     );
     final data = jsonDecode(response.body);
     if (response.statusCode == 200 && data['token'] != null) {
