@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:neighborhub/services/register.dart';
 import 'package:neighborhub/user/dashboarduser.dart';
 import 'package:neighborhub/widgets/error_message.dart';
-import 'package:neighborhub/services/auth_services.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -17,7 +16,6 @@ class _RegisterPageState extends State<RegisterPage> {
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
   final _registerService = RegisterService();
-  final AuthService _authService = AuthService();
   final _usernameController = TextEditingController();
   bool _isLoading = false;
   bool _obscurePassword = true;
@@ -52,7 +50,7 @@ class _RegisterPageState extends State<RegisterPage> {
         _errorMessage = null;
       });
       try {
-        final result = await _registerService.createUserWithEmailAndPassword(
+        await _registerService.createUserWithEmailAndPassword(
           _usernameController.text.trim(),
           _emailController.text.trim(),
           _passwordController.text,

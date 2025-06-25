@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:neighborhub/services/login.dart';
 import 'package:neighborhub/pages/register_page.dart';
 import 'package:neighborhub/widgets/error_message.dart';
-import 'package:neighborhub/services/auth_services.dart';
 import 'package:neighborhub/user/dashboarduser.dart';
 
 class LoginPage extends StatefulWidget {
@@ -17,7 +16,6 @@ class _LoginPageState extends State<LoginPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _loginService = LoginService();
-  final AuthService _authService = AuthService();
   bool _isLoading = false;
   String? _errorMessage;
 
@@ -49,7 +47,7 @@ class _LoginPageState extends State<LoginPage> {
       });
       
       try {
-        final result = await _loginService.signInWithEmailAndPassword(
+        await _loginService.signInWithEmailAndPassword(
           _emailController.text.trim(),
           _passwordController.text,
         );
