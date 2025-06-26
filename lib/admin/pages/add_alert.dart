@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:neighborhub/services/generic_event_service.dart';
 
 class AddAlert extends StatefulWidget {
   const AddAlert({super.key});
@@ -16,6 +17,7 @@ class _AddAlertState extends State<AddAlert> {
   String _selectedPriority = 'medium'; // Default priority
 
   final List<String> _priorities = ['high', 'medium', 'low'];
+  final EventService _eventService = EventService();
 
   @override
   void dispose() {
@@ -44,10 +46,13 @@ class _AddAlertState extends State<AddAlert> {
       });
 
       try {
-        //TODO: Add announcement to database
-
-
-
+        // Add announcement to backend
+        await _eventService.createEvent(
+          title: _titleController.text.trim(),
+          description: _descriptionController.text.trim(),
+          date: DateTime.now(), // Replace with actual date if you add a picker
+          time: TimeOfDay.now().format(context), // Replace with actual time if you add a picker
+        );
         if (mounted) {
           Navigator.pop(context);
           ScaffoldMessenger.of(context).showSnackBar(

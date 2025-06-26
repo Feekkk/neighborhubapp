@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:neighborhub/services/generic_event_service.dart';
 
 class AddEvent extends StatefulWidget {
   const AddEvent({super.key});
@@ -17,6 +18,7 @@ class _AddEventState extends State<AddEvent> with SingleTickerProviderStateMixin
   bool _isLoading = false;
 
   late AnimationController _animationController;
+  final EventService _eventService = EventService();
 
   @override
   void initState() {
@@ -70,8 +72,13 @@ class _AddEventState extends State<AddEvent> with SingleTickerProviderStateMixin
           _selectedTime.minute,
         );
 
-        // Add to Firestore
-          //TODO: Add event to database
+        // Add event to backend
+        await _eventService.createEvent(
+          title: _titleController.text.trim(),
+          description: _descriptionController.text.trim(),
+          date: eventDateTime,
+          time: _selectedTime.format(context),
+        );
 
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(

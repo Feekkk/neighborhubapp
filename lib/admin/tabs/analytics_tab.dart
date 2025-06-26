@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import 'package:syncfusion_flutter_charts/charts.dart';
 import '../pages/view_annoucement.dart';
 import '../pages/view_events.dart';
@@ -27,8 +26,7 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
   }
 
   Future<void> _loadData() async {
-    // Get total users count
-    final usersSnapshot = null;
+
     
     // Get reports data
     final reportsSnapshot = null;
@@ -40,7 +38,6 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
     final eventsSnapshot = null;
 
     setState(() {
-      totalUsers = usersSnapshot.length;
       totalReports = reportsSnapshot.length;
       totalAnnouncements = announcementsSnapshot.length;
       totalEvents = eventsSnapshot.length;
