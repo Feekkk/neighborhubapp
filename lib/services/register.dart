@@ -14,7 +14,7 @@ class RegisterService {
   }
 
   Future<void> signOut() async {
-    _authService.logout();
+    await _authService.logout();
   }
 }
 
