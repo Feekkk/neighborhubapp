@@ -12,14 +12,8 @@ class EmergencyResolvePage extends StatelessWidget {
   });
 
   Future<void> _resolveEmergency(BuildContext context, Map<String, dynamic> doc) async {
-    final data = doc;
     try {
       // Create a new map with the existing data and add resolved timestamp
-      final reportData = {
-        ...data,
-        'resolvedAt': DateTime.now(),
-        'resolvedBy': 'admin', // You can replace this with actual admin ID if available
-      };
 
       // Add to 'report' collection with the new data
       //TODO: Add report to database

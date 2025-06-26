@@ -3,7 +3,8 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class EventService {
-  static const String baseUrl = 'http://192.168.1.6:3000/api/events';
+  static const String eventBaseUrl = 'http://192.168.1.6:3000/api/events';
+  static const String announcementBaseUrl = 'http://192.168.1.6:3000/api/announcements';
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
 
   Future<void> createEvent({
@@ -14,7 +15,7 @@ class EventService {
   }) async {
     final token = await _storage.read(key: 'jwt_token');
     final response = await http.post(
-      Uri.parse(baseUrl),
+      Uri.parse(eventBaseUrl),
       headers: {
         'Content-Type': 'application/json',
         if (token != null) 'Authorization': 'Bearer $token',
@@ -27,7 +28,30 @@ class EventService {
       }),
     );
     if (response.statusCode != 201) {
-      throw Exception('Failed to create event: \\${response.body}');
+      throw Exception('Failed to create event: ${response.body}');
+    }
+  }
+
+  Future<void> createAnnouncement({
+    required String title,
+    required String description,
+    required String priority,
+  }) async {
+    final token = await _storage.read(key: 'jwt_token');
+    final response = await http.post(
+      Uri.parse(announcementBaseUrl),
+      headers: {
+        'Content-Type': 'application/json',
+        if (token != null) 'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode({
+        'title': title,
+        'description': description,
+        'priority': priority,
+      }),
+    );
+    if (response.statusCode != 201) {
+      throw Exception('Failed to create announcement: ${response.body}');
     }
   }
 } 

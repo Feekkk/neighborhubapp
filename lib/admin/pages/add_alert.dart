@@ -47,11 +47,10 @@ class _AddAlertState extends State<AddAlert> {
 
       try {
         // Add announcement to backend
-        await _eventService.createEvent(
+        await _eventService.createAnnouncement(
           title: _titleController.text.trim(),
           description: _descriptionController.text.trim(),
-          date: DateTime.now(), // Replace with actual date if you add a picker
-          time: TimeOfDay.now().format(context), // Replace with actual time if you add a picker
+          priority: _selectedPriority.toUpperCase(),
         );
         if (mounted) {
           Navigator.pop(context);
