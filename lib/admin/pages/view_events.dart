@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 class ViewEvents extends StatefulWidget {
   const ViewEvents({super.key});
@@ -9,10 +11,58 @@ class ViewEvents extends StatefulWidget {
 }
 
 class _ViewEventsState extends State<ViewEvents> {
+  List<dynamic> events = [];
+  bool isLoading = true;
+  String? errorMessage;
+  static const String baseUrl = 'http://192.168.1.120:3000/api';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadEvents();
+  }
+
+  Future<void> _loadEvents() async {
+    setState(() {
+      isLoading = true;
+      errorMessage = null;
+    });
+
+    try {
+      final response = await http.get(Uri.parse('$baseUrl/events'));
+      
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        print('Events data: $data');
+        
+        setState(() {
+          events = data;
+          isLoading = false;
+        });
+      } else {
+        throw Exception('Failed to load events: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error loading events: $e');
+      setState(() {
+        errorMessage = 'Failed to load events: $e';
+        isLoading = false;
+      });
+    }
+  }
 
   Future<void> _deleteEvent(String eventId) async {
     try {
-      //TODO: Delete event from database
+      final response = await http.delete(
+        Uri.parse('$baseUrl/events/$eventId'),
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 204) {
+        // Remove the event from the local list
+        setState(() {
+          events.removeWhere((event) => event['id'] == eventId);
+        });
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -20,8 +70,12 @@ class _ViewEventsState extends State<ViewEvents> {
             backgroundColor: Colors.green,
           ),
         );
+        }
+      } else {
+        throw Exception('Failed to delete event: ${response.statusCode}');
       }
     } catch (e) {
+      print('Error deleting event: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -33,9 +87,35 @@ class _ViewEventsState extends State<ViewEvents> {
     }
   }
 
+  Future<List<dynamic>> _loadAttendanceData(String eventId) async {
+    try {
+      final response = await http.get(Uri.parse('$baseUrl/events/$eventId/attendance'));
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      }
+      return [];
+    } catch (e) {
+      print('Error loading attendance data: $e');
+      return [];
+    }
+  }
+
+  Future<List<dynamic>> _loadUsers() async {
+    try {
+      final response = await http.get(Uri.parse('$baseUrl/users'));
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      }
+      return [];
+    } catch (e) {
+      print('Error loading users: $e');
+      return [];
+    }
+  }
+
   void _showEventDetails(BuildContext context, Map<String, dynamic> event) {
     final eventData = event;
-    final eventDate = eventData['dateTime'];
+    final eventDate = eventData['date'];
 
     showDialog(
       context: context,
@@ -78,13 +158,15 @@ class _ViewEventsState extends State<ViewEvents> {
                           ),
                         ),
                         const SizedBox(height: 4),
+                        if (eventDate != null) ...[
                         Text(
-                          DateFormat('EEEE, MMMM d, yyyy • h:mm a').format(eventDate),
+                            DateFormat('EEEE, MMMM d, yyyy • h:mm a').format(DateTime.parse(eventDate)),
                           style: TextStyle(
                             color: Colors.white.withOpacity(0.7),
                             fontSize: 14,
                           ),
                         ),
+                        ],
                       ],
                     ),
                   ),
@@ -123,8 +205,8 @@ class _ViewEventsState extends State<ViewEvents> {
               const SizedBox(height: 16),
               
               // Real-time attendance data
-              StreamBuilder<List<dynamic>>(
-                stream: null,
+              FutureBuilder<List<dynamic>>(
+                future: _loadAttendanceData(eventData['id']),
                 builder: (context, attendanceSnapshot) {
                   if (attendanceSnapshot.connectionState == ConnectionState.waiting) {
                     return const Center(
@@ -146,7 +228,7 @@ class _ViewEventsState extends State<ViewEvents> {
                   final totalResponses = attendances.length;
 
                   return FutureBuilder<List<dynamic>>(
-                    future: null,
+                    future: _loadUsers(),
                     builder: (context, usersSnapshot) {
                       final totalUsers = usersSnapshot.data?.length ?? 0;
                       final attendancePercentage = totalUsers > 0 
@@ -388,20 +470,53 @@ class _ViewEventsState extends State<ViewEvents> {
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Navigator.pop(context),
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh, color: Colors.white),
+            onPressed: _loadEvents,
+            tooltip: 'Refresh events',
+          ),
+        ],
       ),
-      body: StreamBuilder<List<dynamic>>(
-        stream: null,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(
+      body: isLoading
+          ? const Center(
               child: CircularProgressIndicator(
                 color: Color(0xFF6C63FF),
               ),
-            );
-          }
-
-          if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return Center(
+            )
+          : errorMessage != null
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.error_outline,
+                        size: 64,
+                        color: Colors.red.withOpacity(0.5),
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        errorMessage!,
+                        style: TextStyle(
+                          color: Colors.red.withOpacity(0.8),
+                          fontSize: 16,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 16),
+                      ElevatedButton(
+                        onPressed: _loadEvents,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF6C63FF),
+                          foregroundColor: Colors.white,
+                        ),
+                        child: const Text('Retry'),
+                      ),
+                    ],
+                  ),
+                )
+              : events.isEmpty
+                  ? Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -420,16 +535,23 @@ class _ViewEventsState extends State<ViewEvents> {
                   ),
                 ],
               ),
-            );
-          }
-
-          return ListView.builder(
+                    )
+                  : ListView.builder(
             padding: const EdgeInsets.all(16),
-            itemCount: snapshot.data!.length,
+                      itemCount: events.length,
             itemBuilder: (context, index) {
-              final event = snapshot.data![index];
+                        final event = events[index];
               final eventData = event;
-              final eventDate = eventData['dateTime'];
+                        final eventDate = eventData['date'];
+                        DateTime? parsedDate;
+                        
+                        if (eventDate != null) {
+                          try {
+                            parsedDate = DateTime.parse(eventDate);
+                          } catch (e) {
+                            print('Error parsing event date: $eventDate, error: $e');
+                          }
+                        }
 
               return Card(
                 margin: const EdgeInsets.only(bottom: 16),
@@ -472,13 +594,15 @@ class _ViewEventsState extends State<ViewEvents> {
                                     ),
                                   ),
                                   const SizedBox(height: 4),
+                                            if (parsedDate != null) ...[
                                   Text(
-                                    DateFormat('MMM dd, yyyy • h:mm a').format(eventDate),
+                                                DateFormat('MMM dd, yyyy • h:mm a').format(parsedDate),
                                     style: TextStyle(
                                       color: Colors.white.withOpacity(0.7),
                                       fontSize: 14,
                                     ),
                                   ),
+                                            ],
                                 ],
                               ),
                             ),
@@ -500,15 +624,68 @@ class _ViewEventsState extends State<ViewEvents> {
                             ),
                           ),
                         ],
+                                  const SizedBox(height: 12),
+                                  Row(
+                                    children: [
+                                      Icon(
+                                        Icons.access_time,
+                                        size: 16,
+                                        color: Colors.white.withOpacity(0.7),
+                                      ),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        'Time: ${eventData['time'] ?? 'TBD'}',
+                                        style: TextStyle(
+                                          color: Colors.white.withOpacity(0.7),
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                      const Spacer(),
+                                      if (eventData['priority'] != null) ...[
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 8,
+                                            vertical: 4,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: _getPriorityColor(eventData['priority']).withOpacity(0.2),
+                                            borderRadius: BorderRadius.circular(12),
+                                            border: Border.all(
+                                              color: _getPriorityColor(eventData['priority']).withOpacity(0.5),
+                                            ),
+                                          ),
+                                          child: Text(
+                                            eventData['priority'].toString().toUpperCase(),
+                                            style: TextStyle(
+                                              color: _getPriorityColor(eventData['priority']),
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ],
+                                  ),
                       ],
                     ),
                   ),
                 ),
-              );
-            },
           );
         },
       ),
     );
+  }
+
+  Color _getPriorityColor(String priority) {
+    switch (priority.toLowerCase()) {
+      case 'high':
+        return Colors.red;
+      case 'medium':
+        return Colors.orange;
+      case 'low':
+        return Colors.green;
+      default:
+        return Colors.grey;
+    }
   }
 }

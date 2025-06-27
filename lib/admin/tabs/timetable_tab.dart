@@ -114,7 +114,7 @@ class _TimetableTabState extends State<TimetableTab> {
                   Expanded(
                     child: _buildActionCard(
                       context,
-                      'Assign Member',
+                      'Add User',
                       Icons.person_add,
                       const Color(0xFF6C63FF),
                       () => Navigator.push(
