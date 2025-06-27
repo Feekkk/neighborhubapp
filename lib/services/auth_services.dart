@@ -5,7 +5,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 // AuthService: Handles authentication and HTTP requests to backend endpoints for login and registration.
 // Integrates with /api/auth/login and /api/auth/register
 class AuthService {
-  static const String baseUrl = 'http://192.168.1.6:3000/api/auth'; // Change to your backend URL if needed
+  static const String baseUrl = 'http://192.168.1.120:3000/api/auth';
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
   String? _token;
 
