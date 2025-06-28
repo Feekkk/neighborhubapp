@@ -34,12 +34,22 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
   }
 
   Future<void> _loadData() async {
+    if (!mounted) return;
+    
     setState(() {
       isLoading = true;
       errorMessage = null;
     });
 
     try {
+      // Fetch users
+      final usersResponse = await http.get(Uri.parse('$baseUrl/users'));
+      if (usersResponse.statusCode != 200) {
+        throw Exception('Failed to load users: ${usersResponse.statusCode}');
+      }
+      final usersSnapshot = jsonDecode(usersResponse.body);
+      print('Users data: $usersSnapshot');
+
       // Fetch reports
       final reportsResponse = await http.get(Uri.parse('$baseUrl/reports'));
       if (reportsResponse.statusCode != 200) {
@@ -64,7 +74,10 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
       final eventsSnapshot = jsonDecode(eventsResponse.body);
       print('Events data: $eventsSnapshot');
 
+      if (!mounted) return;
+      
       setState(() {
+        totalUsers = usersSnapshot.length;
         totalReports = reportsSnapshot.length;
         totalAnnouncements = announcementsSnapshot.length;
         totalEvents = eventsSnapshot.length;
@@ -125,6 +138,8 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
         return;
       }
 
+      if (!mounted) return;
+      
       setState(() {
         reportData = reportsByDate.entries
             .map((e) => ReportData(e.key, e.value))
@@ -164,6 +179,8 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
       });
     } catch (e) {
       print('Error loading analytics data: $e');
+      if (!mounted) return;
+      
       setState(() {
         errorMessage = 'Failed to load data: $e';
         isLoading = false;
@@ -172,6 +189,8 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
   }
 
   void _generateSampleData() {
+    if (!mounted) return;
+    
     final now = DateTime.now();
     final Map<String, int> sampleReports = {};
     final Map<String, int> sampleAnnouncements = {};
@@ -187,6 +206,8 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
       sampleEvents[dateString] = (i % 4) + 1; 
     }
 
+    if (!mounted) return;
+    
     setState(() {
       reportData = sampleReports.entries
           .map((e) => ReportData(e.key, e.value))

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:neighborhub/services/generate_pdf.dart';
 import 'dart:typed_data';
 import 'package:pdfx/pdfx.dart';
+import 'package:neighborhub/admin/tabs/analytics_tab.dart';
 
 class GenerateReportPage extends StatelessWidget {
   const GenerateReportPage({super.key});
@@ -135,14 +135,10 @@ class GenerateReportPage extends StatelessWidget {
                     builder: (context) => const Center(child: CircularProgressIndicator()),
                   );
                   try {
-                    final pdfBytes = await generateReportPdf();
+                   
                     if (!context.mounted) return;
                     Navigator.of(context).pop(); // Remove loading dialog
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => PdfViewPage(pdfBytes: pdfBytes),
-                      ),
-                    );
+                    Navigator.of(context).push(MaterialPageRoute(builder: (context) => const AnalyticsTab()));
                   } catch (e) {
                     if (!context.mounted) return;
                     Navigator.of(context).pop(); // Remove loading dialog
