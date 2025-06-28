@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class AddAssign extends StatefulWidget {
   const AddAssign({super.key});
@@ -15,6 +16,7 @@ class _AddAssignState extends State<AddAssign> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
+  final FlutterSecureStorage _storage = const FlutterSecureStorage();
   
   bool _isLoading = false;
   bool _obscurePassword = true;
@@ -40,6 +42,41 @@ class _AddAssignState extends State<AddAssign> {
     });
   }
 
+  Future<void> _testConnection() async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+      _successMessage = null;
+    });
+
+    try {
+      final token = await _storage.read(key: 'jwt_token');
+      print('Testing connection to: $baseUrl/users');
+      print('Using token: ${token != null ? 'Token present' : 'No token'}');
+      
+      final response = await http.get(
+        Uri.parse('$baseUrl/users'),
+        headers: {
+          if (token != null) 'Authorization': 'Bearer $token',
+        },
+      );
+      
+      print('Test response status: ${response.statusCode}');
+      print('Test response body: ${response.body}');
+      
+      setState(() {
+        _successMessage = 'Connection successful! Status: ${response.statusCode}';
+        _isLoading = false;
+      });
+    } catch (e) {
+      print('Connection test failed: $e');
+      setState(() {
+        _errorMessage = 'Connection failed: $e';
+        _isLoading = false;
+      });
+    }
+  }
+
   Future<void> _submitForm() async {
     if (!_formKey.currentState!.validate()) {
       return;
@@ -52,19 +89,50 @@ class _AddAssignState extends State<AddAssign> {
     });
 
     try {
-      final response = await http.post(
+      // Get the admin token
+      final token = await _storage.read(key: 'jwt_token');
+      if (token == null) {
+        throw Exception('Admin authentication required. Please log in as admin.');
+      }
+
+      final requestBody = {
+        'username': _usernameController.text.trim(),
+        'email': _emailController.text.trim(),
+        'password': _passwordController.text,
+      };
+      
+      print('Creating user with data: $requestBody');
+      print('API URL: $baseUrl/users');
+      print('Using admin token: ${token.substring(0, 20)}...');
+
+      // Try the main endpoint first with admin token
+      var response = await http.post(
         Uri.parse('$baseUrl/users'),
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
         },
-        body: jsonEncode({
-          'username': _usernameController.text.trim(),
-          'email': _emailController.text.trim(),
-          'password': _passwordController.text,
-        }),
+        body: jsonEncode(requestBody),
       );
 
-      if (response.statusCode == 201) {
+      print('Response status code: ${response.statusCode}');
+      print('Response body: ${response.body}');
+
+      // If the first endpoint fails, try alternative endpoints
+      if (response.statusCode == 404) {
+        print('Trying alternative endpoint: $baseUrl/auth/register');
+        response = await http.post(
+          Uri.parse('$baseUrl/auth/register'),
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $token',
+          },
+          body: jsonEncode(requestBody),
+        );
+        print('Alternative endpoint response: ${response.statusCode} - ${response.body}');
+      }
+
+      if (response.statusCode == 201 || response.statusCode == 200) {
         setState(() {
           _successMessage = 'User created successfully!';
           _isLoading = false;
@@ -86,8 +154,15 @@ class _AddAssignState extends State<AddAssign> {
           }
         });
       } else {
-        final errorData = jsonDecode(response.body);
-        throw Exception(errorData['message'] ?? 'Failed to create user');
+        String errorMessage = 'Failed to create user (Status: ${response.statusCode})';
+        try {
+          final errorData = jsonDecode(response.body);
+          errorMessage = errorData['message'] ?? errorData['error'] ?? errorMessage;
+        } catch (e) {
+          print('Error parsing error response: $e');
+          errorMessage = 'Server error: ${response.body}';
+        }
+        throw Exception(errorMessage);
       }
     } catch (e) {
       print('Error creating user: $e');
@@ -164,6 +239,13 @@ class _AddAssignState extends State<AddAssign> {
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Navigator.pop(context),
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.wifi_tethering, color: Colors.white),
+            onPressed: _testConnection,
+            tooltip: 'Test API Connection',
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
@@ -425,6 +507,7 @@ class _AddAssignState extends State<AddAssign> {
                     _buildRequirement('Email: Valid email format required'),
                     _buildRequirement('Password: Minimum 6 characters'),
                     _buildRequirement('All fields are required'),
+                    _buildRequirement('Admin authentication required'),
                   ],
                 ),
               ),

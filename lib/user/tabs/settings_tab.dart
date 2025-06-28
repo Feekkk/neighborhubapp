@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:neighborhub/user/pages/edit_profile.dart';
 import 'package:neighborhub/user/pages/aboutus.dart';
 import 'package:neighborhub/user/pages/forgetpassword.dart';
-import 'package:neighborhub/user/pages/verify_emails.dart';
 
 class SettingsTab extends StatefulWidget {
   const SettingsTab({super.key});
@@ -155,8 +154,7 @@ class _SettingsTile extends StatelessWidget {
     required this.icon,
     required this.title,
     this.isLast = false,
-    this.onTap,
-    this.subtitle,
+    this.onTap, this.subtitle,
   });
 
   @override

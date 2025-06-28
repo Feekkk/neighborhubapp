@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'dart:async';
-import '../pages/verify_emails.dart';
 import '../pages/view_events.dart';
 import '../pages/aboutus.dart';
 import 'emergency_tab.dart';
@@ -17,7 +16,6 @@ class _HomeTabState extends State<HomeTab> {
   String? username = 'user';
   Timer? _timer;
   late DateTime _now;
-  final bool _hasShownVerificationDialog = false;
 
   @override
   void initState() {
