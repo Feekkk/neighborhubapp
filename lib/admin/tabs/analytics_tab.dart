@@ -4,6 +4,7 @@ import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:http/http.dart' as http;
 import '../pages/view_annoucement.dart';
 import '../pages/view_events.dart';
+import '../pages/view_user.dart';
 
 class AnalyticsTab extends StatefulWidget {
   const AnalyticsTab({super.key});
@@ -343,11 +344,21 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
           Row(
             children: [
               Expanded(
-                child: _buildStatCard(
-                  'Total Users',
-                  totalUsers.toString(),
-                  Icons.people,
-                  const Color(0xFF6C63FF),
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const ViewUser(),
+                      ),
+                    );
+                  },
+                  child: _buildStatCard(
+                    'Total Users',
+                    totalUsers.toString(),
+                    Icons.people,
+                    const Color(0xFF6C63FF),
+                  ),
                 ),
               ),
               const SizedBox(width: 16),
