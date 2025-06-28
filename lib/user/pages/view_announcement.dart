@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 class ViewAnnouncementPage extends StatefulWidget {
   const ViewAnnouncementPage({super.key});
@@ -9,8 +11,54 @@ class ViewAnnouncementPage extends StatefulWidget {
 }
 
 class _ViewAnnouncementPageState extends State<ViewAnnouncementPage> {
+  List<dynamic> announcements = [];
+  bool isLoading = true;
+  String? errorMessage;
+  static const String baseUrl = 'http://192.168.1.120:3000/api';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadAnnouncements();
+  }
+
+  Future<void> _loadAnnouncements() async {
+    if (!mounted) return;
+    
+    setState(() {
+      isLoading = true;
+      errorMessage = null;
+    });
+
+    try {
+      final response = await http.get(Uri.parse('$baseUrl/announcements'));
+      
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        print('Announcements data loaded: ${data.length} announcements');
+        
+        if (mounted) {
+          setState(() {
+            announcements = data;
+            isLoading = false;
+          });
+        }
+      } else {
+        throw Exception('Failed to load announcements: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error loading announcements: $e');
+      if (mounted) {
+        setState(() {
+          errorMessage = 'Failed to load announcements: $e';
+          isLoading = false;
+        });
+      }
+    }
+  }
+
   Color _getPriorityColor(String priority) {
-    switch (priority) {
+    switch (priority.toLowerCase()) {
       case 'high':
         return const Color(0xFFFF5252);
       case 'medium':
@@ -43,81 +91,142 @@ class _ViewAnnouncementPageState extends State<ViewAnnouncementPage> {
           ),
         ),
         centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh, color: Colors.white),
+            onPressed: _loadAnnouncements,
+          ),
+        ],
       ),
-      body: StreamBuilder<List<dynamic>>(
-        stream: null,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(
-              child: CircularProgressIndicator(
-                color: Color(0xFF6C63FF),
-              ),
-            );
-          }
-
-          if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.campaign_outlined,
-                    size: 80,
-                    color: Colors.grey[600],
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'No announcements yet',
-                    style: TextStyle(
-                      color: Colors.grey[500],
-                      fontSize: 18,
-                      fontFamily: 'Poppins',
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Check back later for updates',
-                    style: TextStyle(
-                      color: Colors.grey[600],
-                      fontSize: 14,
-                      fontFamily: 'Poppins',
-                    ),
-                  ),
-                ],
-              ),
-            );
-          }
-
-          final announcements = snapshot.data!;
-
-          return ListView.builder(
-            padding: const EdgeInsets.all(16),
-            itemCount: announcements.length,
-            itemBuilder: (context, index) {
-              final announcement = announcements[index];
-              final createdAt = announcement['createdAt'];
-              final priority = announcement['priority'] ?? 'medium';
-              
-              return Container(
-                margin: const EdgeInsets.only(bottom: 16),
-                child: _AnnouncementCard(
-                  title: announcement['title'] ?? 'Announcement',
-                  description: announcement['description'] ?? '',
-                  createdAt: createdAt,
-                  priority: priority,
-                  getPriorityColor: _getPriorityColor,
-                  onTap: () => _showAnnouncementDialog(context, announcement),
-                ),
-              );
-            },
-          );
-        },
-      ),
+      body: _buildBody(),
     );
   }
 
-    void _showAnnouncementDialog(BuildContext context, Map<String, dynamic> announcement) {
+  Widget _buildBody() {
+    if (isLoading) {
+      return const Center(
+        child: CircularProgressIndicator(
+          color: Color(0xFF6C63FF),
+        ),
+      );
+    }
+
+    if (errorMessage != null) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.error_outline,
+              size: 80,
+              color: Colors.red[300],
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Error loading announcements',
+              style: TextStyle(
+                color: Colors.red[300],
+                fontSize: 18,
+                fontWeight: FontWeight.w500,
+                fontFamily: 'Poppins',
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              errorMessage!,
+              style: TextStyle(
+                color: Colors.grey[400],
+                fontSize: 14,
+                fontFamily: 'Poppins',
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: _loadAnnouncements,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF6C63FF),
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              ),
+              child: const Text(
+                'Retry',
+                style: TextStyle(color: Colors.white, fontFamily: 'Poppins'),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    if (announcements.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.campaign_outlined,
+              size: 80,
+              color: Colors.grey[600],
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'No announcements yet',
+              style: TextStyle(
+                color: Colors.grey[500],
+                fontSize: 18,
+                fontFamily: 'Poppins',
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Check back later for updates',
+              style: TextStyle(
+                color: Colors.grey[600],
+                fontSize: 14,
+                fontFamily: 'Poppins',
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return ListView.builder(
+      padding: const EdgeInsets.all(16),
+      itemCount: announcements.length,
+      itemBuilder: (context, index) {
+        final announcement = announcements[index];
+        DateTime? createdAt;
+        try {
+          createdAt = DateTime.parse(announcement['createdAt']);
+        } catch (e) {
+          print('Error parsing announcement date: ${announcement['createdAt']}, error: $e');
+        }
+        final priority = announcement['priority'] ?? 'medium';
+        
+        return Container(
+          margin: const EdgeInsets.only(bottom: 16),
+          child: _AnnouncementCard(
+            title: announcement['title'] ?? 'Announcement',
+            description: announcement['description'] ?? '',
+            createdAt: createdAt,
+            priority: priority,
+            getPriorityColor: _getPriorityColor,
+            onTap: () => _showAnnouncementDialog(context, announcement),
+          ),
+        );
+      },
+    );
+  }
+
+  void _showAnnouncementDialog(BuildContext context, Map<String, dynamic> announcement) {
     final createdAt = announcement['createdAt'];
+    DateTime? parsedDate;
+    try {
+      parsedDate = DateTime.parse(createdAt);
+    } catch (e) {
+      print('Error parsing announcement date: $createdAt, error: $e');
+    }
     final priority = announcement['priority'] ?? 'medium';
     
     showDialog(
@@ -162,10 +271,10 @@ class _ViewAnnouncementPageState extends State<ViewAnnouncementPage> {
                               fontFamily: 'Poppins',
                             ),
                           ),
-                          if (createdAt != null) ...[
+                          if (parsedDate != null) ...[
                             const SizedBox(height: 4),
                             Text(
-                              DateFormat('MMM dd, yyyy • h:mm a').format(createdAt),
+                              DateFormat('MMM dd, yyyy • h:mm a').format(parsedDate),
                               style: const TextStyle(
                                 color: Colors.white70,
                                 fontSize: 14,
@@ -198,16 +307,27 @@ class _ViewAnnouncementPageState extends State<ViewAnnouncementPage> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 20),
-                Text(
-                  announcement['description'] ?? '',
-                  style: const TextStyle(
-                    color: Colors.white70,
-                    fontSize: 16,
-                    fontFamily: 'Poppins',
-                    height: 1.5,
+                if (announcement['description'] != null && announcement['description'].toString().isNotEmpty) ...[
+                  const SizedBox(height: 16),
+                  const Text(
+                    'Description',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      fontFamily: 'Poppins',
+                    ),
                   ),
-                ),
+                  const SizedBox(height: 8),
+                  Text(
+                    announcement['description'],
+                    style: const TextStyle(
+                      color: Colors.white70,
+                      fontSize: 14,
+                      fontFamily: 'Poppins',
+                    ),
+                  ),
+                ],
                 const SizedBox(height: 24),
                 SizedBox(
                   width: double.infinity,
@@ -215,15 +335,15 @@ class _ViewAnnouncementPageState extends State<ViewAnnouncementPage> {
                     onPressed: () => Navigator.pop(context),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF6C63FF),
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(8),
                       ),
                     ),
                     child: const Text(
                       'Close',
                       style: TextStyle(
+                        color: Colors.white,
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
                         fontFamily: 'Poppins',
@@ -245,7 +365,7 @@ class _AnnouncementCard extends StatelessWidget {
   final String description;
   final DateTime? createdAt;
   final String priority;
-  final Function(String) getPriorityColor;
+  final Color Function(String) getPriorityColor;
   final VoidCallback onTap;
 
   const _AnnouncementCard({
@@ -259,109 +379,119 @@ class _AnnouncementCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: const Color(0xFF23223A),
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: getPriorityColor(priority).withOpacity(0.08),
-              blurRadius: 14,
-              offset: const Offset(0, 6),
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(16),
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: const Color(0xFF2A2A2A),
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: getPriorityColor(priority).withOpacity(0.1),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
+              ),
+            ],
+            border: Border.all(
+              color: getPriorityColor(priority).withOpacity(0.2),
+              width: 1,
             ),
-          ],
-          border: Border.all(color: getPriorityColor(priority).withOpacity(0.13)),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: getPriorityColor(priority).withOpacity(0.13),
-                    borderRadius: BorderRadius.circular(10),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: getPriorityColor(priority).withOpacity(0.15),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Icon(
+                      Icons.campaign,
+                      color: getPriorityColor(priority),
+                      size: 24,
+                    ),
                   ),
-                  child: Icon(
-                    Icons.campaign,
-                    color: getPriorityColor(priority),
-                    size: 24,
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        title,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'Poppins',
-                        ),
-                      ),
-                      if (createdAt != null) ...[
-                        const SizedBox(height: 4),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
                         Text(
-                          DateFormat('MMM dd, yyyy • h:mm a').format(createdAt!),
+                          title,
                           style: const TextStyle(
-                            color: Colors.white70,
-                            fontSize: 14,
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
                             fontFamily: 'Poppins',
                           ),
                         ),
+                        if (createdAt != null) ...[
+                          const SizedBox(height: 4),
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.access_time,
+                                size: 16,
+                                color: Colors.grey[400],
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                DateFormat('MMM dd, yyyy • h:mm a').format(createdAt!),
+                                style: TextStyle(
+                                  color: Colors.grey[400],
+                                  fontSize: 14,
+                                  fontFamily: 'Poppins',
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
                       ],
-                    ],
-                  ),
-                ),
-                // Priority Badge
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: getPriorityColor(priority).withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(
-                      color: getPriorityColor(priority).withOpacity(0.5),
                     ),
                   ),
-                  child: Text(
-                    priority.toUpperCase(),
-                    style: TextStyle(
-                      color: getPriorityColor(priority),
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: 'Poppins',
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: getPriorityColor(priority).withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                        color: getPriorityColor(priority).withOpacity(0.5),
+                      ),
+                    ),
+                    child: Text(
+                      priority.toUpperCase(),
+                      style: TextStyle(
+                        color: getPriorityColor(priority),
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: 'Poppins',
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(width: 8),
-                const Icon(
-                  Icons.arrow_forward_ios,
-                  color: Colors.white54,
-                  size: 16,
+                ],
+              ),
+              if (description.isNotEmpty) ...[
+                const SizedBox(height: 12),
+                Text(
+                  description,
+                  style: TextStyle(
+                    color: Colors.grey[300],
+                    fontSize: 14,
+                    fontFamily: 'Poppins',
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ],
-            ),
-            if (description.isNotEmpty) ...[
-              const SizedBox(height: 12),
-              Text(
-                description.length > 100 
-                    ? '${description.substring(0, 100)}...'
-                    : description,
-                style: const TextStyle(
-                  color: Colors.white70,
-                  fontSize: 15,
-                  fontFamily: 'Poppins',
-                ),
-              ),
             ],
-          ],
+          ),
         ),
       ),
     );
