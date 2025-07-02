@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:neighborhub/admin/pages/generate_report.dart';
 import 'package:neighborhub/admin/pages/guidelines.dart';
 import 'package:neighborhub/admin/pages/about_us.dart';
+import 'package:neighborhub/services/auth_services.dart';
+import 'package:neighborhub/pages/login_page.dart';
 
 class SettingsTab extends StatelessWidget {
   const SettingsTab({super.key});
@@ -158,6 +160,42 @@ class SettingsTab extends StatelessWidget {
                     title: 'Logout',
                     subtitle: 'Sign out from your account',
                     isLast: true,
+                    onTap: () async {
+                      final shouldLogout = await showDialog<bool>(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          backgroundColor: const Color(0xFF232323),
+                          title: const Text('Confirm Logout', style: TextStyle(color: Colors.white)),
+                          content: const Text('Are you sure you want to logout from NeighborHub?', style: TextStyle(color: Colors.white70)),
+                          actions: [
+                            TextButton(
+                              child: const Text('Cancel', style: TextStyle(color: Colors.white54)),
+                              onPressed: () => Navigator.of(context).pop(false),
+                            ),
+                            ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF6C63FF),
+                              ),
+                              child: const Text('Logout', style: TextStyle(color: Colors.white)),
+                              onPressed: () => Navigator.of(context).pop(true),
+                            ),
+                          ],
+                        ),
+                      );
+                      if (shouldLogout == true) {
+                        try {
+                          await AuthService().logout();
+                        } catch (e) {
+                          debugPrint('Error during logout: $e');
+                        }
+                        if (context.mounted) {
+                          Navigator.of(context).pushAndRemoveUntil(
+                            MaterialPageRoute(builder: (context) => const LoginPage()),
+                            (route) => false,
+                          );
+                        }
+                      }
+                    },
                   ),
                 ],
               ),
