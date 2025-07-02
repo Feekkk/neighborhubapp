@@ -1,10 +1,11 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'api_config.dart';
 
 class EventService {
-  static const String eventBaseUrl = 'http://192.168.1.120:3000/api/events';
-  static const String announcementBaseUrl = 'http://192.168.1.120:3000/api/announcements';
+  static final String eventBaseUrl = ApiConfig.eventBaseUrl;
+  static final String announcementBaseUrl = ApiConfig.announcementBaseUrl;
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
 
   Future<void> createEvent({

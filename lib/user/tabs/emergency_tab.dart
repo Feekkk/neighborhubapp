@@ -5,7 +5,6 @@ import 'package:neighborhub/user/pages/map_help.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class EmergencyTab extends StatefulWidget {
   const EmergencyTab({super.key});
@@ -19,11 +18,7 @@ class _EmergencyTabState extends State<EmergencyTab> {
   Position? currentPosition;
   bool isLoading = true;
   bool isSaving = false;
-  bool isVerifying = false;
   MapType _currentMapType = MapType.normal;
-  
-  // API endpoint
-  static const String baseUrl = 'http://192.168.1.120:3000/api';
 
   @override
   void initState() {

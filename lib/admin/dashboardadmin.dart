@@ -1,5 +1,3 @@
-// ignore_for_file: deprecated_member_use
-
 import 'package:flutter/material.dart';
 import 'package:neighborhub/admin/tabs/home_tab.dart';
 import 'package:neighborhub/admin/tabs/emergency_tab.dart';

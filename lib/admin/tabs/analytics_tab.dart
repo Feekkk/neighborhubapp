@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import '../pages/view_annoucement.dart';
 import '../pages/view_events.dart';
 import '../pages/view_user.dart';
+import 'package:neighborhub/services/api_config.dart';
 
 class AnalyticsTab extends StatefulWidget {
   const AnalyticsTab({super.key});
@@ -25,7 +26,7 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
   String? errorMessage;
 
   // Backend endpoints
-  static const String baseUrl = 'http://192.168.1.120:3000/api';
+  static const String baseUrl = ApiConfig.baseUrl;
 
   @override
   void initState() {

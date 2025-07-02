@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:neighborhub/services/api_config.dart';
 
 class AddAssign extends StatefulWidget {
   const AddAssign({super.key});
@@ -24,7 +25,7 @@ class _AddAssignState extends State<AddAssign> {
   String? _errorMessage;
   String? _successMessage;
   
-  static const String baseUrl = 'http://192.168.1.120:3000/api';
+  static const String baseUrl = ApiConfig.baseUrl;
 
   @override
   void dispose() {
