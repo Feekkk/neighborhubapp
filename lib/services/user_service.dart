@@ -6,7 +6,6 @@ import 'api_config.dart';
 class UserService {
   static const String baseUrl = ApiConfig.userBaseUrl;
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
-  String? _userId;
 
   Future<String?> _getToken() async {
     return await _storage.read(key: 'jwt_token');

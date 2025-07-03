@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:neighborhub/user/pages/edit_profile.dart';
 import 'package:neighborhub/user/pages/aboutus.dart';
 import 'package:neighborhub/user/pages/forgetpassword.dart';
+import '../../services/user_service.dart';
 
 class SettingsTab extends StatefulWidget {
   const SettingsTab({super.key});
@@ -11,9 +12,31 @@ class SettingsTab extends StatefulWidget {
 }
 
 class _SettingsTabState extends State<SettingsTab> {
+  String? _username;
+  String? _email;
+  bool _isLoading = true;
+  final UserService _userService = UserService();
+
   @override
   void initState() {
     super.initState();
+    _loadUserData();
+  }
+
+  Future<void> _loadUserData() async {
+    setState(() => _isLoading = true);
+    try {
+      final userId = await _userService.getUserIdFromStorage();
+      if (userId == null) throw Exception('User ID not found');
+      final user = await _userService.getUserProfile(userId);
+      setState(() {
+        _username = user['username'] ?? '';
+        _email = user['email'] ?? '';
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() => _isLoading = false);
+    }
   }
 
   @override
@@ -27,53 +50,105 @@ class _SettingsTabState extends State<SettingsTab> {
             const SizedBox(height: 16),
             // Profile section
             Center(
-              child: Column(
-                children: [
-                  Stack(
-                    children: [
-                      const CircleAvatar(
-                        radius: 48,
-                        backgroundImage: NetworkImage('https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/340px-Default_pfp.svg.png?20220226140232'),
-                        backgroundColor: Colors.black,
-                      ),
-                      Positioned(
-                        bottom: 8,
-                        right: 8,
-                        child: Container(
-                          width: 22,
-                          height: 22,
+              child: _isLoading
+                  ? const CircularProgressIndicator()
+                  : Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        Container(
+                          width: 340,
+                          padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 16),
                           decoration: BoxDecoration(
-                            color: Colors.green,
-                            shape: BoxShape.circle,
-                            border: Border.all(color: Colors.black, width: 3),
+                            borderRadius: BorderRadius.circular(24),
+                            gradient: const LinearGradient(
+                              colors: [Color(0xFF232323), Color(0xFF1A1A1A)],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.4),
+                                blurRadius: 24,
+                                offset: const Offset(0, 8),
+                              ),
+                            ],
+                          ),
+                          child: Column(
+                            children: [
+                              Stack(
+                                children: [
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black.withOpacity(0.5),
+                                          blurRadius: 12,
+                                          offset: const Offset(0, 4),
+                                        ),
+                                      ],
+                                    ),
+                                    child: const CircleAvatar(
+                                      radius: 48,
+                                      backgroundImage: NetworkImage('https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/340px-Default_pfp.svg.png?20220226140232'),
+                                      backgroundColor: Colors.black,
+                                    ),
+                                  ),
+                                  Positioned(
+                                    bottom: 4,
+                                    right: 4,
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        color: Color(0xFF6C63FF),
+                                        shape: BoxShape.circle,
+                                        border: Border.all(color: Colors.white, width: 2),
+                                      ),
+                                      child: const Padding(
+                                        padding: EdgeInsets.all(3.0),
+                                        child: Icon(Icons.edit, size: 16, color: Colors.white),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 18),
+                              Text(
+                                _username ?? '',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 22,
+                                  fontFamily: 'Poppins',
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                              const SizedBox(height: 6),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(Icons.email_outlined, color: Colors.grey[400], size: 18),
+                                  const SizedBox(width: 6),
+                                  Flexible(
+                                    child: Text(
+                                      _email ?? '',
+                                      style: TextStyle(
+                                        color: Colors.grey[300],
+                                        fontSize: 15,
+                                        fontFamily: 'Poppins',
+                                      ),
+                                      textAlign: TextAlign.center,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  const SizedBox(height: 4),
-                  // Email with verification indicator (removed Firebase email)
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Flexible(
-                        child: Text(
-                          '', // No email
-                          style: const TextStyle(
-                            color: Color.fromARGB(255, 255, 255, 255),
-                            fontWeight: FontWeight.bold,
-                            fontSize: 22,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+                      ],
+                    ),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 32),
             const Text(
               'Settings',
               style: TextStyle(
