@@ -14,7 +14,6 @@ class ViewUser extends StatefulWidget {
 
 class _ViewUserState extends State<ViewUser> {
   List<dynamic> users = [];
-  List<dynamic> filteredUsers = [];
   bool isLoading = true;
   String? errorMessage;
   String searchQuery = '';
@@ -22,13 +21,6 @@ class _ViewUserState extends State<ViewUser> {
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
   
   static final String baseUrl = ApiConfig.baseUrl;
-
-  final List<String> filterOptions = [
-    'all',
-    'recent',
-    'active',
-    'inactive',
-  ];
 
   @override
   void initState() {
@@ -61,7 +53,6 @@ class _ViewUserState extends State<ViewUser> {
         
         setState(() {
           users = data;
-          filteredUsers = data;
           isLoading = false;
         });
       } else {
@@ -93,7 +84,6 @@ class _ViewUserState extends State<ViewUser> {
       if (response.statusCode == 200 || response.statusCode == 204) {
         setState(() {
           users.removeWhere((user) => user['id'] == userId);
-          filteredUsers.removeWhere((user) => user['id'] == userId);
         });
 
         if (mounted) {
@@ -172,7 +162,7 @@ class _ViewUserState extends State<ViewUser> {
 
   void _filterUsers() {
     setState(() {
-      filteredUsers = users.where((user) {
+      users = users.where((user) {
         final matchesSearch = user['username'].toString().toLowerCase().contains(searchQuery.toLowerCase()) ||
                             user['email'].toString().toLowerCase().contains(searchQuery.toLowerCase());
         
@@ -322,7 +312,7 @@ class _ViewUserState extends State<ViewUser> {
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
                               Text(
-                                '${filteredUsers.length}',
+                                '${users.length}',
                                 style: const TextStyle(
                                   fontSize: 24,
                                   fontWeight: FontWeight.bold,
@@ -370,7 +360,7 @@ class _ViewUserState extends State<ViewUser> {
                           SingleChildScrollView(
                             scrollDirection: Axis.horizontal,
                             child: Row(
-                              children: filterOptions.map((filter) {
+                              children: [].map((filter) {
                                 final isSelected = selectedFilter == filter;
                                 return Padding(
                                   padding: const EdgeInsets.only(right: 8),
@@ -402,7 +392,7 @@ class _ViewUserState extends State<ViewUser> {
 
                     // Users List
                     Expanded(
-                      child: filteredUsers.isEmpty
+                      child: users.isEmpty
                           ? Center(
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
@@ -427,9 +417,9 @@ class _ViewUserState extends State<ViewUser> {
                             )
                           : ListView.builder(
                               padding: const EdgeInsets.symmetric(horizontal: 16),
-                              itemCount: filteredUsers.length,
+                              itemCount: users.length,
                               itemBuilder: (context, index) {
-                                final user = filteredUsers[index];
+                                final user = users[index];
                                 final createdAt = DateTime.parse(user['createdAt']);
                                 
                                 return Container(
