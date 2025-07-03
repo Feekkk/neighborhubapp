@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:neighborhub/services/api_config.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class ViewEvents extends StatefulWidget {
   const ViewEvents({super.key});
@@ -16,6 +17,7 @@ class _ViewEventsState extends State<ViewEvents> {
   bool isLoading = true;
   String? errorMessage;
   static const String baseUrl = ApiConfig.baseUrl;
+  final FlutterSecureStorage _storage = const FlutterSecureStorage();
 
   @override
   void initState() {
@@ -54,8 +56,13 @@ class _ViewEventsState extends State<ViewEvents> {
 
   Future<void> _deleteEvent(String eventId) async {
     try {
+      final token = await _storage.read(key: 'jwt_token');
       final response = await http.delete(
         Uri.parse('$baseUrl/events/$eventId'),
+        headers: {
+          'Content-Type': 'application/json',
+          if (token != null) 'Authorization': 'Bearer $token',
+        },
       );
 
       if (response.statusCode == 200 || response.statusCode == 204) {
