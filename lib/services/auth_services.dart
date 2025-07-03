@@ -20,6 +20,7 @@ class AuthService {
     if (response.statusCode == 200 && data['token'] != null) {
       _token = data['token'];
       await _storage.write(key: 'jwt_token', value: _token);
+      await _storage.write(key: 'user_id', value: data['userId']);
       return data;
     } else {
       throw Exception(data['error'] ?? 'Login failed');
@@ -36,6 +37,7 @@ class AuthService {
     if (response.statusCode == 200 && data['token'] != null) {
       _token = data['token'];
       await _storage.write(key: 'jwt_token', value: _token);
+      await _storage.write(key: 'user_id', value: data['userId']);
       return data;
     } else {
       throw Exception(data['error'] ?? 'Registration failed');
