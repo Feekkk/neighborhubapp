@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:neighborhub/services/api_config.dart';
 
 class ViewEventsPage extends StatefulWidget {
   const ViewEventsPage({super.key});
@@ -14,7 +15,7 @@ class _ViewEventsPageState extends State<ViewEventsPage> {
   List<dynamic> events = [];
   bool isLoading = true;
   String? errorMessage;
-  static const String baseUrl = 'http://192.168.1.120:3000/api';
+  static const String baseUrl = ApiConfig.baseUrl;
 
   @override
   void initState() {
