@@ -55,4 +55,34 @@ class EventService {
       throw Exception('Failed to create announcement: ${response.body}');
     }
   }
+}
+
+class EmergencyReportService {
+  static const String baseUrl = 'http://192.168.1.120:3000/api/reports';
+  final FlutterSecureStorage _storage = const FlutterSecureStorage();
+
+  Future<String?> _getAuthToken() async {
+    return await _storage.read(key: 'jwt_token');
+  }
+
+  Future<List<dynamic>> fetchAllReports() async {
+    final token = await _getAuthToken();
+    if (token == null) {
+      throw Exception('Authentication token not found');
+    }
+    final response = await http.get(
+      Uri.parse('$baseUrl'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else if (response.statusCode == 401) {
+      throw Exception('Unauthorized: Please login again');
+    } else {
+      throw Exception('Failed to fetch emergency reports: ${response.statusCode}');
+    }
+  }
 } 

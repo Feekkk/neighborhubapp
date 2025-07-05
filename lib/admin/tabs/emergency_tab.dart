@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../pages/emergency_resolve.dart';
 import '../../widgets/pdf_generation_widget.dart';
+import '../../services/generic_event_service.dart';
 
 class AdminEmergencyTab extends StatelessWidget {
   const AdminEmergencyTab({super.key});
@@ -9,13 +9,21 @@ class AdminEmergencyTab extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       color: const Color(0xFF1A1A1A),
-      child: StreamBuilder<List<dynamic>>(
-        stream: null,
+      child: FutureBuilder<List<dynamic>>(
+        future: EmergencyReportService().fetchAllReports(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(
               child: CircularProgressIndicator(
                 color: Color(0xFF6C63FF),
+              ),
+            );
+          }
+          if (snapshot.hasError) {
+            return Center(
+              child: Text(
+                'Failed to load emergency reports: ${snapshot.error}',
+                style: const TextStyle(color: Colors.red),
               ),
             );
           }
@@ -63,27 +71,66 @@ class AdminEmergencyTab extends StatelessWidget {
             padding: const EdgeInsets.all(16),
             itemCount: emergencies.length,
             itemBuilder: (context, index) {
-              final doc = emergencies[index];
-              final data = doc;
-              final userId = data['userId'] ?? 'Unknown';
-              final username = data['username'] ?? userId;
-              final timestamp = data['timestamp'];
-              final timeString = timestamp != null
-                  ? _formatTimestamp(timestamp)
+              final data = emergencies[index];
+              final title = data['title'] ?? 'No Title';
+              final createdAt = data['createdAt'] != null
+                  ? DateTime.tryParse(data['createdAt'])
+                  : null;
+              final timeString = createdAt != null
+                  ? _formatTimestamp(createdAt)
                   : 'Unknown time';
+              final priority = data['priority']?.toString() ?? 'HIGH';
+
               return Padding(
                 padding: const EdgeInsets.only(bottom: 16),
                 child: InkWell(
                   borderRadius: BorderRadius.circular(16),
                   onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => EmergencyResolvePage(
-                          latitude: data['latitude'],
-                          longitude: data['longitude'],
-                        ),
-                      ),
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        return AlertDialog(
+                          backgroundColor: const Color(0xFF222222),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                          title: Text(
+                            data['title'] ?? 'No Title',
+                            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                          ),
+                          content: SingleChildScrollView(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                _detailRow('Description', data['description']),
+                                _detailRow('Priority', data['priority']),
+                                _detailRow('Latitude', data['latitude'].toString()),
+                                _detailRow('Longitude', data['longitude'].toString()),
+                                _detailRow('Time', data['time']),
+                                _detailRow('Resolved At', data['resolvedAt']),
+                                _detailRow('Created At', data['createdAt']),
+                                _detailRow('Updated At', data['updatedAt']),
+                              ],
+                            ),
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () {
+                                // TODO: Implement direction
+                              },
+                              child: const Text('Direction', style: TextStyle(color: Color(0xFF6C63FF))),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                // TODO: Implement resolve
+                              },
+                              child: const Text('Resolve', style: TextStyle(color: Colors.green)),
+                            ),
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(),
+                              child: const Text('Close', style: TextStyle(color: Colors.grey)),
+                            ),
+                          ],
+                        );
+                      },
                     );
                   },
                   child: Container(
@@ -124,14 +171,14 @@ class AdminEmergencyTab extends StatelessWidget {
                                 Row(
                                   children: [
                                     const Icon(
-                                      Icons.person,
+                                      Icons.label,
                                       color: Colors.white70,
                                       size: 16,
                                     ),
                                     const SizedBox(width: 6),
                                     Expanded(
                                       child: Text(
-                                        username,
+                                        title,
                                         style: const TextStyle(
                                           color: Colors.white,
                                           fontWeight: FontWeight.bold,
@@ -141,6 +188,7 @@ class AdminEmergencyTab extends StatelessWidget {
                                         overflow: TextOverflow.ellipsis,
                                       ),
                                     ),
+                                    const SizedBox(width: 8),
                                   ],
                                 ),
                                 const SizedBox(height: 12),
@@ -178,7 +226,7 @@ class AdminEmergencyTab extends StatelessWidget {
                                     PdfGenerationWidget.showPdfOptions(
                                       context,
                                       reportId: data['id'] ?? 'unknown',
-                                      reportTitle: 'Emergency Report - $username',
+                                      reportTitle: 'Emergency Report - $title',
                                     );
                                   },
                                   child: const Icon(
@@ -218,9 +266,8 @@ class AdminEmergencyTab extends StatelessWidget {
   }
 
   String _formatTimestamp(DateTime timestamp) {
-    final date = timestamp;
     final now = DateTime.now();
-    final difference = now.difference(date);
+    final difference = now.difference(timestamp);
     if (difference.inMinutes < 1) {
       return 'Just now';
     } else if (difference.inMinutes < 60) {
@@ -230,5 +277,29 @@ class AdminEmergencyTab extends StatelessWidget {
     } else {
       return '${difference.inDays} days ago';
     }
+  }
+
+  Widget _detailRow(String label, String? value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            '$label: ',
+            style: const TextStyle(
+              color: Colors.white70,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          Expanded(
+            child: Text(
+              value ?? '-',
+              style: const TextStyle(color: Colors.white),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 } 
