@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../pages/emergency_resolve.dart';
+import '../../widgets/pdf_generation_widget.dart';
 
 class AdminEmergencyTab extends StatelessWidget {
   const AdminEmergencyTab({super.key});
@@ -163,17 +164,45 @@ class AdminEmergencyTab extends StatelessWidget {
                               ],
                             ),
                           ),
-                          Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.05),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: const Icon(
-                              Icons.arrow_forward_ios,
-                              color: Colors.white70,
-                              size: 16,
-                            ),
+                          Row(
+                            children: [
+                              // PDF Generation Button
+                              Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF6C63FF).withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: InkWell(
+                                  onTap: () {
+                                    PdfGenerationWidget.showPdfOptions(
+                                      context,
+                                      reportId: data['id'] ?? 'unknown',
+                                      reportTitle: 'Emergency Report - $username',
+                                    );
+                                  },
+                                  child: const Icon(
+                                    Icons.picture_as_pdf,
+                                    color: Color(0xFF6C63FF),
+                                    size: 20,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              // View Details Button
+                              Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.05),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: const Icon(
+                                  Icons.arrow_forward_ios,
+                                  color: Colors.white70,
+                                  size: 16,
+                                ),
+                              ),
+                            ],
                           ),
                         ],
                       ),

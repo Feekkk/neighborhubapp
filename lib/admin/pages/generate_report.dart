@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'dart:typed_data';
+import 'dart:io';
 import 'package:pdfx/pdfx.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:neighborhub/services/pdf_service.dart';
 import 'package:neighborhub/admin/tabs/analytics_tab.dart';
 
 class GenerateReportPage extends StatelessWidget {
@@ -132,13 +135,31 @@ class GenerateReportPage extends StatelessWidget {
                   showDialog(
                     context: context,
                     barrierDismissible: false,
-                    builder: (context) => const Center(child: CircularProgressIndicator()),
+                    builder: (context) => const Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          CircularProgressIndicator(color: Color(0xFF6C63FF)),
+                          SizedBox(height: 16),
+                          Text(
+                            'Generating PDF Report...',
+                            style: TextStyle(color: Colors.white, fontSize: 16),
+                          ),
+                        ],
+                      ),
+                    ),
                   );
+                  
                   try {
-                   
+                    final pdfService = PdfService();
+                    final pdfBytes = await pdfService.generateAllReportsPDF();
+                    
                     if (!context.mounted) return;
                     Navigator.of(context).pop(); // Remove loading dialog
-                    Navigator.of(context).push(MaterialPageRoute(builder: (context) => const AnalyticsTab()));
+                    
+                    // Show success dialog with options
+                    _showSuccessDialog(context, pdfBytes);
+                    
                   } catch (e) {
                     if (!context.mounted) return;
                     Navigator.of(context).pop(); // Remove loading dialog
@@ -221,6 +242,82 @@ class GenerateReportPage extends StatelessWidget {
                   ),
                 ),
               ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showSuccessDialog(BuildContext context, Uint8List pdfBytes) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xFF2A2A2A),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text(
+          'PDF Generated Successfully!',
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
+        content: const Text(
+          'Your emergency reports PDF has been generated. What would you like to do with it?',
+          style: TextStyle(color: Colors.white70),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => PdfViewPage(pdfBytes: pdfBytes),
+                ),
+              );
+            },
+            child: const Text(
+              'View PDF',
+              style: TextStyle(color: Color(0xFF6C63FF)),
+            ),
+          ),
+          TextButton(
+            onPressed: () async {
+              try {
+                final pdfService = PdfService();
+                final timestamp = DateTime.now().millisecondsSinceEpoch;
+                final filename = 'emergency-reports-$timestamp.pdf';
+                final filePath = await pdfService.savePDFToDevice(pdfBytes, filename);
+                
+                if (!context.mounted) return;
+                Navigator.of(context).pop();
+                
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('PDF saved to: $filePath'),
+                    backgroundColor: Colors.green,
+                    duration: const Duration(seconds: 3),
+                  ),
+                );
+              } catch (e) {
+                if (!context.mounted) return;
+                Navigator.of(context).pop();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Failed to save PDF: ${e.toString()}'),
+                    backgroundColor: Colors.red,
+                    duration: const Duration(seconds: 3),
+                  ),
+                );
+              }
+            },
+            child: const Text(
+              'Save to Device',
+              style: TextStyle(color: Color(0xFF6C63FF)),
+            ),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text(
+              'Cancel',
+              style: TextStyle(color: Colors.grey),
             ),
           ),
         ],
