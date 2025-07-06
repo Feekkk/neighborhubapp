@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../widgets/pdf_generation_widget.dart';
 import '../../services/generic_event_service.dart';
 
@@ -88,47 +89,220 @@ class AdminEmergencyTab extends StatelessWidget {
                   onTap: () {
                     showDialog(
                       context: context,
+                      barrierDismissible: true,
                       builder: (context) {
-                        return AlertDialog(
-                          backgroundColor: const Color(0xFF222222),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                          title: Text(
-                            data['title'] ?? 'No Title',
-                            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                          ),
-                          content: SingleChildScrollView(
+                        return Dialog(
+                          backgroundColor: Colors.transparent,
+                          child: Container(
+                            constraints: const BoxConstraints(maxWidth: 400, maxHeight: 600),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF1E1E1E),
+                              borderRadius: BorderRadius.circular(24),
+                              border: Border.all(
+                                color: Colors.red.withOpacity(0.3),
+                                width: 1,
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.5),
+                                  blurRadius: 20,
+                                  offset: const Offset(0, 10),
+                                ),
+                              ],
+                            ),
                             child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
                               children: [
-                                _detailRow('Description', data['description']),
-                                _detailRow('Priority', data['priority']),
-                                _detailRow('Latitude', data['latitude'].toString()),
-                                _detailRow('Longitude', data['longitude'].toString()),
-                                _detailRow('Time', data['time']),
-                                _detailRow('Resolved At', data['resolvedAt']),
-                                _detailRow('Created At', data['createdAt']),
-                                _detailRow('Updated At', data['updatedAt']),
+                                // Header with gradient
+                                Container(
+                                  padding: const EdgeInsets.all(24),
+                                  decoration: BoxDecoration(
+                                    gradient: LinearGradient(
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                      colors: [
+                                        Colors.red.withOpacity(0.8),
+                                        Colors.red.withOpacity(0.4),
+                                      ],
+                                    ),
+                                    borderRadius: const BorderRadius.only(
+                                      topLeft: Radius.circular(24),
+                                      topRight: Radius.circular(24),
+                                    ),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Container(
+                                        padding: const EdgeInsets.all(12),
+                                        decoration: BoxDecoration(
+                                          color: Colors.white.withOpacity(0.2),
+                                          borderRadius: BorderRadius.circular(16),
+                                        ),
+                                        child: const Icon(
+                                          Icons.emergency,
+                                          color: Colors.white,
+                                          size: 28,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 16),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              data['title'] ?? 'No Title',
+                                              style: const TextStyle(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 20,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 4),
+                                            Row(
+                                              children: [
+                                                Container(
+                                                  padding: const EdgeInsets.symmetric(
+                                                    horizontal: 8,
+                                                    vertical: 4,
+                                                  ),
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.white.withOpacity(0.2),
+                                                    borderRadius: BorderRadius.circular(8),
+                                                  ),
+                                                  child: Text(
+                                                    data['priority']?.toString() ?? 'HIGH',
+                                                    style: const TextStyle(
+                                                      color: Colors.white,
+                                                      fontSize: 12,
+                                                      fontWeight: FontWeight.w600,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      IconButton(
+                                        onPressed: () => Navigator.of(context).pop(),
+                                        icon: const Icon(
+                                          Icons.close,
+                                          color: Colors.white,
+                                          size: 24,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                // Content
+                                Flexible(
+                                  child: SingleChildScrollView(
+                                    padding: const EdgeInsets.all(24),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        _modernDetailCard(
+                                          'Description',
+                                          data['description'] ?? 'No description available',
+                                          Icons.description,
+                                          Colors.blue,
+                                        ),
+                                        const SizedBox(height: 16),
+                                        Row(
+                                          children: [
+                                            Expanded(
+                                              child: _modernDetailCard(
+                                                'Latitude',
+                                                data['latitude']?.toString() ?? 'N/A',
+                                                Icons.location_on,
+                                                Colors.green,
+                                              ),
+                                            ),
+                                            const SizedBox(width: 12),
+                                            Expanded(
+                                              child: _modernDetailCard(
+                                                'Longitude',
+                                                data['longitude']?.toString() ?? 'N/A',
+                                                Icons.location_on,
+                                                Colors.green,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        const SizedBox(height: 16),
+                                        _modernDetailCard(
+                                          'Time',
+                                          data['time'] ?? 'N/A',
+                                          Icons.access_time,
+                                          Colors.orange,
+                                        ),
+                                        const SizedBox(height: 16),
+                                        _modernDetailCard(
+                                          'Resolved At',
+                                          data['resolvedAt'] ?? 'Not resolved',
+                                          Icons.check_circle,
+                                          data['resolvedAt'] != null ? Colors.green : Colors.grey,
+                                        ),
+                                        const SizedBox(height: 16),
+                                        _modernDetailCard(
+                                          'Created At',
+                                          data['createdAt'] ?? 'N/A',
+                                          Icons.schedule,
+                                          Colors.purple,
+                                        ),
+                                        const SizedBox(height: 16),
+                                        _modernDetailCard(
+                                          'Updated At',
+                                          data['updatedAt'] ?? 'N/A',
+                                          Icons.update,
+                                          Colors.teal,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                // Action buttons
+                                Container(
+                                  padding: const EdgeInsets.all(24),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFF2A2A2A),
+                                    borderRadius: const BorderRadius.only(
+                                      bottomLeft: Radius.circular(24),
+                                      bottomRight: Radius.circular(24),
+                                    ),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: _modernActionButton(
+                                          'Direction',
+                                          Icons.directions,
+                                          const Color(0xFF6C63FF),
+                                          () {
+                                            _openGoogleMaps(
+                                              data['latitude']?.toString() ?? '',
+                                              data['longitude']?.toString() ?? '',
+                                            );
+                                          },
+                                        ),
+                                      ),
+                                      const SizedBox(width: 12),
+                                      Expanded(
+                                        child: _modernActionButton(
+                                          'Resolve',
+                                          Icons.check_circle,
+                                          Colors.green,
+                                          () {
+                                            // TODO: Implement resolve
+                                          },
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
                               ],
                             ),
                           ),
-                          actions: [
-                            TextButton(
-                              onPressed: () {
-                                // TODO: Implement direction
-                              },
-                              child: const Text('Direction', style: TextStyle(color: Color(0xFF6C63FF))),
-                            ),
-                            TextButton(
-                              onPressed: () {
-                                // TODO: Implement resolve
-                              },
-                              child: const Text('Resolve', style: TextStyle(color: Colors.green)),
-                            ),
-                            TextButton(
-                              onPressed: () => Navigator.of(context).pop(),
-                              child: const Text('Close', style: TextStyle(color: Colors.grey)),
-                            ),
-                          ],
                         );
                       },
                     );
@@ -279,27 +453,128 @@ class AdminEmergencyTab extends StatelessWidget {
     }
   }
 
-  Widget _detailRow(String label, String? value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
+  Widget _modernDetailCard(String label, String value, IconData icon, Color color) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFF2A2A2A),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: color.withOpacity(0.3),
+          width: 1,
+        ),
+      ),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            '$label: ',
-            style: const TextStyle(
-              color: Colors.white70,
-              fontWeight: FontWeight.bold,
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(
+              icon,
+              color: color,
+              size: 20,
             ),
           ),
+          const SizedBox(width: 12),
           Expanded(
-            child: Text(
-              value ?? '-',
-              style: const TextStyle(color: Colors.white),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: const TextStyle(
+                    color: Colors.white70,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  value,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
             ),
           ),
         ],
       ),
     );
+  }
+
+  Widget _modernActionButton(String text, IconData icon, Color color, VoidCallback onPressed) {
+    return Container(
+      height: 48,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            color.withOpacity(0.8),
+            color.withOpacity(0.6),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: color.withOpacity(0.3),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onPressed,
+          borderRadius: BorderRadius.circular(12),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                icon,
+                color: Colors.white,
+                size: 20,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                text,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 14,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _openGoogleMaps(String latitude, String longitude) async {
+    try {
+      if (latitude.isEmpty || longitude.isEmpty) {
+        return;
+      }
+
+      final url = 'https://www.google.com/maps/dir/?api=1&destination=$latitude,$longitude&travelmode=driving';
+      final uri = Uri.parse(url);
+      
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(
+          uri,
+          mode: LaunchMode.externalApplication,
+        );
+      }
+    } catch (e) {
+      print('Failed to open Google Maps: ${e.toString()}');
+    }
   }
 } 
