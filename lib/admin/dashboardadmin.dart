@@ -12,22 +12,22 @@ class DashboardAdmin extends StatefulWidget {
   const DashboardAdmin({super.key});
 
   @override
-  State<DashboardAdmin> createState() => _DashboardAdminState();
+  State<DashboardAdmin> createState() => DashboardAdminState();
 }
 
-class _DashboardAdminState extends State<DashboardAdmin>
+class DashboardAdminState extends State<DashboardAdmin>
     with SingleTickerProviderStateMixin {
-  late TabController _tabController;
+  late TabController tabController;
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 5, vsync: this);
+    tabController = TabController(length: 5, vsync: this);
   }
 
   @override
   void dispose() {
-    _tabController.dispose();
+    tabController.dispose();
     super.dispose();
   }
 
@@ -215,7 +215,7 @@ class _DashboardAdminState extends State<DashboardAdmin>
         ),
       ),
       body: TabBarView(
-        controller: _tabController,
+        controller: tabController,
         children: const [
           HomeTab(),
           AdminEmergencyTab(),
@@ -242,7 +242,7 @@ class _DashboardAdminState extends State<DashboardAdmin>
             highlightColor: Colors.transparent,
           ),
           child: TabBar(
-            controller: _tabController,
+            controller: tabController,
             indicatorColor: const Color(0xFF6C63FF),
             indicatorWeight: 3,
             indicatorSize: TabBarIndicatorSize.label,
@@ -351,5 +351,9 @@ class _DashboardAdminState extends State<DashboardAdmin>
         ),
       );
     }
+  }
+
+  void goToAnalyticsTab() {
+    tabController.animateTo(3); // index of AnalyticsTab
   }
 }

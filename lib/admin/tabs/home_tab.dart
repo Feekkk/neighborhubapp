@@ -5,7 +5,7 @@ import '../pages/guidelines.dart';
 import '../pages/about_us.dart';
 import '../pages/add_event.dart';
 import '../pages/add_assign.dart';
-import 'analytics_tab.dart';
+import '../dashboardadmin.dart';
 
 class HomeTab extends StatefulWidget {
   const HomeTab({super.key});
@@ -220,10 +220,8 @@ class _HomeTabState extends State<HomeTab> {
                           label: 'View Analytics',
                           gradient: [Colors.redAccent, Colors.red],
                           onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => const AnalyticsTab()),
-                            );
+                            final dashboardState = context.findAncestorStateOfType<DashboardAdminState>();
+                            dashboardState?.goToAnalyticsTab();
                           },
                         ),
                         _EnhancedAdminQuickAction(
