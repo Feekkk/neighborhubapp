@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:neighborhub/services/api_config.dart';
+import 'package:neighborhub/services/generic_event_service.dart';
 
 class ViewEventsPage extends StatefulWidget {
   const ViewEventsPage({super.key});
@@ -15,7 +16,7 @@ class _ViewEventsPageState extends State<ViewEventsPage> {
   List<dynamic> events = [];
   bool isLoading = true;
   String? errorMessage;
-  static const String baseUrl = ApiConfig.baseUrl;
+  final EventService _eventService = EventService();
 
   @override
   void initState() {
@@ -32,20 +33,14 @@ class _ViewEventsPageState extends State<ViewEventsPage> {
     });
 
     try {
-      final response = await http.get(Uri.parse('$baseUrl/events'));
+      final data = await _eventService.fetchEvents();
+      print('Events data loaded: ${data.length} events');
       
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        print('Events data loaded: ${data.length} events');
-        
-        if (mounted) {
-          setState(() {
-            events = data;
-            isLoading = false;
-          });
-        }
-      } else {
-        throw Exception('Failed to load events: ${response.statusCode}');
+      if (mounted) {
+        setState(() {
+          events = data;
+          isLoading = false;
+        });
       }
     } catch (e) {
       print('Error loading events: $e');
@@ -230,6 +225,8 @@ class _ViewEventsPageState extends State<ViewEventsPage> {
       itemBuilder: (context, index) {
         final event = upcomingEvents[index];
         DateTime? eventDate;
+        String eventTime = event['time'] ?? '12:00';
+        
         try {
           eventDate = DateTime.parse(event['date']);
         } catch (e) {
@@ -289,14 +286,39 @@ class _ViewEventsPageState extends State<ViewEventsPage> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                event['title'] ?? 'Untitled Event',
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  fontFamily: 'Poppins',
-                                ),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      event['title'] ?? 'Untitled Event',
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                        fontFamily: 'Poppins',
+                                      ),
+                                    ),
+                                  ),
+                                  if (event['priority'] != null) ...[
+                                    const SizedBox(width: 8),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                      decoration: BoxDecoration(
+                                        color: _getPriorityColor(event['priority']).withOpacity(0.2),
+                                        borderRadius: BorderRadius.circular(4),
+                                      ),
+                                      child: Text(
+                                        event['priority'].toString().toUpperCase(),
+                                        style: TextStyle(
+                                          color: _getPriorityColor(event['priority']),
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.w600,
+                                          fontFamily: 'Poppins',
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ],
                               ),
                               const SizedBox(height: 4),
                               if (eventDate != null) ...[
@@ -309,7 +331,7 @@ class _ViewEventsPageState extends State<ViewEventsPage> {
                                     ),
                                     const SizedBox(width: 4),
                                     Text(
-                                      DateFormat('MMM dd, yyyy • h:mm a').format(eventDate),
+                                      '${DateFormat('MMM dd, yyyy').format(eventDate)} • $eventTime',
                                       style: TextStyle(
                                         color: Colors.grey[400],
                                         fontSize: 14,
@@ -347,7 +369,22 @@ class _ViewEventsPageState extends State<ViewEventsPage> {
     );
   }
 
+  Color _getPriorityColor(String priority) {
+    switch (priority.toUpperCase()) {
+      case 'HIGH':
+        return Colors.red;
+      case 'MEDIUM':
+        return Colors.orange;
+      case 'LOW':
+        return Colors.green;
+      default:
+        return Colors.grey;
+    }
+  }
+
   void _showEventDetails(BuildContext context, Map<String, dynamic> event, DateTime? eventDate) {
+    String eventTime = event['time'] ?? '12:00';
+    
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -393,7 +430,7 @@ class _ViewEventsPageState extends State<ViewEventsPage> {
                           if (eventDate != null) ...[
                             const SizedBox(height: 4),
                             Text(
-                              DateFormat('MMM dd, yyyy • h:mm a').format(eventDate),
+                              '${DateFormat('MMM dd, yyyy').format(eventDate)} • $eventTime',
                               style: const TextStyle(
                                 color: Colors.white70,
                                 fontSize: 14,
@@ -425,6 +462,29 @@ class _ViewEventsPageState extends State<ViewEventsPage> {
                       fontSize: 14,
                       fontFamily: 'Poppins',
                     ),
+                  ),
+                ],
+                if (event['priority'] != null) ...[
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: _getPriorityColor(event['priority']).withOpacity(0.2),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Text(
+                          event['priority'].toString().toUpperCase(),
+                          style: TextStyle(
+                            color: _getPriorityColor(event['priority']),
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            fontFamily: 'Poppins',
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
                 const SizedBox(height: 24),

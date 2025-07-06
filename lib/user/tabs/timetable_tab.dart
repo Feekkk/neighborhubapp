@@ -4,6 +4,8 @@ import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import '../pages/view_events.dart';
 import '../pages/view_announcement.dart';
+import '../../services/generic_event_service.dart';
+import '../../services/api_config.dart';
 
 class TimetableTab extends StatefulWidget {
   const TimetableTab({super.key});
@@ -23,8 +25,8 @@ class _TimetableTabState extends State<TimetableTab> {
   String? eventsError;
   String? announcementsError;
   
-  // API endpoints
-  static const String baseUrl = 'http://192.168.1.120:3000/api';
+  // Services
+  final EventService _eventService = EventService();
 
   @override
   void initState() {
@@ -42,20 +44,14 @@ class _TimetableTabState extends State<TimetableTab> {
     });
 
     try {
-      final response = await http.get(Uri.parse('$baseUrl/events'));
+      final data = await _eventService.fetchEvents();
+      print('Events data loaded: ${data.length} events');
       
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        print('Events data loaded: ${data.length} events');
-        
-        if (mounted) {
-          setState(() {
-            events = data;
-            isLoadingEvents = false;
-          });
-        }
-      } else {
-        throw Exception('Failed to load events: ${response.statusCode}');
+      if (mounted) {
+        setState(() {
+          events = data;
+          isLoadingEvents = false;
+        });
       }
     } catch (e) {
       print('Error loading events: $e');
@@ -77,7 +73,7 @@ class _TimetableTabState extends State<TimetableTab> {
     });
 
     try {
-      final response = await http.get(Uri.parse('$baseUrl/announcements'));
+      final response = await http.get(Uri.parse('${ApiConfig.announcementBaseUrl}'));
       
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);

@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:neighborhub/services/api_config.dart';
+import 'package:neighborhub/services/generic_event_service.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class ViewEvents extends StatefulWidget {
@@ -16,7 +17,7 @@ class _ViewEventsState extends State<ViewEvents> {
   List<dynamic> events = [];
   bool isLoading = true;
   String? errorMessage;
-  static const String baseUrl = ApiConfig.baseUrl;
+  final EventService _eventService = EventService();
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
 
   @override
@@ -32,19 +33,13 @@ class _ViewEventsState extends State<ViewEvents> {
     });
 
     try {
-      final response = await http.get(Uri.parse('$baseUrl/events'));
+      final data = await _eventService.fetchEvents();
+      print('Events data: $data');
       
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        print('Events data: $data');
-        
-        setState(() {
-          events = data;
-          isLoading = false;
-        });
-      } else {
-        throw Exception('Failed to load events: ${response.statusCode}');
-      }
+      setState(() {
+        events = data;
+        isLoading = false;
+      });
     } catch (e) {
       print('Error loading events: $e');
       setState(() {
@@ -58,7 +53,7 @@ class _ViewEventsState extends State<ViewEvents> {
     try {
       final token = await _storage.read(key: 'jwt_token');
       final response = await http.delete(
-        Uri.parse('$baseUrl/events/$eventId'),
+        Uri.parse('${ApiConfig.eventBaseUrl}/$eventId'),
         headers: {
           'Content-Type': 'application/json',
           if (token != null) 'Authorization': 'Bearer $token',
@@ -97,7 +92,7 @@ class _ViewEventsState extends State<ViewEvents> {
 
   Future<List<dynamic>> _loadAttendanceData(String eventId) async {
     try {
-      final response = await http.get(Uri.parse('$baseUrl/events/$eventId/attendance'));
+      final response = await http.get(Uri.parse('${ApiConfig.eventBaseUrl}/$eventId/attendance'));
       if (response.statusCode == 200) {
         return jsonDecode(response.body);
       }
@@ -110,7 +105,7 @@ class _ViewEventsState extends State<ViewEvents> {
 
   Future<List<dynamic>> _loadUsers() async {
     try {
-      final response = await http.get(Uri.parse('$baseUrl/users'));
+      final response = await http.get(Uri.parse('${ApiConfig.userBaseUrl}'));
       if (response.statusCode == 200) {
         return jsonDecode(response.body);
       }

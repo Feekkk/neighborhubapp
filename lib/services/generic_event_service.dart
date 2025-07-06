@@ -8,6 +8,25 @@ class EventService {
   static final String announcementBaseUrl = ApiConfig.announcementBaseUrl;
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
 
+  Future<List<dynamic>> fetchEvents() async {
+    final token = await _storage.read(key: 'jwt_token');
+    final response = await http.get(
+      Uri.parse(eventBaseUrl),
+      headers: {
+        'Content-Type': 'application/json',
+        if (token != null) 'Authorization': 'Bearer $token',
+      },
+    );
+    
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else if (response.statusCode == 401) {
+      throw Exception('Unauthorized: Please login again');
+    } else {
+      throw Exception('Failed to fetch events: ${response.statusCode}');
+    }
+  }
+
   Future<void> createEvent({
     required String title,
     required String description,
