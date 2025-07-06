@@ -4,6 +4,7 @@ import 'dart:async';
 import '../pages/view_events.dart';
 import '../pages/aboutus.dart';
 import 'emergency_tab.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class HomeTab extends StatefulWidget {
   const HomeTab({super.key});
@@ -275,6 +276,70 @@ class _HomeTabState extends State<HomeTab> {
                           ),
                         ],
                       ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          // Emergency Contacts Card
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 24, 20, 0),
+            child: Container(
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: Colors.red[50],
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.red.withOpacity(0.08),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Row(
+                  children: [
+                    Icon(Icons.local_phone, color: Colors.red[400], size: 32),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: const [
+                          Text(
+                            'Emergency Hotline',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                              color: Colors.red,
+                            ),
+                          ),
+                          SizedBox(height: 4),
+                          Text(
+                            '999 (Malaysia Emergency)',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.black87,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    ElevatedButton.icon(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      icon: const Icon(Icons.call),
+                      label: const Text('Call for Help'),
+                      onPressed: () {
+                        launchUrl(Uri(scheme: 'tel', path: '999'));
+                      },
                     ),
                   ],
                 ),
