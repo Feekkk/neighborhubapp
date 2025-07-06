@@ -85,4 +85,26 @@ class EmergencyReportService {
       throw Exception('Failed to fetch emergency reports: ${response.statusCode}');
     }
   }
+
+  Future<void> resolveEmergency(String reportId) async {
+    final token = await _getAuthToken();
+    if (token == null) {
+      throw Exception('Authentication token not found');
+    }
+
+    final response = await http.patch(
+      Uri.parse('$baseUrl/$reportId/resolve'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({
+        'resolvedAt': DateTime.now().toUtc().toIso8601String(),
+      }),
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception('Failed to resolve emergency: ${response.statusCode}');
+    }
+  }
 } 
