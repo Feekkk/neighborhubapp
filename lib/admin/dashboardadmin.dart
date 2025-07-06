@@ -4,6 +4,8 @@ import 'package:neighborhub/admin/tabs/emergency_tab.dart';
 import 'package:neighborhub/admin/tabs/timetable_tab.dart';
 import 'package:neighborhub/admin/tabs/analytics_tab.dart';
 import 'package:neighborhub/admin/tabs/settings_tab.dart';
+import 'package:neighborhub/services/auth_services.dart';
+import 'package:neighborhub/pages/login_page.dart';
 import 'dart:ui';
 
 class DashboardAdmin extends StatefulWidget {
@@ -192,7 +194,7 @@ class _DashboardAdminState extends State<DashboardAdmin>
                             ),
                           );
                           if (shouldLogout == true) {
-                            //TODO: Sign out
+                            await _logout();
                           }
                         },
                         child: Container(
@@ -287,5 +289,67 @@ class _DashboardAdminState extends State<DashboardAdmin>
       ),
       text: label,
     );
+  }
+
+  Future<void> _logout() async {
+    try {
+      // Show loading indicator
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => const Center(
+          child: CircularProgressIndicator(
+            color: Color(0xFF6C63FF),
+          ),
+        ),
+      );
+
+      // Call logout from auth service
+      final authService = AuthService();
+      await authService.logout();
+
+      // Close loading indicator
+      Navigator.of(context).pop();
+
+      // Navigate to login page and clear navigation stack
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (context) => LoginPage()),
+        (route) => false,
+      );
+
+      // Show success message
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Logged out successfully',
+            style: TextStyle(color: Colors.white),
+          ),
+          backgroundColor: Colors.green,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+          ),
+          margin: EdgeInsets.all(16),
+        ),
+      );
+    } catch (e) {
+      // Close loading indicator
+      Navigator.of(context).pop();
+      
+      // Show error message
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Logout failed: ${e.toString()}',
+            style: const TextStyle(color: Colors.white),
+          ),
+          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+          margin: EdgeInsets.all(16),
+        ),
+      );
+    }
   }
 }
