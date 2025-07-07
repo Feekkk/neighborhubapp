@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'dart:convert';
-import 'package:http/http.dart' as http;
-import 'package:neighborhub/services/api_config.dart';
 import 'package:neighborhub/services/generic_event_service.dart';
 
 class ViewEventsPage extends StatefulWidget {
