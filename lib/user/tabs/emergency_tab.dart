@@ -208,8 +208,6 @@ class _EmergencyTabState extends State<EmergencyTab> {
                           children: [
                             _buildMapTypeOption(context, MapType.normal, 'Normal', Icons.map),
                             _buildMapTypeOption(context, MapType.satellite, 'Satellite', Icons.satellite_alt),
-                            _buildMapTypeOption(context, MapType.terrain, 'Terrain', Icons.terrain),
-                            _buildMapTypeOption(context, MapType.hybrid, 'Hybrid', Icons.layers),
                           ],
                         ),
                       ),

@@ -52,4 +52,21 @@ class AuthService {
     _token = null;
     await _storage.delete(key: 'jwt_token');
   }
+
+  Future<Map<String, dynamic>> changePassword({
+    required String userId,
+    required String currentPassword,
+    required String newPassword,
+  }) async {
+    final response = await http.put(
+      Uri.parse(ApiConfig.changePasswordUrl),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'userId': userId,
+        'currentPassword': currentPassword,
+        'newPassword': newPassword,
+      }),
+    );
+    return jsonDecode(response.body) as Map<String, dynamic>;
+  }
 }

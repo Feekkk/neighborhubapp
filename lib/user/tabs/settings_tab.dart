@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:neighborhub/user/pages/edit_profile.dart';
 import 'package:neighborhub/user/pages/aboutus.dart';
-import 'package:neighborhub/user/pages/forgetpassword.dart';
+import 'package:neighborhub/user/pages/change_password.dart';
 import '../../services/user_service.dart';
 
 class SettingsTab extends StatefulWidget {
@@ -14,9 +14,10 @@ class SettingsTab extends StatefulWidget {
 class _SettingsTabState extends State<SettingsTab> {
   String? _username;
   String? _email;
+  String? _userId;
   bool _isLoading = true;
   final UserService _userService = UserService();
-
+  
   @override
   void initState() {
     super.initState();
@@ -30,6 +31,7 @@ class _SettingsTabState extends State<SettingsTab> {
       if (userId == null) throw Exception('User ID not found');
       final user = await _userService.getUserProfile(userId);
       setState(() {
+        _userId = userId;
         _username = user['username'] ?? '';
         _email = user['email'] ?? '';
         _isLoading = false;
@@ -180,10 +182,16 @@ class _SettingsTabState extends State<SettingsTab> {
                     icon: Icons.lock_outline,
                     title: 'Change Password',
                     onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => const ForgetPasswordPage()),
-                      );
+                      if (_userId != null) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => ChangePasswordPage(userId: _userId!)),
+                        );
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('User ID not loaded. Please try again.')),
+                        );
+                      }
                     },
                   ),
                   _SettingsTile(

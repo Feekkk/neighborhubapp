@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import '../pages/view_annoucement.dart';
 import '../pages/view_events.dart';
 import '../pages/view_user.dart';
+import 'emergency_tab.dart';
 import 'package:neighborhub/services/api_config.dart';
 
 class AnalyticsTab extends StatefulWidget {
@@ -385,11 +386,21 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
               ),
               const SizedBox(width: 16),
               Expanded(
-                child: _buildStatCard(
-                  'Total Reports',
-                  totalReports.toString(),
-                  Icons.report,
-                  Colors.orange,
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const AdminEmergencyTab(),
+                      ),
+                    );
+                  },
+                  child: _buildStatCard(
+                    'Total Reports',
+                    totalReports.toString(),
+                    Icons.report,
+                    Colors.orange,
+                  ),
                 ),
               ),
             ],

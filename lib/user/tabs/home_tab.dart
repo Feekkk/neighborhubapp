@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'dart:async';
 import '../pages/view_events.dart';
 import '../pages/aboutus.dart';
+import '../pages/view_announcement.dart';
 import 'emergency_tab.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -183,7 +184,7 @@ class _HomeTabState extends State<HomeTab> {
                     
                     // Enhanced Quick Actions Grid
                     GridView.count(
-                      crossAxisCount: 4,
+                      crossAxisCount: 3,
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
                       mainAxisSpacing: 20,
@@ -193,7 +194,6 @@ class _HomeTabState extends State<HomeTab> {
                         _EnhancedQuickAction(
                           icon: Icons.report_problem, 
                           label: 'Report Emergency', 
-                          color: const Color(0xFF6C63FF),
                           gradient: const [Color(0xFF6C63FF), Color(0xFF8B7CF6)],
                           onTap: () {
                             Navigator.push(
@@ -205,22 +205,17 @@ class _HomeTabState extends State<HomeTab> {
                         _EnhancedQuickAction(
                           icon: Icons.newspaper, 
                           label: 'Announcements', 
-                          color: const Color(0xFFB06AB3),
                           gradient: const [Color(0xFFB06AB3), Color(0xFFD4A5F5)],
                           onTap: () {
-                            // Navigate to announcements page
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Announcements feature coming soon!'),
-                                backgroundColor: Color(0xFFB06AB3),
-                              ),
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => const ViewAnnouncementPage()),
                             );
                           },
                         ),
                         _EnhancedQuickAction(
                           icon: Icons.event, 
                           label: 'Events', 
-                          color: const Color(0xFF4568DC),
                           gradient: const [Color(0xFF4568DC), Color(0xFF6B8CFF)],
                           onTap: () {
                             Navigator.push(
@@ -232,7 +227,6 @@ class _HomeTabState extends State<HomeTab> {
                         _EnhancedQuickAction(
                           icon: Icons.info_outline, 
                           label: 'About Us', 
-                          color: const Color(0xFFFFD600),
                           gradient: const [Color(0xFFFFD600), Color(0xFFFFE55C)],
                           onTap: () {
                             Navigator.push(
@@ -266,7 +260,7 @@ class _HomeTabState extends State<HomeTab> {
                           const SizedBox(width: 8),
                           Expanded(
                             child: Text(
-                              'Tap any action to get started',
+                              'Quick access to community features',
                               style: TextStyle(
                                 color: const Color(0xFF6C63FF).withOpacity(0.7),
                                 fontSize: 12,
@@ -355,14 +349,12 @@ class _HomeTabState extends State<HomeTab> {
 class _EnhancedQuickAction extends StatefulWidget {
   final IconData icon;
   final String label;
-  final Color color;
   final List<Color> gradient;
   final VoidCallback onTap;
 
   const _EnhancedQuickAction({
     required this.icon,
     required this.label,
-    required this.color,
     required this.gradient,
     required this.onTap,
   });
@@ -374,7 +366,8 @@ class _EnhancedQuickAction extends StatefulWidget {
 class _EnhancedQuickActionState extends State<_EnhancedQuickAction> 
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
-  late Animation<double> _scaleAnimation;
+  Animation<double>? _opacityAnimation;
+  Animation<double>? _elevationAnimation;
   bool _isPressed = false;
 
   @override
@@ -384,9 +377,16 @@ class _EnhancedQuickActionState extends State<_EnhancedQuickAction>
       duration: const Duration(milliseconds: 150),
       vsync: this,
     );
-    _scaleAnimation = Tween<double>(
+    _opacityAnimation = Tween<double>(
       begin: 1.0,
-      end: 0.95,
+      end: 0.8,
+    ).animate(CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeInOut,
+    ));
+    _elevationAnimation = Tween<double>(
+      begin: 12.0,
+      end: 4.0,
     ).animate(CurvedAnimation(
       parent: _animationController,
       curve: Curves.easeInOut,
@@ -416,10 +416,12 @@ class _EnhancedQuickActionState extends State<_EnhancedQuickAction>
         _animationController.reverse();
       },
       child: AnimatedBuilder(
-        animation: _scaleAnimation,
+        animation: _animationController,
         builder: (context, child) {
-          return Transform.scale(
-            scale: _scaleAnimation.value,
+          final opacity = _opacityAnimation?.value ?? 1.0;
+          final elevation = _elevationAnimation?.value ?? 12.0;
+          return Opacity(
+            opacity: opacity,
             child: Container(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
@@ -430,8 +432,8 @@ class _EnhancedQuickActionState extends State<_EnhancedQuickAction>
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
                   BoxShadow(
-                    color: widget.color.withOpacity(0.3),
-                    blurRadius: _isPressed ? 8 : 12,
+                    color: widget.gradient[0].withOpacity(0.3),
+                    blurRadius: elevation,
                     offset: Offset(0, _isPressed ? 2 : 4),
                   ),
                   BoxShadow(
@@ -457,17 +459,19 @@ class _EnhancedQuickActionState extends State<_EnhancedQuickAction>
                     ),
                   ),
                   const SizedBox(height: 8),
-                  Text(
-                    widget.label,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 11,
-                      fontFamily: 'Poppins',
+                  Flexible(
+                    child: Text(
+                      widget.label,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 11,
+                        fontFamily: 'Poppins',
+                      ),
+                      textAlign: TextAlign.center,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    textAlign: TextAlign.center,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
                   ),
                 ],
               ),
