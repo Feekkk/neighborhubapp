@@ -84,13 +84,16 @@ class EmergencyReportService {
     return await _storage.read(key: 'jwt_token');
   }
 
-  Future<List<dynamic>> fetchAllReports() async {
+  Future<List<dynamic>> fetchAllReports({String status = 'OPEN'}) async {
     final token = await _getAuthToken();
     if (token == null) {
       throw Exception('Authentication token not found');
     }
+    final uri = status == 'ALL'
+        ? Uri.parse(baseUrl)
+        : Uri.parse('$baseUrl?status=$status');
     final response = await http.get(
-      Uri.parse('$baseUrl'),
+      uri,
       headers: {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',
@@ -101,8 +104,12 @@ class EmergencyReportService {
     } else if (response.statusCode == 401) {
       throw Exception('Unauthorized: Please login again');
     } else {
-      throw Exception('Failed to fetch emergency reports: ${response.statusCode}');
+      throw Exception('Failed to fetch emergency reports: \\${response.statusCode}');
     }
+  }
+
+  Future<List<dynamic>> fetchAllReportsForPdf() async {
+    return fetchAllReports(status: 'ALL');
   }
 
   Future<void> resolveEmergency(String reportId) async {
@@ -124,6 +131,26 @@ class EmergencyReportService {
 
     if (response.statusCode != 200) {
       throw Exception('Failed to resolve emergency: ${response.statusCode}');
+    }
+  }
+
+  Future<void> updateReportStatus(String reportId, String status) async {
+    final token = await _getAuthToken();
+    if (token == null) {
+      throw Exception('Authentication token not found');
+    }
+    final response = await http.put(
+      Uri.parse('http://192.168.1.120:3000/api/admin/reports/$reportId/status'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({
+        'status': status,
+      }),
+    );
+    if (response.statusCode != 200) {
+      throw Exception('Failed to update report status: ${response.statusCode}');
     }
   }
 } 
