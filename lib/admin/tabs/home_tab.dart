@@ -7,6 +7,7 @@ import '../pages/add_event.dart';
 import '../pages/add_assign.dart';
 import '../dashboardadmin.dart';
 import '../../services/heatmap.dart';
+import '../pages/exp_announcement.dart';
 
 class HomeTab extends StatefulWidget {
   const HomeTab({super.key});
@@ -500,39 +501,103 @@ class _HomeTabState extends State<HomeTab> {
                             ],
                           ),
                         ),
-                        
-                        const SizedBox(height: 16),
-                        
-                        // Stats Preview
-                        Row(
-                          children: [
-                            Expanded(
-                              child: _HeatmapStatCard(
-                                icon: Icons.location_on,
-                                label: 'Hotspots',
-                                value: '12',
-                                color: const Color(0xFFFF6B6B),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          // Expiring Announcement Summary Section - UI Only
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 24, 20, 0),
+            child: Container(
+              width: double.infinity,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [Color(0xFF6C63FF), Color(0xFFB06AB3)],
+                ),
+                borderRadius: BorderRadius.circular(28),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.08),
+                    blurRadius: 20,
+                    offset: const Offset(0, 8),
+                  ),
+                  BoxShadow(
+                    color: Colors.white.withOpacity(0.8),
+                    blurRadius: 1,
+                    offset: const Offset(0, 1),
+                  ),
+                ],
+              ),
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(28),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const ExpAnnouncementPage(),
+                      ),
+                    );
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.15),
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: const Icon(
+                            Icons.announcement_rounded,
+                            color: Colors.white,
+                            size: 28,
+                          ),
+                        ),
+                        const SizedBox(width: 20),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: const [
+                              Text(
+                                'Expiring Announcements',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 20,
+                                  fontFamily: 'Poppins',
+                                ),
                               ),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: _HeatmapStatCard(
-                                icon: Icons.trending_up,
-                                label: 'Reports',
-                                value: '89',
-                                color: const Color(0xFFFF8E53),
+                              SizedBox(height: 4),
+                              Text(
+                                'View summary of announcements expiring soon',
+                                style: TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: 14,
+                                  fontFamily: 'Poppins',
+                                ),
                               ),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: _HeatmapStatCard(
-                                icon: Icons.people,
-                                label: 'Active Users',
-                                value: '156',
-                                color: const Color(0xFF4ECDC4),
-                              ),
-                            ),
-                          ],
+                            ],
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.15),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: const Icon(
+                            Icons.arrow_forward_ios,
+                            color: Colors.white,
+                            size: 16,
+                          ),
                         ),
                       ],
                     ),
