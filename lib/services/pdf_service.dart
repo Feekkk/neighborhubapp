@@ -5,7 +5,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:path_provider/path_provider.dart';
 
 class PdfService {
-  static const String baseUrl = 'http://192.168.1.120:3000/api/reports';
+  static const String baseUrl = 'http://146.190.85.190/api/reports';
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
 
   /// Get stored JWT token for authentication

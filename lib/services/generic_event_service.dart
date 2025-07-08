@@ -77,7 +77,7 @@ class EventService {
 }
 
 class EmergencyReportService {
-  static const String baseUrl = 'http://192.168.1.120:3000/api/reports';
+  static const String baseUrl = 'http://146.190.85.190/api/reports';
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
 
   Future<String?> _getAuthToken() async {
@@ -140,7 +140,7 @@ class EmergencyReportService {
       throw Exception('Authentication token not found');
     }
     final response = await http.put(
-      Uri.parse('http://192.168.1.120:3000/api/admin/reports/$reportId/status'),
+      Uri.parse('http://146.190.85.190/api/admin/reports/$reportId/status'),
       headers: {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',
