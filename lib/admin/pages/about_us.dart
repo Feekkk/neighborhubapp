@@ -27,13 +27,15 @@ class AboutUsPage extends StatelessWidget {
                       width: 100,
                       height: 100,
                       decoration: BoxDecoration(
-                        color: const Color(0xFF6C63FF),
+                        color: Colors.white,
                         borderRadius: BorderRadius.circular(20),
                       ),
-                      child: const Icon(
-                        Icons.people_alt_rounded,
-                        size: 60,
-                        color: Colors.white,
+                      child: Padding(
+                        padding: const EdgeInsets.all(10.0),
+                        child: Image.asset(
+                          'assets/img/NeighborHub.png',
+                          fit: BoxFit.contain,
+                        ),
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -48,10 +50,42 @@ class AboutUsPage extends StatelessWidget {
                     const Text(
                       'Admin Portal',
                       style: TextStyle(
-                        color:  Color(0xFF6C63FF),
+                        color: Color(0xFF6C63FF),
                         fontSize: 18,
                         fontWeight: FontWeight.w500,
                       ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 40),
+
+              // Features Section with background card
+              Center(
+                child: Column(
+                  children: [
+                    const Text(
+                      'Admin Portal Features',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      'All the tools you need to manage your community efficiently.',
+                      style: TextStyle(
+                        color: Colors.white70,
+                        fontSize: 15,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 20),
+                    Container(
+                      constraints: const BoxConstraints(maxWidth: 500),
+                      child: _AdminFeatureGrid(),
                     ),
                   ],
                 ),
@@ -76,14 +110,20 @@ class AboutUsPage extends StatelessWidget {
               const SizedBox(height: 16),
               _buildResponsibilityCard(
                 'User Management',
-                'Handle user accounts with care. Only take necessary actions and maintain proper documentation of all administrative activities.',
+                'Handle user accounts and administrative actions responsibly. Maintain proper documentation of all activities.',
                 Icons.people,
               ),
               const SizedBox(height: 16),
               _buildResponsibilityCard(
                 'System Security',
-                'Maintain system security by using strong passwords and following security best practices. Report any suspicious activities immediately.',
+                'Maintain system security by using strong passwords and following best practices. Report any suspicious activities immediately.',
                 Icons.shield,
+              ),
+              const SizedBox(height: 16),
+              _buildResponsibilityCard(
+                'Ethical Conduct',
+                'Use admin privileges ethically and maintain professional conduct at all times.',
+                Icons.verified_user,
               ),
               const SizedBox(height: 40),
 
@@ -202,6 +242,105 @@ class AboutUsPage extends StatelessWidget {
                 color: Colors.white70,
                 fontSize: 14,
               ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _AdminFeatureGrid extends StatelessWidget {
+  const _AdminFeatureGrid();
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: const [
+        _AdminFeatureCard(
+          icon: Icons.dashboard_customize,
+          title: 'Dashboard',
+          desc: 'Quick overview, greeting, and access to quick actions like reports, guidelines, and event management.',
+        ),
+        SizedBox(height: 18),
+        _AdminFeatureCard(
+          icon: Icons.warning_rounded,
+          title: 'Emergency',
+          desc: 'View, manage, and resolve emergency reports submitted by users.',
+        ),
+        SizedBox(height: 18),
+        _AdminFeatureCard(
+          icon: Icons.calendar_today_rounded,
+          title: 'Timetable',
+          desc: 'Manage community events, user assignments, and announcements.',
+        ),
+        SizedBox(height: 18),
+        _AdminFeatureCard(
+          icon: Icons.analytics_rounded,
+          title: 'Analytics',
+          desc: 'Visualize community data, access charts and analytics for better decision-making.',
+        ),
+        SizedBox(height: 18),
+        _AdminFeatureCard(
+          icon: Icons.settings_rounded,
+          title: 'Settings',
+          desc: 'Manage profile, generate reports, view guidelines, and securely log out.',
+        ),
+      ],
+    );
+  }
+}
+
+class _AdminFeatureCard extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String desc;
+  const _AdminFeatureCard({required this.icon, required this.title, required this.desc});
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 0),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: const Color(0xFF232323),
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.10),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: const Color(0xFF6C63FF).withOpacity(0.15),
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: Icon(icon, color: const Color(0xFF6C63FF), size: 32),
+          ),
+          const SizedBox(width: 18),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 17,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  desc,
+                  style: const TextStyle(color: Colors.white70, fontSize: 14),
+                ),
+              ],
             ),
           ),
         ],
