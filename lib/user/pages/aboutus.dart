@@ -7,193 +7,259 @@ class AboutUsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'About Us',
-          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
-        ),
-        backgroundColor: const Color(0xFF1A1A1A),
+        backgroundColor: Colors.transparent,
         elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
       ),
-      backgroundColor: const Color(0xFF1A1A1A),
+      extendBodyBehindAppBar: true,
+      backgroundColor: const Color(0xFF181A20),
       body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // App Description
-              Center(
-                child: Column(
-                  children: [
-                    Icon(
-                      Icons.verified_user,
-                      color: const Color(0xFF6C63FF),
-                      size: 48,
-                    ),
-                    const SizedBox(height: 10),
-                    Text(
-                      'NeighborHub',
-                      style: TextStyle(
-                        color: const Color(0xFF6C63FF),
-                        fontWeight: FontWeight.bold,
-                        fontSize: 28,
-                        letterSpacing: 1.2,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    const Text(
-                      'Connecting Communities, Empowering Neighbors.',
-                      style: TextStyle(
-                        color: Colors.white70,
-                        fontSize: 16,
-                        fontStyle: FontStyle.italic,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Hero Section
+            Container(
+              padding: const EdgeInsets.only(top: 80, bottom: 48, left: 24, right: 24),
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Color(0xFF6C63FF), Color(0xFF232526)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(32),
+                  bottomRight: Radius.circular(32),
                 ),
               ),
-              const SizedBox(height: 28),
-              // Regulations & Consent
-              _SectionHeader(
-                icon: Icons.privacy_tip,
-                title: 'User Consent & Regulations',
-
-              ),
-              _CardSection(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
-                    Text(
-                      'By using NeighborHub, you agree to:',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                        fontSize: 16,
+              child: Column(
+                children: [
+                  CircleAvatar(
+                    radius: 38,
+                    backgroundColor: Colors.white,
+                    child: Padding(
+                      padding: const EdgeInsets.all(6.0),
+                      child: Image.asset(
+                        'assets/img/NeighborHub.png',
+                        fit: BoxFit.contain,
+                        height: 56,
                       ),
                     ),
-                    SizedBox(height: 8),
-                    _Bullet(
-                      text:
-                          'Your data (profile, location, reports) is stored securely and only used for community features.',
+                  ),
+                  const SizedBox(height: 18),
+                  const Text(
+                    'NeighborHub',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 32,
+                      letterSpacing: 1.2,
                     ),
-                    _Bullet(
-                      text:
-                          'Emergencies and reports are visible to admins for your safety.',
+                  ),
+                  const SizedBox(height: 8),
+                  const Text(
+                    'Connecting Communities, Empowering Neighbors.',
+                    style: TextStyle(
+                      color: Colors.white70,
+                      fontSize: 17,
+                      fontStyle: FontStyle.italic,
                     ),
-                    _Bullet(
-                      text:
-                          'You consent to receive notifications for important community updates.',
-                    ),
-                    _Bullet(
-                      text:
-                          'You agree to use the app respectfully and not misuse emergency features.',
-                    ),
-                  ],
-                ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
               ),
-              const SizedBox(height: 24),
-              // Contribution
-              _SectionHeader(
-                icon: Icons.volunteer_activism,
-                title: 'Contribution',
-                
+            ),
+            const SizedBox(height: 32),
+            // Vision & Mission
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: const [
+                  _SectionHeader(
+                    icon: Icons.visibility,
+                    title: 'Our Vision',
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                    'To foster safer, more connected, and empowered neighborhoods through technology.',
+                    style: TextStyle(color: Colors.white70, fontSize: 16),
+                  ),
+                  SizedBox(height: 24),
+                  _SectionHeader(
+                    icon: Icons.flag,
+                    title: 'Our Mission',
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                    'NeighborHub bridges residents, admins, and emergency services, making it easy to report issues, stay informed, and build a thriving community.',
+                    style: TextStyle(color: Colors.white70, fontSize: 16),
+                  ),
+                ],
               ),
-              _CardSection(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
-                    Text(
-                      'NeighborHub is open for feedback and suggestions! You can contribute by:',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                        fontSize: 16,
-                      ),
-                    ),
-                    SizedBox(height: 8),
-                    _Bullet(text: 'Reporting bugs or issues via the app.'),
-                    _Bullet(text: 'Suggesting new features or improvements.'),
-                    _Bullet(text: 'Sharing the app with your community.'),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 24),
-              // Technologies Used
-              _SectionHeader(icon: Icons.code, title: 'Technologies Used'),
-              _CardSection(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
-                    _TechRow(
-                      icon: Icons.flutter_dash,
-                      name: 'Flutter (UI Framework)',
-                    ),
-                    _TechRow(
-                      icon: Icons.cloud,
-                      name: 'Firebase (Auth, Firestore, Cloud Functions)',
-                    ),
-                    _TechRow(
-                      icon: Icons.map,
-                      name: 'Google Maps (Emergency Location)',
-                    ),
-                    _TechRow(
-                      icon: Icons.notifications,
-                      name: 'Push Notifications',
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 24),
-              // Team Member
-              _SectionHeader(icon: Icons.person, title: 'Team Member'),
-              _CardSection(
-                child: Row(
-                  children: [
-                    const CircleAvatar(
-                      radius: 28,
-                      backgroundImage: NetworkImage(
-                        'https://cdn-icons-png.flaticon.com/512/25/25231.png',
-                      ),
-                      backgroundColor: Colors.white12,
-                    ),
-                    const SizedBox(width: 18),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+            ),
+            const SizedBox(height: 32),
+            // Features Grid
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const _SectionHeader(
+                    icon: Icons.star,
+                    title: 'Key Features',
+                  ),
+                  const SizedBox(height: 16),
+                  Center(
+                    child: Wrap(
+                      alignment: WrapAlignment.center,
+                      spacing: 16,
+                      runSpacing: 16,
                       children: const [
-                        Text(
-                          'Wan Afiq',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18,
+                        SizedBox(
+                          width: 160,
+                          child: _FeatureCard(
+                            icon: Icons.report,
+                            title: 'Incident Reporting',
+                            desc: 'Quickly report emergencies or issues to admins.',
                           ),
                         ),
-                        SizedBox(height: 4),
-                        Text(
-                          'Solo Developer',
-                          style: TextStyle(color: Colors.white70, fontSize: 15),
+                        SizedBox(
+                          width: 160,
+                          child: _FeatureCard(
+                            icon: Icons.notifications_active,
+                            title: 'Instant Alerts',
+                            desc: 'Receive real-time notifications for important updates.',
+                          ),
                         ),
-                        SizedBox(height: 2),
-                        Text(
-                          'Contact: afiqd503@gmail.com',
-                          style: TextStyle(color: Colors.white54, fontSize: 13),
+                        SizedBox(
+                          width: 160,
+                          child: _FeatureCard(
+                            icon: Icons.map,
+                            title: 'Location Services',
+                            desc: 'Share your location for faster emergency response.',
+                          ),
+                        ),
+                        SizedBox(
+                          width: 160,
+                          child: _FeatureCard(
+                            icon: Icons.group,
+                            title: 'Community Events',
+                            desc: 'Stay updated and participate in local events.',
+                          ),
                         ),
                       ],
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-              const SizedBox(height: 32),
-              Center(
-                child: Text(
-                  '© 2025 NeighborHub. All rights reserved.',
-                  style: TextStyle(color: Colors.white24, fontSize: 13),
-                ),
+            ),
+            const SizedBox(height: 32),
+            // Technologies Used
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const _SectionHeader(icon: Icons.code, title: 'Technologies'),
+                  const SizedBox(height: 12),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: const [
+                      _TechIcon(
+                        icon: Icons.flutter_dash,
+                        label: 'Flutter',
+                      ),
+                      _TechIcon(
+                        icon: Icons.cloud,
+                        label: 'Digital Ocean',
+                      ),
+                      _TechIcon(
+                        icon: Icons.map,
+                        label: 'Google Maps',
+                      ),
+                    ],
+                  ),
+                ],
               ),
-            ],
-          ),
+            ),
+            const SizedBox(height: 32),
+            // Contribution
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: const [
+                  _SectionHeader(
+                    icon: Icons.volunteer_activism,
+                    title: 'Contribute & Feedback',
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                    'We welcome your feedback and suggestions! Help us improve by reporting bugs, suggesting features, or sharing NeighborHub with your community.',
+                    style: TextStyle(color: Colors.white70, fontSize: 16),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 32),
+            // Team Member
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const _SectionHeader(icon: Icons.person, title: 'Developer'),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      const CircleAvatar(
+                        radius: 28,
+                        backgroundImage: NetworkImage(
+                          'https://cdn-icons-png.flaticon.com/512/25/25231.png',
+                        ),
+                        backgroundColor: Colors.white12,
+                      ),
+                      const SizedBox(width: 18),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: const [
+                          Text(
+                            'Wan Afiq',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18,
+                            ),
+                          ),
+                          SizedBox(height: 4),
+                          Text(
+                            'Solo Developer',
+                            style: TextStyle(color: Colors.white70, fontSize: 15),
+                          ),
+                          SizedBox(height: 2),
+                          Text(
+                            'Contact: afiqd503@gmail.com',
+                            style: TextStyle(color: Colors.white54, fontSize: 13),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 40),
+            Center(
+              child: Text(
+                '© 2025 NeighborHub. All rights reserved.',
+                style: const TextStyle(color: Colors.white24, fontSize: 13),
+              ),
+            ),
+            const SizedBox(height: 24),
+          ],
         ),
       ),
     );
@@ -223,15 +289,14 @@ class _SectionHeader extends StatelessWidget {
   }
 }
 
-class _CardSection extends StatelessWidget {
-  final Widget child;
-  const _CardSection({required this.child});
+class _FeatureCard extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String desc;
+  const _FeatureCard({required this.icon, required this.title, required this.desc});
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: double.infinity,
-      margin: const EdgeInsets.only(top: 10),
-      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: const Color(0xFF232323),
         borderRadius: BorderRadius.circular(16),
@@ -243,27 +308,26 @@ class _CardSection extends StatelessWidget {
           ),
         ],
       ),
-      child: child,
-    );
-  }
-}
-
-class _Bullet extends StatelessWidget {
-  final String text;
-  const _Bullet({required this.text});
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 6.0),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Text('• ', style: TextStyle(color: Colors.white, fontSize: 16)),
-          Expanded(
-            child: Text(
-              text,
-              style: const TextStyle(color: Colors.white70, fontSize: 15),
+          Icon(icon, color: Color(0xFF6C63FF), size: 32),
+          const SizedBox(height: 12),
+          Text(
+            title,
+            style: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
             ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 6),
+          Text(
+            desc,
+            style: const TextStyle(color: Colors.white70, fontSize: 13),
+            textAlign: TextAlign.center,
           ),
         ],
       ),
@@ -271,21 +335,28 @@ class _Bullet extends StatelessWidget {
   }
 }
 
-class _TechRow extends StatelessWidget {
+class _TechIcon extends StatelessWidget {
   final IconData icon;
-  final String name;
-  const _TechRow({required this.icon, required this.name});
+  final String label;
+  const _TechIcon({required this.icon, required this.label});
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8.0),
-      child: Row(
-        children: [
-          Icon(icon, color: Colors.white, size: 20),
-          const SizedBox(width: 10),
-          Text(name, style: const TextStyle(color: Colors.white, fontSize: 15)),
-        ],
-      ),
+    return Column(
+      children: [
+        Container(
+          decoration: BoxDecoration(
+            color: const Color(0xFF232323),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          padding: const EdgeInsets.all(12),
+          child: Icon(icon, color: Colors.white, size: 28),
+        ),
+        const SizedBox(height: 6),
+        Text(
+          label,
+          style: const TextStyle(color: Colors.white70, fontSize: 13),
+        ),
+      ],
     );
   }
 }
