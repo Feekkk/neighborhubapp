@@ -32,7 +32,11 @@ class _ViewAnnouncementPageState extends State<ViewAnnouncementPage> {
     });
 
     try {
-      final response = await http.get(Uri.parse('$baseUrl/announcements'));
+      print('Loading announcements from: $baseUrl/api/announcements');
+      final response = await http.get(Uri.parse('$baseUrl/api/announcements')).timeout(const Duration(seconds: 10));
+      
+      print('Announcements response status: ${response.statusCode}');
+      print('Announcements response body: ${response.body}');
       
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
@@ -45,7 +49,7 @@ class _ViewAnnouncementPageState extends State<ViewAnnouncementPage> {
           });
         }
       } else {
-        throw Exception('Failed to load announcements: ${response.statusCode}');
+        throw Exception('Failed to load announcements: ${response.statusCode} - ${response.body}');
       }
     } catch (e) {
       print('Error loading announcements: $e');

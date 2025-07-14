@@ -440,7 +440,7 @@ class _EmergencyReportDialogState extends State<EmergencyReportDialog> {
   String _selectedPriority = 'HIGH';
   
   final List<String> _priorities = ['HIGH', 'MEDIUM', 'LOW'];
-  static const String baseUrl = 'http://192.168.1.120:3000/api';
+  static const String baseUrl = 'http://146.190.85.190/api';
 
   @override
   void dispose() {

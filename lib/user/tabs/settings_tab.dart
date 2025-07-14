@@ -3,6 +3,7 @@ import 'package:neighborhub/user/pages/edit_profile.dart';
 import 'package:neighborhub/user/pages/aboutus.dart';
 import 'package:neighborhub/user/pages/change_password.dart';
 import '../../services/user_service.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class SettingsTab extends StatefulWidget {
   const SettingsTab({super.key});
@@ -38,6 +39,87 @@ class _SettingsTabState extends State<SettingsTab> {
       });
     } catch (e) {
       setState(() => _isLoading = false);
+    }
+  }
+
+  void _showLogoutDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: const Color(0xFF1A1A1A),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          title: const Text(
+            'Confirm Logout',
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              fontSize: 18,
+              fontFamily: 'Poppins',
+            ),
+          ),
+          content: const Text(
+            'Are you sure you want to logout?',
+            style: TextStyle(
+              color: Colors.grey,
+              fontSize: 14,
+              fontFamily: 'Poppins',
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text(
+                'Cancel',
+                style: TextStyle(
+                  color: Colors.grey,
+                  fontFamily: 'Poppins',
+                ),
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                _logout();
+              },
+              child: const Text(
+                'Logout',
+                style: TextStyle(
+                  color: Color(0xFF6C63FF),
+                  fontWeight: FontWeight.bold,
+                  fontFamily: 'Poppins',
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _logout() async {
+    try {
+      const storage = FlutterSecureStorage();
+      await storage.deleteAll();
+      
+      if (mounted) {
+        Navigator.pushNamedAndRemoveUntil(
+          context,
+          '/',
+          (route) => false,
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Logout failed: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
@@ -178,22 +260,7 @@ class _SettingsTabState extends State<SettingsTab> {
                       );
                     },
                   ),
-                  _SettingsTile(
-                    icon: Icons.lock_outline,
-                    title: 'Change Password',
-                    onTap: () {
-                      if (_userId != null) {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => ChangePasswordPage(userId: _userId!)),
-                        );
-                      } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('User ID not loaded. Please try again.')),
-                        );
-                      }
-                    },
-                  ),
+        
                   _SettingsTile(
                     icon: Icons.info_outline,
                     title: 'About Us',
@@ -208,6 +275,7 @@ class _SettingsTabState extends State<SettingsTab> {
                     icon: Icons.logout,
                     title: 'Logout',
                     isLast: true,
+                    onTap: () => _showLogoutDialog(context),
                   ),
                 ],
               ),
@@ -236,8 +304,9 @@ class _SettingsTile extends StatelessWidget {
   const _SettingsTile({
     required this.icon,
     required this.title,
+    this.subtitle,
     this.isLast = false,
-    this.onTap, this.subtitle,
+    this.onTap,
   });
 
   @override
@@ -278,4 +347,4 @@ class _SettingsTile extends StatelessWidget {
       ],
     );
   }
-} 
+}

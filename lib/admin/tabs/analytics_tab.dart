@@ -32,7 +32,30 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
   @override
   void initState() {
     super.initState();
+    _testEndpoints();
     _loadData();
+  }
+
+  Future<void> _testEndpoints() async {
+    print('Testing individual endpoints...');
+    
+    final endpoints = [
+      '$baseUrl/api/users',
+      '$baseUrl/api/reports', 
+      '$baseUrl/api/announcements',
+      '$baseUrl/api/events'
+    ];
+    
+    for (String endpoint in endpoints) {
+      try {
+        print('Testing endpoint: $endpoint');
+        final response = await http.get(Uri.parse(endpoint)).timeout(const Duration(seconds: 5));
+        print('$endpoint - Status: ${response.statusCode}');
+        print('$endpoint - Response: ${response.body.length > 200 ? response.body.substring(0, 200) + '...' : response.body}');
+      } catch (e) {
+        print('$endpoint - Error: $e');
+      }
+    }
   }
 
   Future<void> _loadData() async {
@@ -44,36 +67,98 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
     });
 
     try {
+      print('Starting data load...');
+      print('Base URL: $baseUrl');
+      
+      // Add timeout for all requests
+      const timeout = Duration(seconds: 10);
+      
       // Fetch users
-      final usersResponse = await http.get(Uri.parse('$baseUrl/users'));
+      print('Fetching users from: $baseUrl/api/users');
+      final usersResponse = await http.get(Uri.parse('$baseUrl/api/users')).timeout(timeout);
+      print('Users response status: ${usersResponse.statusCode}');
+      print('Users response body: ${usersResponse.body}');
+      
       if (usersResponse.statusCode != 200) {
-        throw Exception('Failed to load users: ${usersResponse.statusCode}');
+        throw Exception('Failed to load users: ${usersResponse.statusCode} - ${usersResponse.body}');
       }
-      final usersSnapshot = jsonDecode(usersResponse.body);
+      
+      dynamic usersSnapshot;
+      try {
+        usersSnapshot = jsonDecode(usersResponse.body);
+      } catch (e) {
+        throw Exception('Invalid JSON response for users: ${usersResponse.body}');
+      }
+      
+      if (usersSnapshot is! List) {
+        throw Exception('Users response is not a list: $usersSnapshot');
+      }
       print('Users data: $usersSnapshot');
 
       // Fetch reports
-      final reportsResponse = await http.get(Uri.parse('$baseUrl/reports'));
+      print('Fetching reports from: $baseUrl/api/reports');
+      final reportsResponse = await http.get(Uri.parse('$baseUrl/api/reports')).timeout(timeout);
+      print('Reports response status: ${reportsResponse.statusCode}');
+      print('Reports response body: ${reportsResponse.body}');
+      
       if (reportsResponse.statusCode != 200) {
-        throw Exception('Failed to load reports: ${reportsResponse.statusCode}');
+        throw Exception('Failed to load reports: ${reportsResponse.statusCode} - ${reportsResponse.body}');
       }
-      final reportsSnapshot = jsonDecode(reportsResponse.body);
+      
+      dynamic reportsSnapshot;
+      try {
+        reportsSnapshot = jsonDecode(reportsResponse.body);
+      } catch (e) {
+        throw Exception('Invalid JSON response for reports: ${reportsResponse.body}');
+      }
+      
+      if (reportsSnapshot is! List) {
+        throw Exception('Reports response is not a list: $reportsSnapshot');
+      }
       print('Reports data: $reportsSnapshot');
 
       // Fetch announcements
-      final announcementsResponse = await http.get(Uri.parse('$baseUrl/announcements'));
+      print('Fetching announcements from: $baseUrl/api/announcements');
+      final announcementsResponse = await http.get(Uri.parse('$baseUrl/api/announcements')).timeout(timeout);
+      print('Announcements response status: ${announcementsResponse.statusCode}');
+      print('Announcements response body: ${announcementsResponse.body}');
+      
       if (announcementsResponse.statusCode != 200) {
-        throw Exception('Failed to load announcements: ${announcementsResponse.statusCode}');
+        throw Exception('Failed to load announcements: ${announcementsResponse.statusCode} - ${announcementsResponse.body}');
       }
-      final announcementsSnapshot = jsonDecode(announcementsResponse.body);
+      
+      dynamic announcementsSnapshot;
+      try {
+        announcementsSnapshot = jsonDecode(announcementsResponse.body);
+      } catch (e) {
+        throw Exception('Invalid JSON response for announcements: ${announcementsResponse.body}');
+      }
+      
+      if (announcementsSnapshot is! List) {
+        throw Exception('Announcements response is not a list: $announcementsSnapshot');
+      }
       print('Announcements data: $announcementsSnapshot');
 
       // Fetch events
-      final eventsResponse = await http.get(Uri.parse('$baseUrl/events'));
+      print('Fetching events from: $baseUrl/api/events');
+      final eventsResponse = await http.get(Uri.parse('$baseUrl/api/events')).timeout(timeout);
+      print('Events response status: ${eventsResponse.statusCode}');
+      print('Events response body: ${eventsResponse.body}');
+      
       if (eventsResponse.statusCode != 200) {
-        throw Exception('Failed to load events: ${eventsResponse.statusCode}');
+        throw Exception('Failed to load events: ${eventsResponse.statusCode} - ${eventsResponse.body}');
       }
-      final eventsSnapshot = jsonDecode(eventsResponse.body);
+      
+      dynamic eventsSnapshot;
+      try {
+        eventsSnapshot = jsonDecode(eventsResponse.body);
+      } catch (e) {
+        throw Exception('Invalid JSON response for events: ${eventsResponse.body}');
+      }
+      
+      if (eventsSnapshot is! List) {
+        throw Exception('Events response is not a list: $eventsSnapshot');
+      }
       print('Events data: $eventsSnapshot');
 
       if (!mounted) return;
@@ -175,19 +260,22 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
 
         print('Final reportData: ${reportData.map((e) => '${e.date}: ${e.count}').toList()}');
         print('Final announcementData: ${announcementData.map((e) => '${e.date}: ${e.count}').toList()}');
-        print('Final eventData: ${eventData.map((e) => '${e.date}: ${e.count}').toList()}');
-
-        isLoading = false;
-      });
-    } catch (e) {
-      print('Error loading analytics data: $e');
-      if (!mounted) return;
-      
-      setState(() {
-        errorMessage = 'Failed to load data: $e';
-        isLoading = false;
-      });
-    }
+        print('Final eventData: ${eventData.map((e) => '${e.date}: ${e.count}').toList()}');      isLoading = false;
+    });
+  } catch (e) {
+    print('Detailed error loading analytics data: $e');
+    print('Error type: ${e.runtimeType}');
+    if (!mounted) return;
+    
+    setState(() {
+      errorMessage = 'Failed to load data: $e';
+      isLoading = false;
+    });
+    
+    // Generate sample data if API fails
+    print('API failed, generating sample data for testing');
+    _generateSampleData();
+  }
   }
 
   void _generateSampleData() {
