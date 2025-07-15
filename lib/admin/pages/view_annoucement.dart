@@ -16,7 +16,6 @@ class _ViewAnnouncementState extends State<ViewAnnouncement> {
   List<dynamic> announcements = [];
   bool isLoading = true;
   String? errorMessage;
-  static const String baseUrl = ApiConfig.baseUrl;
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
 
   @override
@@ -32,7 +31,8 @@ class _ViewAnnouncementState extends State<ViewAnnouncement> {
     });
 
     try {
-      final response = await http.get(Uri.parse('$baseUrl/announcements'));
+      // Use the proper API endpoint from ApiConfig
+      final response = await http.get(Uri.parse(ApiConfig.announcementBaseUrl));
       
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
@@ -58,7 +58,7 @@ class _ViewAnnouncementState extends State<ViewAnnouncement> {
     try {
       final token = await _storage.read(key: 'jwt_token');
       final response = await http.delete(
-        Uri.parse('$baseUrl/announcements/$announcementId'),
+        Uri.parse('${ApiConfig.announcementBaseUrl}/$announcementId'), // Use proper endpoint
         headers: {
           'Content-Type': 'application/json',
           if (token != null) 'Authorization': 'Bearer $token',

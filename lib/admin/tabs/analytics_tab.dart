@@ -474,21 +474,11 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
               ),
               const SizedBox(width: 16),
               Expanded(
-                child: GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const AdminEmergencyTab(),
-                      ),
-                    );
-                  },
-                  child: _buildStatCard(
-                    'Total Reports',
-                    totalReports.toString(),
-                    Icons.report,
-                    Colors.orange,
-                  ),
+                child: _buildStatCard(
+                  'Total Reports',
+                  totalReports.toString(),
+                  Icons.report,
+                  Colors.orange,
                 ),
               ),
             ],
@@ -843,4 +833,4 @@ class EventData {
   final int count;
 
   EventData(this.date, this.count);
-} 
+}

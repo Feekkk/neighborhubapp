@@ -19,8 +19,6 @@ class _ViewUserState extends State<ViewUser> {
   String searchQuery = '';
   String selectedFilter = 'all';
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
-  
-  static final String baseUrl = ApiConfig.baseUrl;
 
   @override
   void initState() {
@@ -41,7 +39,7 @@ class _ViewUserState extends State<ViewUser> {
       }
 
       final response = await http.get(
-        Uri.parse('$baseUrl/users'),
+        Uri.parse(ApiConfig.userBaseUrl), // Use proper API endpoint
         headers: {
           'Authorization': 'Bearer $token',
         },
@@ -75,7 +73,7 @@ class _ViewUserState extends State<ViewUser> {
       }
 
       final response = await http.delete(
-        Uri.parse('$baseUrl/users/$userId'),
+        Uri.parse('${ApiConfig.userBaseUrl}/$userId'), // Use proper API endpoint
         headers: {
           'Authorization': 'Bearer $token',
         },

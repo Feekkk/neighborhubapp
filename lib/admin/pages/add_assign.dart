@@ -103,12 +103,10 @@ class _AddAssignState extends State<AddAssign> {
       };
       
       print('Creating user with data: $requestBody');
-      print('API URL: $baseUrl/users');
-      print('Using admin token: ${token.substring(0, 20)}...');
 
-      // Try the main endpoint first with admin token
+      // Try the user endpoint first (proper API endpoint)
       var response = await http.post(
-        Uri.parse('$baseUrl/users'),
+        Uri.parse('${ApiConfig.userBaseUrl}'), // Use the proper userBaseUrl
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
@@ -119,18 +117,18 @@ class _AddAssignState extends State<AddAssign> {
       print('Response status code: ${response.statusCode}');
       print('Response body: ${response.body}');
 
-      // If the first endpoint fails, try alternative endpoints
+      // If the first endpoint fails, try the auth register endpoint
       if (response.statusCode == 404) {
-        print('Trying alternative endpoint: $baseUrl/auth/register');
+        print('Trying auth register endpoint: ${ApiConfig.authBaseUrl}/register');
         response = await http.post(
-          Uri.parse('$baseUrl/auth/register'),
+          Uri.parse('${ApiConfig.authBaseUrl}/register'), // Use proper authBaseUrl
           headers: {
             'Content-Type': 'application/json',
             'Authorization': 'Bearer $token',
           },
           body: jsonEncode(requestBody),
         );
-        print('Alternative endpoint response: ${response.statusCode} - ${response.body}');
+        print('Auth register response: ${response.statusCode} - ${response.body}');
       }
 
       if (response.statusCode == 201 || response.statusCode == 200) {
@@ -140,16 +138,15 @@ class _AddAssignState extends State<AddAssign> {
         
         // Clear form after successful submission
         _formKey.currentState!.reset();
+        final username = _usernameController.text.trim();
+        final email = _emailController.text.trim();
         _usernameController.clear();
         _emailController.clear();
         _passwordController.clear();
         _confirmPasswordController.clear();
         
-        // Show beautiful success dialog
-        _showSuccessDialog(
-          _usernameController.text.trim(),
-          _emailController.text.trim(),
-        );
+        // Show success dialog
+        _showSuccessDialog(username, email);
       } else {
         String errorMessage = 'Failed to create user (Status: ${response.statusCode})';
         try {
