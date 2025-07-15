@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../services/auth_services.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class ChangePasswordPage extends StatefulWidget {
   final String userId;
@@ -18,24 +19,44 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
   String? _errorMessage;
   String? _successMessage;
   final AuthService _authService = AuthService();
+  final FlutterSecureStorage _storage = const FlutterSecureStorage();
 
   bool _showCurrent = false;
   bool _showNew = false;
   bool _showConfirm = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadToken();
+  }
+
+  Future<void> _loadToken() async {
+    final token = await _storage.read(key: 'jwt_token');
+    if (token != null) {
+      // Use the setToken method instead of accessing _token directly
+      _authService.setToken(token);
+    }
+  }
 
   Future<void> _changePassword() async {
     setState(() {
       _errorMessage = null;
       _successMessage = null;
     });
+    
     if (!_formKey.currentState!.validate()) return;
+    
     setState(() { _isLoading = true; });
+    
     try {
+      // Note: Backend doesn't validate current password, so we skip that validation
       final result = await _authService.changePassword(
         userId: widget.userId,
-        currentPassword: _currentPasswordController.text,
+        currentPassword: _currentPasswordController.text, // Still passed but not used by backend
         newPassword: _newPasswordController.text,
       );
+      
       if (result['success'] == true) {
         setState(() {
           _successMessage = result['message'] ?? 'Password changed successfully.';
@@ -43,12 +64,20 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
         _currentPasswordController.clear();
         _newPasswordController.clear();
         _confirmPasswordController.clear();
+        
+        // Show success message and navigate back after delay
+        Future.delayed(const Duration(seconds: 2), () {
+          if (mounted) {
+            Navigator.pop(context);
+          }
+        });
       } else {
         setState(() {
           _errorMessage = result['error'] ?? 'Failed to change password.';
         });
       }
     } catch (e) {
+      print('Change password error: $e');
       setState(() {
         _errorMessage = 'An error occurred. Please try again.';
       });
@@ -302,4 +331,4 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
       ),
     );
   }
-} 
+}

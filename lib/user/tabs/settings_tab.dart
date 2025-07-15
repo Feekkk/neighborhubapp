@@ -260,7 +260,27 @@ class _SettingsTabState extends State<SettingsTab> {
                       );
                     },
                   ),
-        
+                  _SettingsTile(
+                    icon: Icons.lock,
+                    title: 'Change Password',
+                    onTap: () {
+                      if (_userId != null) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ChangePasswordPage(userId: _userId!),
+                          ),
+                        );
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('User ID not found. Please log in again.'),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
+                      }
+                    },
+                  ),
                   _SettingsTile(
                     icon: Icons.info_outline,
                     title: 'About Us',

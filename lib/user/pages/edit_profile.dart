@@ -245,7 +245,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                 children: [
                                   CircleAvatar(
                                     radius: 56,
-                                    backgroundImage: const NetworkImage('https://i.imgur.com/BoN9kdC.png'),
+                                    backgroundImage: const NetworkImage('https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/340px-Default_pfp.svg.png?20220226140232'),
                                     backgroundColor: Colors.black,
                                   ),
                                   Positioned(
