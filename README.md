@@ -33,10 +33,6 @@ NeighborHub is a cross-platform Flutter application designed to help communities
   - Responsive layouts  
   - Custom widgets and themes
 
-## Screenshots
-
-> _Add screenshots of the main screens here (e.g., user dashboard, admin panel, etc.)_
-
 ## Getting Started
 
 To get started with NeighborHub, ensure you have [Flutter](https://docs.flutter.dev/get-started/install) installed.
