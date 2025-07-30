@@ -33,6 +33,10 @@ NeighborHub is a cross-platform Flutter application designed to help communities
   - Responsive layouts  
   - Custom widgets and themes
 
+## Screenshots
+
+> _Add screenshots of the main screens here (e.g., user dashboard, admin panel, etc.)_
+
 ## Getting Started
 
 To get started with NeighborHub, ensure you have [Flutter](https://docs.flutter.dev/get-started/install) installed.
@@ -49,3 +53,45 @@ To get started with NeighborHub, ensure you have [Flutter](https://docs.flutter.
    ```sh
    git clone https://github.com/yourusername/neighborhub.git
    cd neighborhub
+
+2. **Install dependencies:**
+   ```sh
+   flutter pub get
+
+3. **Run the app:**
+   ```sh
+   flutter run
+
+## Project Structure
+neighborhub/
+├── lib/
+│   ├── admin/         # Admin portal pages and services
+│   ├── user/          # User portal pages and tabs
+│   ├── utils/         # Utility functions
+│   ├── widgets/       # Reusable widgets
+│   └── main.dart      # App entry point
+├── assets/            # Images and static assets
+├── android/           # Android platform files
+├── ios/               # iOS platform files
+├── linux/             # Linux platform files
+├── macos/             # macOS platform files
+├── windows/           # Windows platform files
+├── web/               # Web platform files
+├── test/              # Unit and widget tests
+├── pubspec.yaml       # Flutter dependencies
+└── README.md          # Project documentation
+
+## Contributing
+Contributions are welcome! Please open issues or submit pull requests for improvements and bug fixes.
+
+- Fork the repository
+- Create your feature branch (git checkout -b feature/AmazingFeature)
+- Commit your changes (git commit -m 'Add some AmazingFeature')
+- Push to the branch (git push origin feature/AmazingFeature)
+- Open a pull request
+
+### License
+This project is licensed under the MIT License. See the LICENSE file for details.
+
+## Contact
+- Developer: Feekkk
